@@ -65,25 +65,6 @@ fn combine_ca_bundle(system: &[u8], user: &[Bytes]) -> Vec<u8> {
     combined
 }
 
-/// Whether the combined blob has anchors to set. The host store comes back
-/// empty only where its policy denies every root, the bundled ones included,
-/// and curl's own trust configuration would trust the roots that policy
-/// denies, so an empty blob fails the request unless it turned peer
-/// verification off, where no anchor is consulted.
-fn has_anchors(combined: &[u8], verify_peer: bool) -> Result<bool> {
-    if !combined.is_empty() {
-        return Ok(true);
-    }
-    if !verify_peer {
-        return Ok(false);
-    }
-    tracing::error!("Host trust policy denies every root certificate");
-    Err(RelayError::Certificate {
-        message: "The host trust policy denies every root certificate".into(),
-        cause: None,
-    })
-}
-
 pub(crate) struct SecurityHandler<'a> {
     handle: &'a mut Easy,
 }
@@ -97,7 +78,7 @@ impl<'a> SecurityHandler<'a> {
     /// Sets the host anchors with no user CA, for a request that sends no
     /// security settings of its own.
     pub(crate) fn configure_host_trust(&mut self) -> Result<()> {
-        self.configure_ca_certificates(&[], true)
+        self.configure_ca_certificates(&[])
     }
 
     pub(crate) fn configure(&mut self, security: &SecurityConfig) -> Result<()> {
@@ -137,7 +118,7 @@ impl<'a> SecurityHandler<'a> {
             .as_ref()
             .and_then(|certs| certs.ca.as_deref())
             .unwrap_or(&[]);
-        self.configure_ca_certificates(user_cas, security.verify_peer.unwrap_or(true))?;
+        self.configure_ca_certificates(user_cas)?;
 
         tracing::debug!("Security configuration complete");
         Ok(())
@@ -245,7 +226,7 @@ impl<'a> SecurityHandler<'a> {
         }
     }
 
-    fn configure_ca_certificates(&mut self, ca_certs: &[Bytes], verify_peer: bool) -> Result<()> {
+    fn configure_ca_certificates(&mut self, ca_certs: &[Bytes]) -> Result<()> {
         // Checked before the concatenation, since OpenSSL skips an entry that
         // is not PEM without reporting it, and the user who pasted that entry
         // would see only a handshake failure.
@@ -259,10 +240,15 @@ impl<'a> SecurityHandler<'a> {
             }
         }
 
+        // The host store comes back empty only where its policy denies every
+        // root, the bundled ones included, and the empty blob is still set,
+        // ∵ curl's own trust configuration would trust the roots that policy
+        // denies. libcurl fails a TLS connection that verifies the peer on a
+        // blob with no certificate, and a plain HTTP request or one that
+        // turned verification off never reads the blob.
         let combined = combine_ca_bundle(system_ca_bundle(), ca_certs);
-        if !has_anchors(&combined, verify_peer)? {
-            tracing::debug!("No CA anchors resolved and peer verification is off");
-            return Ok(());
+        if combined.is_empty() {
+            tracing::warn!("Host trust policy denies every root, verified TLS connections fail");
         }
 
         if !ca_certs.is_empty() {
@@ -297,7 +283,7 @@ impl<'a> SecurityHandler<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::{combine_ca_bundle, has_anchors, SecurityHandler};
+    use super::{combine_ca_bundle, SecurityHandler};
     use crate::interop::{CertificateConfig, SecurityConfig};
     use bytes::Bytes;
     use curl::easy::Easy;
@@ -447,7 +433,7 @@ mod tests {
             Bytes::from_static(b"not a certificate"),
         ];
         let error = SecurityHandler::new(&mut handle)
-            .configure_ca_certificates(&certs, true)
+            .configure_ca_certificates(&certs)
             .expect_err("an unparseable entry is an error");
         assert!(
             format!("{error:?}").contains("index 1"),
@@ -455,23 +441,62 @@ mod tests {
         );
     }
 
-    #[test]
-    fn an_empty_blob_fails_a_verified_request() {
-        let error = has_anchors(b"", true).expect_err("an empty blob is an error");
-        assert!(
-            format!("{error:?}").contains("denies every root"),
-            "the error names the policy, got {error:?}"
-        );
+    // Accepts one connection and answers it with `reply`, or holds it open
+    // with no answer, which leaves curl at its TLS setup, where libcurl reads
+    // the CA blob.
+    fn serve_once(reply: Option<&'static [u8]>) -> u16 {
+        use std::io::{Read, Write};
+
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").expect("bind");
+        let port = listener.local_addr().expect("local addr").port();
+        std::thread::spawn(move || {
+            let Ok((mut stream, _)) = listener.accept() else {
+                return;
+            };
+            match reply {
+                Some(reply) => {
+                    let mut request = [0u8; 1024];
+                    let _ = stream.read(&mut request);
+                    let _ = stream.write_all(reply);
+                }
+                None => std::thread::sleep(std::time::Duration::from_secs(5)),
+            }
+        });
+        port
     }
 
     #[test]
-    fn an_empty_blob_is_left_unset_where_verification_is_off() {
-        assert!(!has_anchors(b"", false).expect("no error without verification"));
+    fn an_empty_blob_fails_a_verified_tls_connection() {
+        let port = serve_once(None);
+        let mut handle = Easy::new();
+        handle
+            .url(&format!("https://127.0.0.1:{port}/"))
+            .expect("url");
+        handle
+            .timeout(std::time::Duration::from_secs(5))
+            .expect("timeout");
+        handle.ssl_cainfo_blob(b"").expect("blob");
+
+        let error = handle.perform().expect_err("no anchor verifies the peer");
+        assert!(error.is_ssl_cacert_badfile(), "got {error:?}");
     }
 
     #[test]
-    fn a_blob_with_anchors_is_set() {
-        let blob = combine_ca_bundle(b"", &[cert("anchor")]);
-        assert!(has_anchors(&blob, true).expect("anchors present"));
+    fn an_empty_blob_leaves_a_plain_http_request_alone() {
+        let port = serve_once(Some(
+            b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
+        ));
+        let mut handle = Easy::new();
+        handle
+            .url(&format!("http://127.0.0.1:{port}/"))
+            .expect("url");
+        handle
+            .timeout(std::time::Duration::from_secs(5))
+            .expect("timeout");
+        handle.ssl_cainfo_blob(b"").expect("blob");
+        handle.write_function(|data| Ok(data.len())).expect("sink");
+
+        handle.perform().expect("plain HTTP reads no CA blob");
+        assert_eq!(handle.response_code().expect("response code"), 200);
     }
 }

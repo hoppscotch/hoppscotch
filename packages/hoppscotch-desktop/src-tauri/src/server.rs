@@ -1,4 +1,6 @@
-use std::net::SocketAddr;
+use std::io::{self, ErrorKind};
+use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr, TcpListener};
+use std::ops::RangeInclusive;
 
 use axum::{
     extract::Query,
@@ -40,6 +42,28 @@ async fn device_token<R: Runtime>(
         ),
     }
     StatusCode::OK.into_response()
+}
+
+/// Finds the first port in `range` that the server can bind on `127.0.0.1`
+/// and that no other process listens on at `::1`.
+///
+/// Login pages from earlier releases send the device token to `localhost`,
+/// which a browser can resolve to `::1` first, so a port taken on `::1`
+/// would send the token to that listener. A bind on `::1` failing with
+/// anything but `AddrInUse` means the host has no IPv6 loopback, as on a
+/// kernel booted with `ipv6.disable=1`, and the port counts as free there.
+pub(crate) fn pick_port(range: RangeInclusive<u16>) -> Option<u16> {
+    range.into_iter().find(|&port| {
+        TcpListener::bind((Ipv4Addr::LOCALHOST, port)).is_ok()
+            && is_free_on_ipv6_loopback(TcpListener::bind((Ipv6Addr::LOCALHOST, port)))
+    })
+}
+
+fn is_free_on_ipv6_loopback(bind: io::Result<TcpListener>) -> bool {
+    match bind {
+        Ok(_) => true,
+        Err(e) => e.kind() != ErrorKind::AddrInUse,
+    }
 }
 
 pub(crate) fn init<R: Runtime>(port: u16, handle: tauri::AppHandle<R>) -> u16 {
@@ -151,5 +175,47 @@ mod tests {
 
         assert_eq!(query.access_token, "abc123");
         assert_eq!(query.refresh_token, None);
+    }
+
+    #[test]
+    fn test_pick_port_returns_a_free_port() {
+        let port = TcpListener::bind((Ipv4Addr::LOCALHOST, 0))
+            .unwrap()
+            .local_addr()
+            .unwrap()
+            .port();
+
+        assert_eq!(pick_port(port..=port), Some(port));
+    }
+
+    #[test]
+    fn test_pick_port_skips_port_taken_on_ipv4_loopback() {
+        let taken = TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).unwrap();
+        let port = taken.local_addr().unwrap().port();
+
+        assert_eq!(pick_port(port..=port), None);
+    }
+
+    #[test]
+    fn test_pick_port_skips_port_taken_on_ipv6_loopback() {
+        let Ok(taken) = TcpListener::bind((Ipv6Addr::LOCALHOST, 0)) else {
+            return;
+        };
+        let port = taken.local_addr().unwrap().port();
+
+        assert_eq!(pick_port(port..=port), None);
+    }
+
+    #[test]
+    fn test_ipv6_loopback_counts_as_free_unless_in_use() {
+        assert!(is_free_on_ipv6_loopback(Err(io::Error::from(
+            ErrorKind::AddrNotAvailable
+        ))));
+        assert!(is_free_on_ipv6_loopback(Err(io::Error::other(
+            "address family not supported by protocol"
+        ))));
+        assert!(!is_free_on_ipv6_loopback(Err(io::Error::from(
+            ErrorKind::AddrInUse
+        ))));
     }
 }

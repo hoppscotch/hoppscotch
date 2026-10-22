@@ -65,6 +65,25 @@ fn combine_ca_bundle(system: &[u8], user: &[Bytes]) -> Vec<u8> {
     combined
 }
 
+/// Whether the combined blob has anchors to set. The host store comes back
+/// empty only where its policy denies every root, the bundled ones included,
+/// and curl's own trust configuration would trust the roots that policy
+/// denies, so an empty blob fails the request unless it turned peer
+/// verification off, where no anchor is consulted.
+fn has_anchors(combined: &[u8], verify_peer: bool) -> Result<bool> {
+    if !combined.is_empty() {
+        return Ok(true);
+    }
+    if !verify_peer {
+        return Ok(false);
+    }
+    tracing::error!("Host trust policy denies every root certificate");
+    Err(RelayError::Certificate {
+        message: "The host trust policy denies every root certificate".into(),
+        cause: None,
+    })
+}
+
 pub(crate) struct SecurityHandler<'a> {
     handle: &'a mut Easy,
 }
@@ -78,7 +97,7 @@ impl<'a> SecurityHandler<'a> {
     /// Sets the host anchors with no user CA, for a request that sends no
     /// security settings of its own.
     pub(crate) fn configure_host_trust(&mut self) -> Result<()> {
-        self.configure_ca_certificates(&[])
+        self.configure_ca_certificates(&[], true)
     }
 
     pub(crate) fn configure(&mut self, security: &SecurityConfig) -> Result<()> {
@@ -118,7 +137,7 @@ impl<'a> SecurityHandler<'a> {
             .as_ref()
             .and_then(|certs| certs.ca.as_deref())
             .unwrap_or(&[]);
-        self.configure_ca_certificates(user_cas)?;
+        self.configure_ca_certificates(user_cas, security.verify_peer.unwrap_or(true))?;
 
         tracing::debug!("Security configuration complete");
         Ok(())
@@ -226,7 +245,7 @@ impl<'a> SecurityHandler<'a> {
         }
     }
 
-    fn configure_ca_certificates(&mut self, ca_certs: &[Bytes]) -> Result<()> {
+    fn configure_ca_certificates(&mut self, ca_certs: &[Bytes], verify_peer: bool) -> Result<()> {
         // Checked before the concatenation, since OpenSSL skips an entry that
         // is not PEM without reporting it, and the user who pasted that entry
         // would see only a handshake failure.
@@ -241,8 +260,8 @@ impl<'a> SecurityHandler<'a> {
         }
 
         let combined = combine_ca_bundle(system_ca_bundle(), ca_certs);
-        if combined.is_empty() {
-            tracing::debug!("No CA anchors resolved, leaving curl's own trust configuration");
+        if !has_anchors(&combined, verify_peer)? {
+            tracing::debug!("No CA anchors resolved and peer verification is off");
             return Ok(());
         }
 
@@ -278,7 +297,7 @@ impl<'a> SecurityHandler<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::{combine_ca_bundle, SecurityHandler};
+    use super::{combine_ca_bundle, has_anchors, SecurityHandler};
     use crate::interop::{CertificateConfig, SecurityConfig};
     use bytes::Bytes;
     use curl::easy::Easy;
@@ -428,11 +447,31 @@ mod tests {
             Bytes::from_static(b"not a certificate"),
         ];
         let error = SecurityHandler::new(&mut handle)
-            .configure_ca_certificates(&certs)
+            .configure_ca_certificates(&certs, true)
             .expect_err("an unparseable entry is an error");
         assert!(
             format!("{error:?}").contains("index 1"),
             "the error names the offending entry, got {error:?}"
         );
+    }
+
+    #[test]
+    fn an_empty_blob_fails_a_verified_request() {
+        let error = has_anchors(b"", true).expect_err("an empty blob is an error");
+        assert!(
+            format!("{error:?}").contains("denies every root"),
+            "the error names the policy, got {error:?}"
+        );
+    }
+
+    #[test]
+    fn an_empty_blob_is_left_unset_where_verification_is_off() {
+        assert!(!has_anchors(b"", false).expect("no error without verification"));
+    }
+
+    #[test]
+    fn a_blob_with_anchors_is_set() {
+        let blob = combine_ca_bundle(b"", &[cert("anchor")]);
+        assert!(has_anchors(&blob, true).expect("anchors present"));
     }
 }

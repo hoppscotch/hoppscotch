@@ -74,15 +74,17 @@ pub(crate) struct TrustBundle {
     pub(crate) retained: usize,
 }
 
-/// Returns the host store when it can be read and the `curl-sys` bundle when
-/// the read returns no anchors, since a blob written into `CURLOPT_CAINFO_BLOB`
-/// replaces whatever curl set from its own probe, and an empty blob would
-/// remove the public roots curl had already set on the handle.
+/// Returns the host store, and the `curl-sys` bundle where no host store could
+/// be read. A read that resolves no anchors is returned empty, ∵ the macOS and
+/// Windows readers already extend a short read with the bundled roots minus
+/// every root the host denies, so an empty result is a host whose policy
+/// denies every root, and the full bundle would trust the roots it denies.
 pub(crate) fn load() -> TrustBundle {
-    match read_platform() {
-        Some(bundle) if !parse_lenient(&bundle.pem).is_empty() => bundle,
-        _ => bundled(),
-    }
+    or_bundled(read_platform())
+}
+
+fn or_bundled(read: Option<TrustBundle>) -> TrustBundle {
+    read.unwrap_or_else(bundled)
 }
 
 /// Certificates OpenSSL can parse out of a PEM blob, block by block, since
@@ -766,11 +768,10 @@ fn read_platform() -> Option<TrustBundle> {
     bundled.retain(|der| !revoked.contains(der) && !restricted.contains(der));
     roots.extend(bundled);
 
+    // An empty set is returned as it is, ∵ the bundled roots above are already
+    // filtered by every revocation and restriction read, so nothing left means
+    // the host denies every root and `load` keeps the full bundle out.
     let ders = dedup_exact(roots);
-    if ders.is_empty() {
-        return None;
-    }
-
     let (pem, retained) = pem_encode(&ders);
     Some(TrustBundle {
         // The host roots were dropped where a revocation store would not read,
@@ -1173,5 +1174,23 @@ mod tests {
         assert!(bundle.retained > 100, "bundled anchors: {}", bundle.retained);
         assert!(!parse_lenient(&bundle.pem).is_empty());
     }
-}
 
+    #[test]
+    fn an_unread_host_store_takes_the_bundled_roots() {
+        let bundle = or_bundled(None);
+        assert_eq!(bundle.source, TrustSource::Bundled);
+        assert!(bundle.retained > 100, "bundled anchors: {}", bundle.retained);
+    }
+
+    #[test]
+    fn a_host_read_that_denies_every_root_stays_empty() {
+        let bundle = or_bundled(Some(TrustBundle {
+            source: TrustSource::MacosKeychain,
+            pem: Vec::new(),
+            read: 3,
+            retained: 0,
+        }));
+        assert_eq!(bundle.source, TrustSource::MacosKeychain);
+        assert!(bundle.pem.is_empty());
+    }
+}

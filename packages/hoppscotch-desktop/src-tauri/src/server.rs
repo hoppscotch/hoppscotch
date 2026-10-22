@@ -69,7 +69,7 @@ pub(crate) fn bind_listener(range: RangeInclusive<u16>) -> Option<TcpListener> {
 }
 
 /// Any other error, `AddrInUse` and the `PermissionDenied` Windows returns
-/// for a port held with `SO_EXCLUSIVEADDRUSE` among them, counts as taken.
+/// for a port bound with `SO_EXCLUSIVEADDRUSE` among them, counts as taken.
 fn is_free_on_ipv6_loopback(bind: io::Result<TcpListener>) -> bool {
     match bind {
         Ok(_) => true,

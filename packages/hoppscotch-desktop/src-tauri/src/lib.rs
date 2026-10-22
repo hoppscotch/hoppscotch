@@ -61,10 +61,7 @@ fn setup_deep_link_handler(app: &tauri::App) -> Result<(), HoppError> {
 fn setup_server(app: &tauri::App) -> Result<u16, HoppError> {
     let listener =
         server::bind_listener(15000..=25000).ok_or(HoppError::ServerPortInitialization)?;
-    let server_port = listener
-        .local_addr()
-        .map_err(|_| HoppError::ServerPortInitialization)?
-        .port();
+    let server_port = listener.local_addr()?.port();
 
     tracing::info!("Selected server port: {}", server_port);
     SERVER_PORT
@@ -76,8 +73,7 @@ fn setup_server(app: &tauri::App) -> Result<u16, HoppError> {
         .ok_or(HoppError::ServerPortInitialization)?;
     tracing::info!(port = port, "Initializing server with pre-selected port");
 
-    let port = server::init(listener, app.handle().clone())
-        .map_err(|_| HoppError::ServerPortInitialization)?;
+    let port = server::init(listener, app.handle().clone())?;
     tracing::info!(port = port, "Server initialization complete");
 
     Ok(port)

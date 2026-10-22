@@ -8,7 +8,7 @@ A HTTP request-response relay used by Hoppscotch Desktop and Hoppscotch Agent fo
 <div align="center">
 
 ![GitHub License MIT](https://img.shields.io/github/license/CuriousCorrelation/relay)
-[![Rust](https://img.shields.io/badge/Rust-1.77.2+-orange)](https://www.rust-lang.org)
+[![Rust](https://img.shields.io/badge/Rust-1.85+-orange)](https://www.rust-lang.org)
 
 </div>
 
@@ -113,7 +113,7 @@ and the three location constants that exist only as unshifted identifiers.
 
 ## Requirements
 
-- Rust 1.77.2 or later
+- Rust 1.85 or later
 - OpenSSL development libraries
 - libcurl with SSL and HTTP/2.0 support
 

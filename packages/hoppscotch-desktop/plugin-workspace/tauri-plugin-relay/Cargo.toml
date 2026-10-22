@@ -13,7 +13,7 @@ tauri = { version = "2.11.3" }
 serde = "1.0"
 thiserror = "2"
 tracing = "0.1.41"
-relay = { git = "https://github.com/CuriousCorrelation/relay.git", rev = "afe877bec547b62842bf952c8b276e0ce9bba911" }
+relay = { git = "https://github.com/CuriousCorrelation/relay.git", rev = "b99a75e30b5649954e1828ef93c982082e3243c3" }
 
 [build-dependencies]
 tauri-plugin = { version = "2.6.3", features = ["build"] }

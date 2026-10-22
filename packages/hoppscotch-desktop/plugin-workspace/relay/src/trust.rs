@@ -103,9 +103,7 @@ fn parse_lenient(pem: &[u8]) -> Vec<Vec<u8>> {
         // truncated one this scan is here to survive.
         let next = find(block, PEM_HEADER);
         let end = match find(block, PEM_FOOTER) {
-            // `Option::is_none_or` would read better and is stable only from
-            // Rust 1.82, past the 1.77.2 the README states.
-            Some(e) if !matches!(next, Some(n) if n <= e) => e + PEM_FOOTER.len(),
+            Some(e) if next.is_none_or(|n| n > e) => e + PEM_FOOTER.len(),
             _ => {
                 rest = match next {
                     Some(n) => &block[n..],

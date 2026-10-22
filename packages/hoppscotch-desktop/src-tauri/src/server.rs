@@ -89,6 +89,15 @@ pub(crate) fn init<R: Runtime>(
     let addr = listener.local_addr()?;
     let port = addr.port();
     listener.set_nonblocking(true)?;
+    // `from_std` registers the socket with the reactor of the runtime it is
+    // called under, so it runs here under the runtime that serves it, and a
+    // failure returns from `init` before startup reports a port.
+    let listener = {
+        let runtime = tauri::async_runtime::handle();
+        let _guard = runtime.inner().enter();
+        tokio::net::TcpListener::from_std(listener)?
+    };
+    tracing::info!(local_addr = %addr, "Server bound successfully");
 
     let app = Router::new()
         .route(
@@ -103,22 +112,6 @@ pub(crate) fn init<R: Runtime>(
             port = port,
             "Starting HTTP server"
         );
-
-        let listener = match tokio::net::TcpListener::from_std(listener) {
-            Ok(l) => {
-                tracing::info!(local_addr = %addr, "Server bound successfully");
-                l
-            }
-            Err(e) => {
-                tracing::error!(
-                    error.message = %e,
-                    error.kind = ?e.kind(),
-                    attempted_address = %addr,
-                    "Server listener registration failed"
-                );
-                return;
-            }
-        };
 
         tracing::info!("Server starting");
         if let Err(e) = axum::serve(listener, app).await {

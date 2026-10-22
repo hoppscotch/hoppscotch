@@ -71,7 +71,7 @@ vi.mock("~/helpers/backend/GQLClient", async (orig) => {
 import { useChatContext } from "~/composables/chat-context"
 import { WorkspaceService } from "~/services/workspace.service"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
-import { TeamAccessRole } from "~/helpers/backend/graphql"
+import { TeamAccessRole } from "~/services/workspace.service"
 import { defineActionHandler } from "~/helpers/actions"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { getDefaultGQLRequest } from "~/helpers/graphql/default"

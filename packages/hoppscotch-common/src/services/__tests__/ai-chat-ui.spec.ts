@@ -68,7 +68,7 @@ import { WorkspaceService } from "~/services/workspace.service"
 import { defineActionHandler } from "~/helpers/actions"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
 import { applySetting } from "~/newstore/settings"
-import { TeamAccessRole } from "~/helpers/backend/graphql"
+import { TeamAccessRole } from "~/services/workspace.service"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import {
   useAIExperimentsSupport,

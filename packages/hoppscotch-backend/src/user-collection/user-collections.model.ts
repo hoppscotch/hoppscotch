@@ -32,12 +32,12 @@ export class UserCollection {
 
 @ObjectType()
 export class UserCollectionReorderData {
-  @Field({
+  @Field(() => UserCollection, {
     description: 'User Collection being moved',
   })
   userCollection: UserCollection;
 
-  @Field({
+  @Field(() => UserCollection, {
     description:
       'User Collection succeeding the collection being moved in its new position',
     nullable: true,

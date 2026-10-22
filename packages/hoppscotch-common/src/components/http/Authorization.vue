@@ -169,7 +169,11 @@
           <HttpAuthorizationDigest v-model="auth" :envs="envs" />
         </div>
         <div v-if="auth.authType === 'jwt'">
-          <HttpAuthorizationJWT v-model="auth" :envs="envs" />
+          <HttpAuthorizationJWT
+            v-model="auth"
+            :envs="envs"
+            :scoped-envs="scopedEnvs"
+          />
         </div>
       </div>
       <div
@@ -226,11 +230,13 @@ const props = withDefaults(
     isRootCollection?: boolean
     inheritedProperties?: HoppInheritedProperty
     envs?: AggregateEnvironment[]
+    scopedEnvs?: AggregateEnvironment[]
     source?: "REST" | "GraphQL"
   }>(),
   {
     source: "REST",
     envs: undefined,
+    scopedEnvs: undefined,
     inheritedProperties: undefined,
   }
 )
@@ -389,8 +395,7 @@ function selectOAuth2AuthType() {
 
   // @ts-expect-error - the existing grantTypeInfo might be in the auth object, typescript doesnt know that
   const existingGrantTypeInfo = auth.value.grantTypeInfo as
-    | HoppRESTAuthOAuth2["grantTypeInfo"]
-    | undefined
+    HoppRESTAuthOAuth2["grantTypeInfo"] | undefined
 
   const grantTypeInfo = existingGrantTypeInfo
     ? existingGrantTypeInfo

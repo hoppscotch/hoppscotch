@@ -165,32 +165,17 @@ const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
 
 const workspace = workspaceService.currentWorkspace
 
-// Switch to my environments if workspace is personal and to team environments if workspace is team
-// also resets selected environment if workspace is personal and the previous selected environment was a team environment
+// Switch to my environments if workspace is personal and to team
+// environments if workspace is team. Resetting a stale team-env selection
+// is handled by WorkspaceService.changeWorkspace — the single funnel every
+// workspace switch goes through, mounted or not.
 watch(
   workspace,
   (newWorkspace) => {
-    const { type: newWorkspaceType } = newWorkspace
-
-    if (newWorkspaceType === "personal") {
+    if (newWorkspace.type === "personal") {
       switchToMyEnvironments()
     } else {
       updateSelectedTeam(newWorkspace)
-    }
-
-    const newTeamID =
-      newWorkspaceType === "team" ? newWorkspace.teamID : undefined
-
-    // Set active environment to the `No environment` state
-    // if navigating away from a team workspace
-    if (
-      selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
-      newTeamID &&
-      selectedEnvironmentIndex.value.teamID !== newTeamID
-    ) {
-      setSelectedEnvironmentIndex({
-        type: "NO_ENV_SELECTED",
-      })
     }
   },
   { immediate: true }

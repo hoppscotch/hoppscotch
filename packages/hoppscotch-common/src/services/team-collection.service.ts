@@ -1,6 +1,6 @@
 import * as E from "fp-ts/Either"
 import { Subscription } from "rxjs"
-import { HoppCollectionVariable, translateToNewRequest } from "@hoppscotch/data"
+import { HoppCollectionVariable } from "@hoppscotch/data"
 import { pull, remove } from "lodash-es"
 import { Subscription as WSubscription } from "wonka"
 import {
@@ -23,7 +23,10 @@ import {
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
-import { TeamRequest } from "~/helpers/teams/TeamRequest"
+import {
+  TeamRequest,
+  normalizeTeamRequestBody,
+} from "~/helpers/teams/TeamRequest"
 import { runGQLQuery, runGQLSubscription } from "~/helpers/backend/GQLClient"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { ref, watch } from "vue"
@@ -531,10 +534,12 @@ export class TeamCollectionsService extends Service<void> {
     // Collection is not expanded
     if (!collection.requests) return
 
+    // `currentRequest` was already normalized by the subscription handler
+    // (`teamRequestMoved$` → `normalizeTeamRequestBody`); pass through verbatim.
     this.addRequest({
       id: request.id,
       collectionID: request.collectionID,
-      request: translateToNewRequest(request.request),
+      request: currentRequest,
       title: request.title,
     })
   }
@@ -782,8 +787,8 @@ export class TeamCollectionsService extends Service<void> {
       this.addRequest({
         id: result.right.teamRequestAdded.id,
         collectionID: result.right.teamRequestAdded.collectionID,
-        request: translateToNewRequest(
-          JSON.parse(result.right.teamRequestAdded.request)
+        request: normalizeTeamRequestBody(
+          result.right.teamRequestAdded.request
         ),
         title: result.right.teamRequestAdded.title,
       })
@@ -806,7 +811,9 @@ export class TeamCollectionsService extends Service<void> {
       this.updateRequest({
         id: result.right.teamRequestUpdated.id,
         collectionID: result.right.teamRequestUpdated.collectionID,
-        request: JSON.parse(result.right.teamRequestUpdated.request),
+        request: normalizeTeamRequestBody(
+          result.right.teamRequestUpdated.request
+        ),
         title: result.right.teamRequestUpdated.title,
       })
     })
@@ -848,7 +855,7 @@ export class TeamCollectionsService extends Service<void> {
         id: requestMoved.id,
         collectionID: requestMoved.collectionID,
         title: requestMoved.title,
-        request: JSON.parse(requestMoved.request),
+        request: normalizeTeamRequestBody(requestMoved.request),
       }
 
       this.moveRequest(request)
@@ -1041,14 +1048,12 @@ export class TeamCollectionsService extends Service<void> {
       }
 
       requests.push(
-        ...data.right.requestsInCollection.map<TeamRequest>((el: any) => {
-          return {
-            id: el.id,
-            collectionID: collection.id,
-            title: el.title,
-            request: translateToNewRequest(JSON.parse(el.request)),
-          }
-        })
+        ...data.right.requestsInCollection.map<TeamRequest>((el: any) => ({
+          id: el.id,
+          collectionID: collection.id,
+          title: el.title,
+          request: normalizeTeamRequestBody(el.request),
+        }))
       )
 
       if (data.right.requestsInCollection.length !== TEAMS_BACKEND_PAGE_SIZE)

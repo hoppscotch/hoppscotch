@@ -1,4 +1,32 @@
 import { ComputedRef, WritableComputedRef } from "vue"
+import type { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
+import type { Workspace } from "../workspace.service"
+
+/**
+ * A snapshot of the tab's state for one protocol, taken when the user
+ * switches away from it.
+ */
+export type ProtocolDraft<T> = {
+  request: T
+  /**
+   * The tab's dirty flag at snapshot time. Restoring a draft returns the tab
+   * to a state it was already in, so the flag travels with it — a saved
+   * request that round-trips REST → GQL → REST comes back clean instead of
+   * prompting to save content identical to what's stored.
+   */
+  isDirty: boolean
+}
+
+/**
+ * Per-tab shadow drafts of the other protocol's request, used by the
+ * REST/GraphQL protocol switcher to preserve in-flight edits across switches.
+ * Lives on the tab object so it automatically survives close → reopen and is
+ * garbage-collected when the tab is permanently destroyed.
+ */
+export type ProtocolDrafts = {
+  rest?: ProtocolDraft<HoppRESTRequest>
+  gql?: ProtocolDraft<HoppGQLRequest>
+}
 
 /**
  * Represents a tab in HoppScotch.
@@ -9,6 +37,17 @@ export type HoppTab<Doc> = {
   id: string
   /** The document associated with the tab. */
   document: Doc
+  /**
+   * The workspace this tab is attached to, captured at creation/restore.
+   * Set automatically by `WorkspaceTabsService`; standalone tab services
+   * (e.g., `GQLTabService` for the legacy `/graphql` page) leave this undefined.
+   */
+  workspaceHandle?: Workspace
+  /**
+   * Shadow drafts of the opposite-protocol request for round-trip preservation
+   * across `ProtocolSwitcher` swaps. Populated by `WorkspaceTabsService` only.
+   */
+  protocolDrafts?: ProtocolDrafts
 }
 
 export type PersistableTabState<Doc> = {
@@ -16,6 +55,11 @@ export type PersistableTabState<Doc> = {
   orderedDocs: Array<{
     tabID: string
     doc: Doc
+    /**
+     * Opposite-protocol shadow drafts (see `HoppTab.protocolDrafts`) — persisted
+     * so a protocol switch's unsaved draft survives a page refresh.
+     */
+    protocolDrafts?: ProtocolDrafts
   }>
 }
 
@@ -91,7 +135,8 @@ export interface TabService<Doc> {
    * Closes the tab with the specified ID.
    * @param tabID - The ID of the tab to close.
    */
-  closeTab(tabID: string): void
+  /** @returns whether the tab was actually closed (refused for the last open tab) */
+  closeTab(tabID: string): boolean
 
   /**
    * Closes all tabs except the one with the specified ID.

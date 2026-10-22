@@ -1,10 +1,16 @@
 import { Service } from "dioc"
-import { InspectionService, Inspector, InspectorResult } from ".."
+import {
+  InspectionService,
+  Inspector,
+  InspectorRequest,
+  InspectorResult,
+} from ".."
 import { computed, markRaw, Ref } from "vue"
 import {
   HoppRESTRequest,
   HoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
+import { isGQLRequest } from "~/helpers/request-type"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 import { getI18n } from "~/modules/i18n"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
@@ -153,15 +159,75 @@ export class RequestInspectorService extends Service implements Inspector {
     return !supports ? [createInspection(match)] : []
   }
 
-  getInspections(
-    req: Readonly<Ref<HoppRESTRequest | HoppRESTResponseOriginalRequest>>
-  ) {
-    return computed(() =>
-      !req.value
-        ? []
-        : this.inspectionChecks.flatMap((check) =>
-            this.validateCapability(req.value, check)
-          )
-    )
+  /**
+   * Runs capability checks for a request.
+   * For REST requests all checks apply; for GQL only localaccess and cookie-header
+   * apply (no body or REST-specific auth types).
+   */
+  getInspections(req: Readonly<Ref<InspectorRequest>>) {
+    return computed(() => {
+      if (!req.value) return []
+
+      if (isGQLRequest(req.value)) {
+        const gqlReq = req.value
+        const results: InspectorResult[] = []
+        const capabilities = this.kernelInterceptor.current.value?.capabilities
+
+        // Localhost / 127.0.0.1 check
+        const localHostURLs = ["localhost", "127.0.0.1"]
+        if (localHostURLs.some((host) => gqlReq.url.includes(host))) {
+          if (!capabilities?.advanced.has("localaccess")) {
+            results.push({
+              id: "localaccess",
+              icon: markRaw(IconAlertTriangle),
+              text: {
+                type: "text",
+                text: this.t("inspections.url.localaccess_unsupported"),
+              },
+              severity: 2,
+              isApplicable: true,
+              locations: { type: "url" },
+            })
+          }
+        }
+
+        // Cookie header check
+        const cookieIndex = gqlReq.headers.findIndex((h) =>
+          h.key.toLowerCase().includes("cookie")
+        )
+        if (cookieIndex !== -1 && !capabilities?.advanced.has("cookies")) {
+          results.push({
+            id: "cookie-header",
+            icon: markRaw(IconAlertTriangle),
+            text: {
+              type: "text",
+              text: this.t("inspections.header.cookie"),
+            },
+            severity: 2,
+            isApplicable: true,
+            locations: {
+              type: "header",
+              position: "key",
+              index: cookieIndex,
+              key: gqlReq.headers[cookieIndex].key,
+            },
+            doc: {
+              text: this.t("action.learn_more"),
+              link: "https://hoppscotch.com/download",
+            },
+          })
+        }
+
+        return results
+      }
+
+      // REST: run all capability checks
+      return this.inspectionChecks.flatMap((check) =>
+        this.validateCapability(
+          req.value as HoppRESTRequest | HoppRESTResponseOriginalRequest,
+          check
+        )
+      )
+    })
   }
 }

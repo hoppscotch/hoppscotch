@@ -781,12 +781,9 @@ export const createExpectation = (
   }
 
   const toHaveLengthFn = (expectedLength: SandboxValue) => {
-    if (
-      !(
-        Array.isArray(resolvedExpectVal) ||
-        typeof resolvedExpectVal === "string"
-      )
-    ) {
+    if (!(
+      Array.isArray(resolvedExpectVal) || typeof resolvedExpectVal === "string"
+    )) {
       const message =
         "Expected toHaveLength to be called for an array or string"
       const targetTest = getCurrentTest()
@@ -831,12 +828,9 @@ export const createExpectation = (
   }
 
   const toIncludeFn = (needle: SandboxValue) => {
-    if (
-      !(
-        Array.isArray(resolvedExpectVal) ||
-        typeof resolvedExpectVal === "string"
-      )
-    ) {
+    if (!(
+      Array.isArray(resolvedExpectVal) || typeof resolvedExpectVal === "string"
+    )) {
       const message = "Expected toInclude to be called for an array or string"
       const targetTest = getCurrentTest()
       if (!targetTest) return undefined

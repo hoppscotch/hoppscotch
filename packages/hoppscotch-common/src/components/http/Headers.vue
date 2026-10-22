@@ -291,7 +291,7 @@ import {
 } from "~/newstore/environments"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { InspectionService, InspectorResult } from "~/services/inspection"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import IconArrowUpRight from "~icons/lucide/arrow-up-right"
 import IconEdit from "~icons/lucide/edit"
 import IconEye from "~icons/lucide/eye"
@@ -309,7 +309,7 @@ import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 const t = useI18n()
 const toast = useToast()
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const colorMode = useColorMode()
 
@@ -335,6 +335,8 @@ const props = defineProps<{
   isCollectionProperty?: boolean
   inheritedProperties?: HoppInheritedProperty
   envs?: AggregateEnvironment[]
+  // Embed-only codemirror scope — `envs` alone must keep workspace editors live
+  scopedEnvs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{
@@ -356,6 +358,7 @@ useCodemirror(
     linter,
     completer: null,
     environmentHighlights: true,
+    envs: computed(() => props.scopedEnvs),
     predefinedVariablesHighlights: true,
   })
 )
@@ -506,12 +509,10 @@ const updateHeader = (
 const deleteHeader = (index: number) => {
   const headersBeforeDeletion = cloneDeep(workingHeaders.value)
 
-  if (
-    !(
-      headersBeforeDeletion.length > 0 &&
-      index === headersBeforeDeletion.length - 1
-    )
-  ) {
+  if (!(
+    headersBeforeDeletion.length > 0 &&
+    index === headersBeforeDeletion.length - 1
+  )) {
     if (deletionToast.value) {
       deletionToast.value.goAway(0)
       deletionToast.value = null

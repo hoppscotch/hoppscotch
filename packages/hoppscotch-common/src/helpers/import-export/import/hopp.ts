@@ -3,9 +3,9 @@ import {
   HoppRESTRequest,
   getDefaultGQLRequest,
   getDefaultRESTRequest,
-  translateToNewRESTCollection,
+  isGQLRequest,
+  translateToNewCollection,
   HoppGQLRequest,
-  translateToNewGQLCollection,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
@@ -43,9 +43,20 @@ const validateCollection = (collection: unknown) => {
       (request) => {
         const requestSchemaParsedResult = HoppRESTRequest.safeParse(request)
 
-        return requestSchemaParsedResult.type === "ok"
-          ? requestSchemaParsedResult.value
-          : getDefaultRESTRequest()
+        if (requestSchemaParsedResult.type === "ok") {
+          return requestSchemaParsedResult.value
+        }
+
+        // Unified collections hold mixed types — keep GQL requests as GQL
+        // instead of clobbering them into a default REST request
+        if (isGQLRequest(request as HoppRESTRequest | HoppGQLRequest)) {
+          const gqlParsedResult = HoppGQLRequest.safeParse(request)
+          return gqlParsedResult.type === "ok"
+            ? gqlParsedResult.value
+            : getDefaultGQLRequest()
+        }
+
+        return getDefaultRESTRequest()
       }
     )
 
@@ -55,7 +66,7 @@ const validateCollection = (collection: unknown) => {
     })
   }
 
-  return O.some(translateToNewRESTCollection(collection))
+  return O.some(translateToNewCollection(collection))
 }
 
 /**
@@ -91,9 +102,17 @@ export const validateGQLCollection = (collection: unknown) => {
       (request) => {
         const requestSchemaParsedResult = HoppGQLRequest.safeParse(request)
 
-        return requestSchemaParsedResult.type === "ok"
-          ? requestSchemaParsedResult.value
-          : getDefaultGQLRequest()
+        if (requestSchemaParsedResult.type === "ok") {
+          return requestSchemaParsedResult.value
+        }
+
+        // Mirror of the REST importer above — keep REST requests as REST
+        if (!isGQLRequest(request as HoppRESTRequest | HoppGQLRequest)) {
+          const restParsedResult = HoppRESTRequest.safeParse(request)
+          if (restParsedResult.type === "ok") return restParsedResult.value
+        }
+
+        return getDefaultGQLRequest()
       }
     )
 
@@ -103,5 +122,5 @@ export const validateGQLCollection = (collection: unknown) => {
     })
   }
 
-  return O.some(translateToNewGQLCollection(collection))
+  return O.some(translateToNewCollection(collection))
 }

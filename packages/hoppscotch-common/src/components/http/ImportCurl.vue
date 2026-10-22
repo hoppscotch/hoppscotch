@@ -85,7 +85,7 @@ import IconClipboard from "~icons/lucide/clipboard"
 import IconCheck from "~icons/lucide/check"
 import IconTrash2 from "~icons/lucide/trash-2"
 import { platform } from "~/platform"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { useService } from "dioc/vue"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
@@ -95,7 +95,7 @@ const t = useI18n()
 
 const toast = useToast()
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const curl = ref("")
 

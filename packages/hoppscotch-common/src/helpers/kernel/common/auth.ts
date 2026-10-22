@@ -177,53 +177,45 @@ const Processors: {
             O.alt(() =>
               pipe(
                 Guards.grants.authCode(g),
-                O.map(
-                  (g): GrantType => ({
-                    kind: "authorization_code",
-                    authEndpoint: g.authEndpoint,
-                    tokenEndpoint: g.tokenEndpoint,
-                    clientId: g.clientID,
-                    clientSecret: g.clientSecret,
-                  })
-                )
+                O.map((g): GrantType => ({
+                  kind: "authorization_code",
+                  authEndpoint: g.authEndpoint,
+                  tokenEndpoint: g.tokenEndpoint,
+                  clientId: g.clientID,
+                  clientSecret: g.clientSecret,
+                }))
               )
             ),
             O.alt(() =>
               pipe(
                 Guards.grants.clientCreds(g),
-                O.map(
-                  (g): GrantType => ({
-                    kind: "client_credentials",
-                    tokenEndpoint: g.authEndpoint,
-                    clientId: g.clientID,
-                    clientSecret: g.clientSecret,
-                  })
-                )
+                O.map((g): GrantType => ({
+                  kind: "client_credentials",
+                  tokenEndpoint: g.authEndpoint,
+                  clientId: g.clientID,
+                  clientSecret: g.clientSecret,
+                }))
               )
             ),
             O.alt(() =>
               pipe(
                 Guards.grants.password(g),
-                O.map(
-                  (g): GrantType => ({
-                    kind: "password",
-                    tokenEndpoint: g.authEndpoint,
-                    username: g.username,
-                    password: g.password,
-                  })
-                )
+                O.map((g): GrantType => ({
+                  kind: "password",
+                  tokenEndpoint: g.authEndpoint,
+                  username: g.username,
+                  password: g.password,
+                }))
               )
             ),
             O.alt(() =>
               pipe(
                 Guards.grants.implicit(g),
-                O.map(
-                  (g): GrantType => ({
-                    kind: "implicit",
-                    authEndpoint: g.authEndpoint,
-                    clientId: g.clientID,
-                  })
-                )
+                O.map((g): GrantType => ({
+                  kind: "implicit",
+                  authEndpoint: g.authEndpoint,
+                  clientId: g.clientID,
+                }))
               )
             )
           ),

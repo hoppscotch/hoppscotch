@@ -1,10 +1,11 @@
 import { Service } from "dioc"
-import { InspectionService, Inspector, InspectorResult } from ".."
-import { getI18n } from "~/modules/i18n"
 import {
-  HoppRESTRequest,
-  HoppRESTResponseOriginalRequest,
-} from "@hoppscotch/data"
+  InspectionService,
+  Inspector,
+  InspectorRequest,
+  InspectorResult,
+} from ".."
+import { getI18n } from "~/modules/i18n"
 import IconAlertTriangle from "~icons/lucide/alert-triangle"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { computed, Ref, markRaw } from "vue"
@@ -29,7 +30,7 @@ export class ResponseInspectorService extends Service implements Inspector {
   }
 
   getInspections(
-    _req: Readonly<Ref<HoppRESTRequest | HoppRESTResponseOriginalRequest>>,
+    _req: Readonly<Ref<InspectorRequest>>,
     res: Readonly<Ref<HoppRESTResponse | null | undefined>>
   ) {
     return computed(() => {

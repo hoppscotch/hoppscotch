@@ -2329,6 +2329,7 @@ dependencies = [
  "axum",
  "dirs 6.0.0",
  "file-rotate",
+ "libc",
  "native-dialog",
  "semver",
  "serde",

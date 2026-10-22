@@ -79,10 +79,7 @@
                   {{ t("settings.ai_experiments") }}
                 </HoppSmartToggle>
               </div>
-              <div
-                v-if="hasAIExperimentsSupport && ENABLE_AI_EXPERIMENTS"
-                class="flex items-center"
-              >
+              <div v-if="hasAIRequestNaming" class="flex items-center">
                 <div class="flex flex-col space-y-2 w-full">
                   <label class="text-secondaryLight">{{
                     t("settings.ai_request_naming_style")
@@ -180,6 +177,14 @@
                   @change="toggleSetting('ENABLE_EXPERIMENTAL_DOCUMENTATION')"
                 >
                   {{ t("settings.enable_experimental_documentation") }}
+                </HoppSmartToggle>
+              </div>
+              <div class="flex items-center">
+                <HoppSmartToggle
+                  :on="ENABLE_GQL_IN_REST_WORKSPACE"
+                  @change="toggleSetting('ENABLE_GQL_IN_REST_WORKSPACE')"
+                >
+                  {{ t("settings.enable_gql_in_rest_workspace") }}
                 </HoppSmartToggle>
               </div>
             </div>
@@ -292,6 +297,10 @@ import * as A from "fp-ts/Array"
 import { platform } from "~/platform"
 import IconDone from "~icons/lucide/check"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
+import {
+  useAIExperiments,
+  useAIExperimentsSupport,
+} from "~/composables/ai-experiments"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -334,6 +343,7 @@ const ENABLE_EXPERIMENTAL_MOCK_SERVERS = useSetting(
 const ENABLE_EXPERIMENTAL_DOCUMENTATION = useSetting(
   "ENABLE_EXPERIMENTAL_DOCUMENTATION"
 )
+const ENABLE_GQL_IN_REST_WORKSPACE = useSetting("ENABLE_GQL_IN_REST_WORKSPACE")
 
 const supportedNamingStyles = [
   {
@@ -368,8 +378,12 @@ const hasPlatformTelemetry = Boolean(platform.platformFeatureFlags.hasTelemetry)
 
 const confirmRemove = ref(false)
 
-const hasAIExperimentsSupport =
-  !!platform.experiments?.aiExperiments?.enableAIExperiments
+const hasAIExperimentsSupport = useAIExperimentsSupport()
+
+// Shown wherever the generate-name button is: same capability, same gate.
+const { shouldEnableAIFeatures: hasAIRequestNaming } = useAIExperiments(
+  "generateRequestName"
+)
 
 const showConfirmModal = () => {
   if (TELEMETRY_ENABLED.value) confirmRemove.value = true

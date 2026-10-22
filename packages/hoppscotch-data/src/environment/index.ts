@@ -68,7 +68,10 @@ const getResolvedVariableValue = (variable: {
 
 export function parseBodyEnvVariablesE(
   body: string,
-  env: Environment["variables"]
+  env: Environment["variables"],
+  // Missing vars stay as literal `<<key>>` by default (long-standing body
+  // behavior); pass false to resolve them to "" like parseTemplateStringE
+  keepMissingAsKey = true
 ) {
   let result = body
   let depth = 0
@@ -91,7 +94,7 @@ export function parseBodyEnvVariablesE(
       if (foundEnv && "currentValue" in foundEnv) {
         return getResolvedVariableValue(foundEnv)
       }
-      return key
+      return keepMissingAsKey ? key : ""
     })
 
     depth++
@@ -107,10 +110,11 @@ export function parseBodyEnvVariablesE(
  */
 export const parseBodyEnvVariables = (
   body: string,
-  env: Environment["variables"]
+  env: Environment["variables"],
+  keepMissingAsKey = true
 ) =>
   pipe(
-    parseBodyEnvVariablesE(body, env),
+    parseBodyEnvVariablesE(body, env, keepMissingAsKey),
     E.getOrElse(() => body)
   )
 

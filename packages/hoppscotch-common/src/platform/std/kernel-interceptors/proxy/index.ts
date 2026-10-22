@@ -215,8 +215,7 @@ export class ProxyKernelInterceptorService
     let innerCancel: (() => Promise<void>) | null = null
     let cancelled = false
     let resolveCancelled:
-      | ((result: E.Either<RelayError, RelayResponse>) => void)
-      | null = null
+      ((result: E.Either<RelayError, RelayResponse>) => void) | null = null
 
     const cancelledResult: E.Either<RelayError, RelayResponse> = E.left({
       kind: "abort",

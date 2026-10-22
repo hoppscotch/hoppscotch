@@ -25,7 +25,7 @@ import { useVModel } from "@vueuse/core"
 import { cloneDeep } from "lodash-es"
 import { isEqualHoppRESTRequest } from "@hoppscotch/data"
 import { HoppTab } from "~/services/tab"
-import { HoppRequestDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/tab/document"
 import { useReadonlyStream } from "@composables/stream"
 import {
   aggregateEnvsWithCurrentValue$,

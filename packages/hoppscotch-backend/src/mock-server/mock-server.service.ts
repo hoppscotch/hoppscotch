@@ -21,6 +21,7 @@ import {
   MOCK_SERVER_COLLECTION_CREATION_FAILED,
 } from 'src/errors';
 import { randomBytes } from 'crypto';
+import { parse, getOperationAST } from 'graphql';
 import { WorkspaceType } from 'src/types/WorkspaceTypes';
 import {
   MockServerAction,
@@ -36,6 +37,23 @@ import { UserCollectionService } from 'src/user-collection/user-collection.servi
 import { ReqType } from 'src/types/RequestTypes';
 import { AuthUser } from 'src/types/AuthUser';
 import { mockServerCollRequestExample } from './constants/mock-server-coll-request-example';
+
+/**
+ * A saved example carrying GraphQL operation identity, projected by the
+ * `sync_mock_examples` trigger. Examples saved before operation stamping
+ * existed (i.e. every example in an already-deployed database) have no
+ * `operationType` and are not GraphQL examples.
+ */
+interface GqlExample {
+  id: string;
+  name: string;
+  operationName: string | null;
+  operationType: string;
+  statusCode: number;
+  statusText: string;
+  responseBody: string;
+  responseHeaders: Array<{ key: string; value: string }>;
+}
 
 @Injectable()
 export class MockServerService {
@@ -714,6 +732,7 @@ export class MockServerService {
     method: string,
     queryParams?: Record<string, string>,
     requestHeaders?: Record<string, string>,
+    requestBody?: unknown,
   ): Promise<E.Either<string, MockServerResponse>> {
     try {
       // OPTIMIZATION: Fetch collection IDs once (recursive DB query)
@@ -732,6 +751,56 @@ export class MockServerService {
         mockServer,
         collectionIds,
       );
+
+      // GraphQL branch: a body that parses as a GraphQL document routes to
+      // operation-based matching instead of path scoring. A body that merely
+      // LOOKS GraphQL-ish but fails to parse falls through to REST matching,
+      // so REST payloads that happen to carry a `query` field keep working.
+      //
+      // The branch is gated on this mock actually owning GraphQL-stamped
+      // examples. Operation stamping only exists in clients that ship the
+      // unified playground, so every example in an already-deployed database
+      // is unstamped — without the gate, a mock that has always served
+      // `POST /graphql` from a REST example would start returning 404 on
+      // upgrade, with no way back (the divert precedes the
+      // `x-mock-response-id`/`-name` override below).
+      //
+      // The example gate is evaluated FIRST, and deliberately so: collecting
+      // examples is an in-memory pass over rows already fetched above, whereas
+      // parsing allocates an AST several times the size of its input. This
+      // endpoint is public (throttled only), so a mock that could not use the
+      // result should never reach the parser.
+      const gqlExamples = this.collectGraphQLExamples(requests);
+      if (gqlExamples.length > 0) {
+        const gqlOperation = this.resolveGraphQLOperation(requestBody);
+
+        if (gqlOperation) {
+          if (E.isLeft(gqlOperation)) {
+            // Genuinely GraphQL (parsed) but unresolvable operation —
+            // respond per GraphQL-over-HTTP instead of a REST-style 404
+            return E.right({
+              statusCode: 400,
+              body: JSON.stringify({
+                errors: [{ message: gqlOperation.left }],
+              }),
+              headers: JSON.stringify({ 'content-type': 'application/json' }),
+              delay: mockServer.delayInMs || 0,
+            });
+          }
+
+          const gqlResult = this.handleGraphQLMockRequest(
+            gqlOperation.right,
+            gqlExamples,
+            requestHeaders,
+            mockServer.delayInMs,
+          );
+
+          // A mixed collection can hold GraphQL examples that don't cover this
+          // operation while still holding a REST example for the same path, so
+          // a miss falls through to REST scoring rather than terminating in 404.
+          if (E.isRight(gqlResult)) return gqlResult;
+        }
+      }
 
       // OPTIMIZATION: Check for custom headers first (fastest path)
       // If user specified exact example, return it immediately without scoring
@@ -1175,6 +1244,153 @@ export class MockServerService {
   /**
    * Format example response for return
    */
+  /**
+   * Resolve the executed GraphQL operation from a request body.
+   *
+   * Returns `null` when the body is not a GraphQL payload (missing/non-string
+   * `query`, or a `query` that fails GraphQL parsing — the latter deliberately
+   * falls through to REST matching so REST payloads carrying a `query` field
+   * are never misclassified). Returns `Left` only for genuinely-GraphQL
+   * documents whose operation can't be resolved (anonymous multi-operation
+   * documents without an `operationName`).
+   */
+  private resolveGraphQLOperation(
+    body: unknown,
+  ): null | E.Either<string, { name: string | null; type: string }> {
+    if (!body || typeof body !== 'object' || Array.isArray(body)) return null;
+
+    const query = (body as Record<string, unknown>).query;
+    if (typeof query !== 'string' || query.trim().length === 0) return null;
+
+    let doc;
+    try {
+      doc = parse(query);
+    } catch (_e) {
+      return null;
+    }
+
+    const rawOpName = (body as Record<string, unknown>).operationName;
+    const node = getOperationAST(
+      doc,
+      typeof rawOpName === 'string' && rawOpName.length > 0
+        ? rawOpName
+        : undefined,
+    );
+    if (!node) {
+      return E.left(
+        'Must provide operationName if query contains multiple operations.',
+      );
+    }
+
+    return E.right({ name: node.name?.value ?? null, type: node.operation });
+  }
+
+  /**
+   * Operation-based matching for GraphQL mock requests — the GraphQL
+   * counterpart of the path/query scoring pipeline. GraphQL examples are
+   * discriminated by SHAPE (presence of `operationType`, stamped by the app
+   * and projected by the `sync_mock_examples` trigger). Team requests carry
+   * no REST/GQL discriminator of their own, so shape is the only signal:
+   * GraphQL requests live alongside REST ones in the same rows by design.
+   */
+  private collectGraphQLExamples(
+    requests: Array<{ id: string; mockExamples: any }>,
+  ): GqlExample[] {
+    const examples: GqlExample[] = [];
+    for (const request of requests) {
+      const mockExamples = request.mockExamples as any;
+      if (!Array.isArray(mockExamples?.examples)) continue;
+      for (const exampleData of mockExamples.examples) {
+        if (typeof exampleData?.operationType !== 'string') continue;
+        examples.push({
+          id: exampleData.key || `${request.id}-${exampleData.name}`,
+          name: exampleData.name || '',
+          operationName: exampleData.operationName || null,
+          operationType: exampleData.operationType,
+          statusCode: exampleData.statusCode || 200,
+          statusText: exampleData.statusText || 'OK',
+          responseBody: exampleData.responseBody || '',
+          responseHeaders: Array.isArray(exampleData.responseHeaders)
+            ? exampleData.responseHeaders
+            : [],
+        });
+      }
+    }
+    return examples;
+  }
+
+  private handleGraphQLMockRequest(
+    operation: { name: string | null; type: string },
+    examples: GqlExample[],
+    requestHeaders: Record<string, string> | undefined,
+    delayInMs: number,
+  ): E.Either<string, MockServerResponse> {
+    if (examples.length === 0) {
+      return E.left(
+        `No GraphQL mock examples found for ${operation.type} ${operation.name ?? '(anonymous)'}`,
+      );
+    }
+
+    // x-mock-response-id / x-mock-response-name: exact-example override,
+    // bypassing scoring. The REST fast path gates its override on the HTTP
+    // method; over GraphQL the method carries no meaning, so the operation
+    // type is the equivalent discriminator — a mutation request must never
+    // resolve to a query example just because the names collide.
+    const overrideId = requestHeaders?.['x-mock-response-id'];
+    const overrideName = requestHeaders?.['x-mock-response-name'];
+    if (overrideId || overrideName) {
+      const exact = examples.find(
+        (ex) =>
+          ex.operationType === operation.type &&
+          ((overrideId && ex.id === overrideId) ||
+            (overrideName && ex.name === overrideName)),
+      );
+      if (exact) return this.formatExampleResponse(exact, delayInMs);
+    }
+
+    // x-mock-response-code: status pre-filter with silent fallback (REST parity)
+    let filtered = examples;
+    const overrideCode = requestHeaders?.['x-mock-response-code'];
+    if (overrideCode) {
+      const statusCode = parseInt(overrideCode, 10);
+      const codeFiltered = examples.filter(
+        (ex) => ex.statusCode === statusCode,
+      );
+      if (codeFiltered.length > 0) filtered = codeFiltered;
+    }
+
+    // Scoring: operation type must match; exact operation-name match beats a
+    // wildcard example (one saved without an operation name); anything else
+    // is a non-match. Anonymous request operations match only wildcards.
+    const scored = filtered
+      .map((example) => {
+        if (example.operationType !== operation.type)
+          return { example, score: 0 };
+        if (example.operationName === operation.name)
+          return { example, score: 100 };
+        if (!example.operationName) return { example, score: 95 };
+        return { example, score: 0 };
+      })
+      .filter((s) => s.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    if (scored.length === 0) {
+      return E.left(
+        `No matching GraphQL mock example for ${operation.type} ${operation.name ?? '(anonymous)'}`,
+      );
+    }
+
+    // Deterministic selection among ties: prefer 200s (REST parity), then
+    // lexicographic example id — unlike REST, never DB row order
+    const highest = scored[0].score;
+    const top = scored
+      .filter((s) => s.score === highest)
+      .sort((a, b) => a.example.id.localeCompare(b.example.id));
+    const selected = top.find((s) => s.example.statusCode === 200) ?? top[0];
+
+    return this.formatExampleResponse(selected.example, delayInMs);
+  }
+
   private formatExampleResponse(
     example: any,
     delayInMs: number,

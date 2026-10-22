@@ -97,7 +97,7 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppRESTRequest, HoppGQLRequest } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
 import { ref, watch } from "vue"
 import {
@@ -116,7 +116,7 @@ const props = withDefaults(
     show: boolean
     loadingState?: boolean
     modelValue?: string
-    requestContext: HoppRESTRequest | null
+    requestContext: HoppRESTRequest | HoppGQLRequest | null
   }>(),
   {
     show: false,

@@ -19,8 +19,7 @@ export type CreateTeamInvitationErrors =
   | "user/not_found"
 
 type RevokeTeamInvitationErrors =
-  | "team/not_required_role"
-  | "team_invite/no_invite_found"
+  "team/not_required_role" | "team_invite/no_invite_found"
 
 type AcceptTeamInvitationErrors =
   | "team_invite/no_invite_found"

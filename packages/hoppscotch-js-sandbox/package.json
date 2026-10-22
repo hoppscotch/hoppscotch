@@ -57,7 +57,7 @@
   "dependencies": {
     "@hoppscotch/data": "workspace:^",
     "@types/lodash-es": "4.17.12",
-    "acorn": "8.17.0",
+    "acorn": "8.18.0",
     "chai": "6.2.2",
     "faraday-cage": "0.1.0",
     "fp-ts": "2.16.11",
@@ -71,7 +71,7 @@
     "@relmify/jest-fp-ts": "2.1.1",
     "@types/chai": "5.2.3",
     "@types/jest": "30.0.0",
-    "@types/lodash": "4.17.24",
+    "@types/lodash": "4.17.25",
     "@types/node": "24.10.1",
     "@typescript-eslint/eslint-plugin": "8.64.0",
     "@typescript-eslint/parser": "8.64.0",
@@ -80,10 +80,10 @@
     "eslint-plugin-prettier": "5.5.6",
     "globals": "16.5.0",
     "io-ts": "2.2.22",
-    "prettier": "3.8.5",
+    "prettier": "3.9.6",
     "typescript": "5.9.3",
     "vite": "7.3.2",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "peerDependencies": {
     "isolated-vm": "6.1.2"

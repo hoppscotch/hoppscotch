@@ -1,5 +1,5 @@
 import { getService } from "~/modules/dioc"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { parseTemplateStringE } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import {
@@ -14,7 +14,8 @@ export const replaceTemplateStringsInObjectValues = <
   obj: T,
   source: "REST" | "GQL" = "REST"
 ) => {
-  const document = getService(RESTTabService).currentActiveTab.value.document
+  const document =
+    getService(WorkspaceTabsService).currentActiveTab.value.document
 
   // Only a REST request tab has request/collection variables.
   const isRESTRequest = source === "REST" && document.type === "request"

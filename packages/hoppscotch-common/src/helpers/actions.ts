@@ -4,7 +4,7 @@
 
 import { Ref, onBeforeUnmount, onMounted, reactive, watch, computed } from "vue"
 import { BehaviorSubject } from "rxjs"
-import { HoppRequestDocument } from "./rest/document"
+import { HoppGQLRequestDocument, HoppRequestDocument } from "./tab/document"
 import { Environment, HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
 import { HoppGQLSaveContext } from "./graphql/document"
@@ -72,6 +72,7 @@ export type HoppAction =
   | "tab.reopen-closed" // Reopen recently closed tab
   | "tab.mru-switch" // Switch to MRU tab (Ctrl/Cmd+Alt+])
   | "tab.mru-switch-reverse" // Switch to previous MRU tab (Ctrl/Cmd+Alt+[)
+  | "tab.switch-protocol" // Switch the active tab between REST and GraphQL
   | "request.focus-url" // Focus the URL bar
   | "collection.new" // Create root collection
   | "flyouts.chat.open" // Shows the keybinds flyout
@@ -120,9 +121,10 @@ export type HoppAction =
   | "workspace.switch" // Switch workspace
   | "rest.request.open" // Open REST request
   | "request.open-tab" // Open REST request
-  | "share.request" // Share REST request
+  | "share.request" // Share REST or GraphQL request
   | "tab.duplicate-tab" // Duplicate REST request
   | "gql.request.open" // Open GraphQL request
+  | "rest.gql-request.open" // Open GQL request in REST tab
   | "app.quit" // Quit app
 
 /**
@@ -144,6 +146,19 @@ type HoppActionArgsMap = {
     }
     text: string | null
   }
+  // Optional: a GraphQL query document can hold several operations — the run
+  // executes the named one instead of the first. REST handlers ignore this.
+  "request.send-cancel":
+    | {
+        operationName?: string
+      }
+    | undefined
+  // Optional: no payload toggles; a protocol targets that side explicitly.
+  "tab.switch-protocol":
+    | {
+        protocol?: "rest" | "graphql"
+      }
+    | undefined
   "modals.global.environment.update": {
     variables?: Environment["variables"]
     isSecret?: boolean
@@ -181,7 +196,7 @@ type HoppActionArgsMap = {
     tab: RESTOptionTabs | GQLOptionTabs
   }
   "share.request": {
-    request: HoppRESTRequest
+    request: HoppRESTRequest | HoppGQLRequest
   }
   "tab.duplicate-tab": {
     tabID?: string
@@ -189,6 +204,9 @@ type HoppActionArgsMap = {
   "gql.request.open": {
     request: HoppGQLRequest
     saveContext?: HoppGQLSaveContext
+  }
+  "rest.gql-request.open": {
+    doc: HoppGQLRequestDocument
   }
   "modals.environment.add": {
     envName: string
@@ -210,8 +228,7 @@ export type HoppActionWithArgs = keyof HoppActionArgsMap
  */
 
 export type HoppActionWithOptionalArgs =
-  | HoppActionWithNoArgs
-  | KeysWithValueUndefined<HoppActionArgsMap>
+  HoppActionWithNoArgs | KeysWithValueUndefined<HoppActionArgsMap>
 
 /**
  * HoppActions which do not require arguments for their invocation

@@ -21,7 +21,10 @@ import {
 } from "~/helpers/clientLocalVariables"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { IMPORTER_INVALID_FILE_FORMAT } from "~/helpers/import-export/import"
+import {
+  IMPORTER_INVALID_FILE_FORMAT,
+  sanitizeCollection,
+} from "~/helpers/import-export/import"
 import { OPENAPI_DEREF_ERROR } from "~/helpers/import-export/import/openapi"
 import { isOfType } from "~/helpers/functional/primtive"
 import { TELeftType } from "~/helpers/functional/taskEither"
@@ -116,10 +119,11 @@ const handleImportFailure = (error: ImportCollectionsError) => {
 }
 
 const handleImportSuccess = (collections: HoppCollection[]) => {
-  // Mirror the modal-import path: stamp `_ref_id`s, persist any raw
-  // secret values to the local secret store, then append the stripped
-  // tree to newstore so localStorage / future syncs stay clean.
-  const withRefIds = collections.map(ensureRefIds)
+  // Mirror the modal-import path: sanitize file-carried identities, stamp
+  // `_ref_id`s, persist any raw secret values to the local secret store, then
+  // append the stripped tree to newstore so localStorage / future syncs stay
+  // clean.
+  const withRefIds = collections.map(sanitizeCollection).map(ensureRefIds)
 
   withRefIds.forEach(populateLocalStoresFromCollectionTree)
   appendRESTCollections(withRefIds.map(stripCollectionTreeForStore))

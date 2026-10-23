@@ -6,15 +6,25 @@ authors = ["CuriousCorrelation"]
 edition = "2021"
 
 [dependencies]
-curl = { git = "https://github.com/CuriousCorrelation/curl-rust.git", rev = "1ec8079cf527b9cf47cc7a48c68b458affdae273", features = ["ntlm"] }
+curl = { git = "https://github.com/CuriousCorrelation/curl-rust.git", rev = "025ff84f77e1fee37b4dca3cf39b724f4efcc87d", features = ["ntlm"] }
+# NOTE: Pinned to the same rev as `curl`, so
+#       `curl_sys::certs::get_cert_content()` returns the
+#       Mozilla-derived bundle compiled into that build, which
+#       `trust.rs` uses when a platform's host store has no anchors.
+curl-sys = { git = "https://github.com/CuriousCorrelation/curl-rust.git", rev = "025ff84f77e1fee37b4dca3cf39b724f4efcc87d" }
 cookie = "0.18"
 tokio-util = "0.7.12"
 lazy_static = "1.5.0"
-time = { version = "0.3.37", features = ["serde"] }
+time = { version = "0.3.37", features = ["serde", "serde-well-known"] }
 openssl = { version = "0.10.66", features = ["vendored"] }
 # NOTE: This crate follows `openssl-sys` from https://github.com/CuriousCorrelation/curl-rust.git
 # to avoid issues from version mismatch when compiling from source.
 openssl-sys = { version = "0.9.64", features = ["vendored"] }
+openssl-probe = "0.1.5"
+# NOTE: `trust.rs` needs `X509Ref::as_ptr` to call the extended key
+#       usage accessors in `openssl-sys`, which `openssl` does not
+#       wrap.
+foreign-types = "0.3.2"
 log = "0.4.22"
 env_logger = "0.11.5"
 thiserror = "1.0.64"
@@ -31,3 +41,14 @@ strum = { version = "0.26.3", features = ["derive"] }
 bytes = { version = "1.9.0", features = ["serde"] }
 mime = "0.3.17"
 url = "2.5.4"
+
+# macOS stores trust anchors in the keychain and Windows in the `ROOT`
+# and `CA` system stores, and `openssl-probe` reads neither.
+[target.'cfg(target_os = "macos")'.dependencies]
+security-framework = "3"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Security_Cryptography",
+    "Win32_Foundation",
+] }

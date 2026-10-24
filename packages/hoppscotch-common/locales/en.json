@@ -683,7 +683,8 @@
   "error": {
     "network": {
       "heading": "Network Error",
-      "description": "Network connection failed. {message}: {cause}. If you are using the browser interceptor, this may be due to CORS restrictions or an unavailable server. Try the Proxy interceptor or Hoppscotch browser extension in Settings. The API server must also allow your origin through its CORS policy."
+      "description": "Network connection failed. {message}: {cause}",
+      "browser_description": "Network connection failed. {message}: {cause}. This may be due to CORS restrictions or an unavailable server. Try the Proxy interceptor or Hoppscotch browser extension in Settings. If you continue using the browser interceptor, the API server must allow your origin through its CORS policy."
     },
     "timeout": {
       "heading": "Timeout Error",
@@ -1407,11 +1408,11 @@
     "theme_description": "Customize your application theme.",
     "update_check_description": "Manually check for a new version and install it. Works regardless of the toggle below.",
     "update_check_now": "Check for updates",
-    "update_checking": "Checking\u2026",
+    "update_checking": "Checking…",
     "update_download_version": "Download v{version}",
-    "update_downloading": "Downloading\u2026",
+    "update_downloading": "Downloading…",
     "update_downloading_percent": "Downloading {percent}%",
-    "update_installing": "Installing\u2026",
+    "update_installing": "Installing…",
     "update_restart_now": "Restart to apply update",
     "update_up_to_date": "Up to date",
     "use_experimental_url_bar": "Use experimental URL bar with environment highlighting",

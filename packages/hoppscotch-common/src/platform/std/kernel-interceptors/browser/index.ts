@@ -88,7 +88,7 @@ export class BrowserKernelInterceptorService
               description: (t: ReturnType<typeof getI18n>) => {
                 switch (error.kind) {
                   case "network":
-                    return t("error.network.description", {
+                    return t("error.network.browser_description", {
                       message: error.message,
                       cause: error.cause ?? t("error.unknown.cause"),
                     })

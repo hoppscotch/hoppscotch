@@ -683,7 +683,7 @@
   "error": {
     "network": {
       "heading": "Network Error",
-      "description": "Network connection failed. {message}: {cause}"
+      "description": "Network connection failed. {message}: {cause}. If you are using the browser interceptor, this may be due to CORS restrictions or an unavailable server. Try the Proxy interceptor or Hoppscotch browser extension in Settings. The API server must also allow your origin through its CORS policy."
     },
     "timeout": {
       "heading": "Timeout Error",

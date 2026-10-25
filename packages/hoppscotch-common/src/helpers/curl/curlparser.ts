@@ -31,8 +31,6 @@ import { getQueries } from "./sub_helpers/queries"
 import { concatParams, getURLObject } from "./sub_helpers/url"
 import { HOPP_ENVIRONMENT_REGEX } from "../environment-regex"
 
-const defaultRESTReq = getDefaultRESTRequest()
-
 /**
  *
  * @param str The string to test for environment variables.
@@ -41,6 +39,11 @@ const defaultRESTReq = getDefaultRESTRequest()
 const containsEnvVariables = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
 
 export const parseCurlCommand = (curlCommand: string) => {
+  // Build a fresh default on every parse. Its headers, body and requestVariables
+  // end up in the returned request, so a shared module level default would let one
+  // import mutate what the next import starts from.
+  const defaultRESTReq = getDefaultRESTRequest()
+
   // const isDataBinary = curlCommand.includes(" --data-binary")
   // const compressed = !!parsedArguments.compressed
 
@@ -80,8 +83,7 @@ export const parseCurlCommand = (curlCommand: string) => {
     headers,
     O.fromPredicate(() => Object.keys(headers).length > 0),
     O.map(recordToHoppHeaders),
-    // Copy the default so the Cookie push below cannot mutate the shared module level default
-    O.getOrElse(() => [...defaultRESTReq.headers])
+    O.getOrElse(() => defaultRESTReq.headers)
   )
 
   const method = getMethod(parsedArguments)

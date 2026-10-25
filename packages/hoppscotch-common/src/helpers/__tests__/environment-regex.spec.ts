@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   HOPP_ENVIRONMENT_REGEX,
   HOPP_ENVIRONMENT_TEST_REGEX,
-} from "./environment-regex"
+} from "../environment-regex"
 
 describe("HOPP_ENVIRONMENT_TEST_REGEX", () => {
   it("returns a stable result across repeated `.test()` calls", () => {

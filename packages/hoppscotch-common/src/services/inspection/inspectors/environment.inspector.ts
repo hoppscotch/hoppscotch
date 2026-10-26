@@ -24,7 +24,10 @@ import {
   getEffectiveVariablesForRequest,
   filterNonEmptyEnvironmentVariables,
 } from "~/helpers/utils/environments"
-import { HOPP_ENVIRONMENT_REGEX } from "~/helpers/environment-regex"
+import {
+  HOPP_ENVIRONMENT_REGEX,
+  HOPP_ENVIRONMENT_REGEX_GLOBAL,
+} from "~/helpers/environment-regex"
 
 const isENVInString = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
 
@@ -101,7 +104,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
     // Scan each string for <<VAR>> patterns
     target.forEach((element, index) => {
       if (!isENVInString(element)) return
-      const matches = element.match(HOPP_ENVIRONMENT_REGEX)
+      const matches = element.match(HOPP_ENVIRONMENT_REGEX_GLOBAL)
       matches?.forEach((exEnv) => {
         const formattedExEnv = exEnv.slice(2, -2)
         const itemLocation: InspectorLocation = {
@@ -166,7 +169,7 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
     target.forEach((element, index) => {
       if (!isENVInString(element)) return
-      const matches = element.match(HOPP_ENVIRONMENT_REGEX)
+      const matches = element.match(HOPP_ENVIRONMENT_REGEX_GLOBAL)
       matches?.forEach((exEnv) => {
         const formattedExEnv = exEnv.slice(2, -2)
         const currentSelectedEnvironment = getCurrentEnvironment()

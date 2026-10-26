@@ -235,7 +235,9 @@ onMounted(() => {
       selectedOperation.value = ast.definitions[0] as OperationDefinitionNode
       return
     }
-  } catch (_error) {}
+  } catch (_error) {
+    operationDefinitions.value = []
+  }
 })
 
 const cmQueryEditor = useCodemirror(

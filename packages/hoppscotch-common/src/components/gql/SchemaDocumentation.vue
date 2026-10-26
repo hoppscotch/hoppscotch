@@ -12,7 +12,7 @@
       <div
         v-if="queryType"
         class="group flex items-center gap-2 cursor-pointer px-4 py-2 transition hover:bg-primaryLight"
-        @click="handleTypeClick(queryType)"
+        @click="handleTypeClick(queryType, 'Query')"
       >
         <span class="text-sm font-medium text-accent">
           {{ t("graphql.query") }}
@@ -23,7 +23,7 @@
       <div
         v-if="mutationType"
         class="group flex items-center gap-2 cursor-pointer px-4 py-2 transition hover:bg-primaryLight"
-        @click="handleTypeClick(mutationType)"
+        @click="handleTypeClick(mutationType, 'Mutation')"
       >
         <span class="text-sm font-medium text-accent">
           {{ t("graphql.mutation") }}
@@ -34,7 +34,7 @@
       <div
         v-if="subscriptionType"
         class="group flex items-center gap-2 cursor-pointer px-4 py-2 transition hover:bg-primaryLight"
-        @click="handleTypeClick(subscriptionType)"
+        @click="handleTypeClick(subscriptionType, 'Subscription')"
       >
         <span class="text-sm font-medium text-accent">
           {{ t("graphql.subscription") }}
@@ -84,8 +84,11 @@ const schemaDescription = computed(() => props.schema.description ?? "")
 
 const { push } = useExplorer()
 
-const handleTypeClick = (namedType: GraphQLNamedType) => {
-  push({ name: namedType.name, def: namedType })
+const handleTypeClick = (
+  namedType: GraphQLNamedType,
+  operation: "Query" | "Mutation" | "Subscription"
+) => {
+  push({ name: operation, def: namedType })
 }
 
 const ignoreTypesInAllSchema = computed(() => [

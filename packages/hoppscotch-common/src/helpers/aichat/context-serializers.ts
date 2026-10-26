@@ -16,6 +16,7 @@ const TRUNCATED = "…[truncated]"
 
 /** Cuts at `max` without splitting an emoji into a lone surrogate. */
 export const truncateText = (value: string, max: number) => {
+  if (max <= 0) return ""
   if (value.length <= max) return value
   const code = value.charCodeAt(max - 1)
   const cut = code >= 0xd800 && code <= 0xdbff ? max - 1 : max
@@ -54,13 +55,15 @@ export const serializeGQLSchema = (
   const rootNames = new Set(roots.map((t) => t.name))
 
   let truncated = false
+  let rootTruncated = false
   for (const t of roots) {
     const printed = printType(t)
     const max = Math.min(rootBudget, room())
     if (printed.length <= max) add(printed)
-    else if (max > TRUNCATED.length)
+    else if (max > TRUNCATED.length) {
       add(truncateText(printed, max - TRUNCATED.length))
-    else truncated = true
+      rootTruncated = true
+    } else truncated = true
   }
 
   for (const t of Object.values(schema.getTypeMap())) {
@@ -71,7 +74,7 @@ export const serializeGQLSchema = (
     if (printed.length > room()) truncated = true
     else add(printed)
   }
-  if (truncated) parts.push(MORE_TYPES)
+  if (truncated || rootTruncated) parts.push(MORE_TYPES)
 
   // Only a budget below the header and note overflows here; clip it.
   return parts.join(SCHEMA_SEP).slice(0, Math.max(0, totalBudget))

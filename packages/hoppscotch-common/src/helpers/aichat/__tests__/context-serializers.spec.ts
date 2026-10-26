@@ -24,6 +24,11 @@ describe("truncateText", () => {
   it("keeps text under the cap untouched", () => {
     expect(truncateText("\u{1F600}", 2)).toBe("\u{1F600}")
   })
+
+  it("cuts nothing when there is no room", () => {
+    expect(truncateText("hello", 0)).toBe("")
+    expect(truncateText("hello", -5)).toBe("")
+  })
 })
 
 describe("serializeCollections", () => {
@@ -151,5 +156,21 @@ ${fields("watchThingNumber", 100)}
 
     expect(out).toContain("type Thing {")
     expect(out).not.toContain("truncated")
+  })
+
+  it("says the schema was cut when a root type is truncated", () => {
+    const big = buildSchema(`
+      type Query {
+${fields("findThingNumber", 100)}
+      }
+      type Thing { id: ID! }
+    `)
+
+    const out = serializeGQLSchema(big)
+
+    expect(out).toContain("…[truncated]")
+    expect(out).toContain("type Thing {")
+    expect(out.endsWith("…(schema truncated — more types exist)")).toBe(true)
+    expect(out.length).toBeLessThanOrEqual(6000)
   })
 })

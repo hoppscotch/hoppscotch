@@ -244,7 +244,9 @@ fn apply_chunk(
 
     state.downloaded += chunk_length as u64;
 
-    if let Some(total) = state.total {
+    // A total of 0 would divide to NaN or infinity, and the frontend reads
+    // `percentage` from this state, so it stays at 0, as with no total.
+    if let Some(total) = state.total.filter(|&total| total > 0) {
         state.percentage = (state.downloaded as f64 * 100.0) / total as f64;
     }
 
@@ -480,6 +482,19 @@ mod tests {
         assert!(progress.iter().all(|p| p.total.is_none()));
         assert!(progress.iter().all(|p| p.percentage == 0.0));
         assert_eq!(progress.last().unwrap().downloaded, 500);
+    }
+
+    #[test]
+    fn a_total_of_zero_keeps_percentage_at_zero_and_emits_every_chunk() {
+        let (mut state, mut last) = fresh();
+        let mut all = Vec::new();
+        for _ in 0..3 {
+            all.extend(apply_chunk(&mut state, &mut last, 100, Some(0)));
+        }
+        let progress = progress_events(&all);
+
+        assert_eq!(progress.len(), 3);
+        assert!(progress.iter().all(|p| p.percentage == 0.0));
     }
 
     #[test]

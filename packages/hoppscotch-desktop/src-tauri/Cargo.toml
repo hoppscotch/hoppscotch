@@ -33,7 +33,6 @@ tauri-plugin-appload = { git = "https://github.com/CuriousCorrelation/tauri-plug
 tauri-plugin-relay = { git = "https://github.com/CuriousCorrelation/tauri-plugin-relay", rev = "273488c8f50a22ee707af6b50ccd5570851f8bc9" }
 axum = "0.8.1"
 tower-http = { version = "0.6.2", features = ["cors"] }
-random-port = "0.1.1"
 tokio = "1.43.0"
 tauri-plugin-process = "2.2.0"
 file-rotate = "0.8.0"
@@ -46,6 +45,9 @@ semver = "1.0"
 
 [dev-dependencies]
 tempfile = "3.20.0"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
 
 [target.'cfg(windows)'.dependencies]
 tempfile = { version = "3.13.0" }

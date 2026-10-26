@@ -173,4 +173,18 @@ ${fields("findThingNumber", 100)}
     expect(out.endsWith("…(schema truncated — more types exist)")).toBe(true)
     expect(out.length).toBeLessThanOrEqual(6000)
   })
+
+  it("still ships the named types when a root has no room at all", () => {
+    const big = buildSchema(`
+      type Query {
+${fields("findThingNumber", 100)}
+      }
+      type Thing { id: ID! }
+    `)
+
+    const out = serializeGQLSchema(big, 6000, 0)
+
+    expect(out).toContain("type Thing {")
+    expect(out.endsWith("…(schema truncated — more types exist)")).toBe(true)
+  })
 })

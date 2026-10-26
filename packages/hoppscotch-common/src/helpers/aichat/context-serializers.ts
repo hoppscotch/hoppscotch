@@ -58,10 +58,15 @@ export const serializeGQLSchema = (
   let rootTruncated = false
   for (const t of roots) {
     const printed = printType(t)
-    const max = Math.min(rootBudget, room())
+    const roomLeft = room()
+    const max = Math.min(rootBudget, roomLeft)
     if (printed.length <= max) add(printed)
     else if (max > TRUNCATED.length) {
       add(truncateText(printed, max - TRUNCATED.length))
+      rootTruncated = true
+    } else if (rootBudget < roomLeft) {
+      // The root's own cap is the limit, not the overall budget, so the
+      // named types that still fit are kept.
       rootTruncated = true
     } else truncated = true
   }

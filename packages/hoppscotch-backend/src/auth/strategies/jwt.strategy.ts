@@ -69,6 +69,20 @@ const extractFromAuthHeaders = (request: Request): O.Option<string> =>
   );
 
 /**
+ * Whether the request carries a usable refresh cookie.
+ *
+ * Uses the same rules as `extractFromCookie`: the value must be a non-blank
+ * string to count as a credential (see the `j:`-prefix note above).
+ *
+ * @param request - Express Request object
+ * @returns true when a non-blank `refresh_token` cookie is present
+ */
+const hasRefreshCookie = (request: Request): boolean => {
+  const refresh = request?.cookies?.['refresh_token'];
+  return typeof refresh === 'string' && refresh.trim().length > 0;
+};
+
+/**
  * Combines cookie and header token extraction strategies.
  * Attempts to extract from cookie first, then falls back to Authorization header.
  *
@@ -79,11 +93,16 @@ const extractToken = (request: Request): E.Either<Error, string> =>
   pipe(
     extractFromCookie(request),
     O.alt(() => extractFromAuthHeaders(request)),
-    // Neither `Authorization` header nor `Cookie` were found with the request,
-    // `COOKIES_NOT_FOUND` for backwards compatibility.
-    E.fromOption(() => {
-      return new ForbiddenException(COOKIES_NOT_FOUND);
-    }),
+    // Neither the `Authorization` header nor the `access_token` cookie yielded
+    // a usable token. A surviving refresh cookie means the session is still
+    // refreshable, so answer 401 and let the client run its token refresh; a
+    // request with no credentials at all keeps the historical 403
+    // (`COOKIES_NOT_FOUND`) for backwards compatibility.
+    E.fromOption(() =>
+      hasRefreshCookie(request)
+        ? new UnauthorizedException()
+        : new ForbiddenException(COOKIES_NOT_FOUND),
+    ),
   );
 
 @Injectable()

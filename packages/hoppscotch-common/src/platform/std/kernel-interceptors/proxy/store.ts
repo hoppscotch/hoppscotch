@@ -3,6 +3,7 @@ import { Service } from "dioc"
 import { Store } from "~/kernel/store"
 import {
   getDefaultProxyUrl,
+  getEnvProxyUrl,
   DEFAULT_HOPP_PROXY_URL,
   isValidProxyUrl,
 } from "~/helpers/proxyUrl"
@@ -48,7 +49,11 @@ export class KernelInterceptorProxyStore extends Service {
 
   private readonly _settings = ref<ProxySettings>({
     version: "v1",
-    proxyUrl: DEFAULT_HOPP_PROXY_URL,
+    // Prefer the deployment-time env URL so the first paint / early
+    // execute() paths don't flash the cloud default when PROXY_APP_URL
+    // (injected as VITE_PROXY_APP_URL) is configured. Async load still
+    // resolves via getDefaultProxyUrl() (env → GQL → hardcoded).
+    proxyUrl: getEnvProxyUrl() ?? DEFAULT_HOPP_PROXY_URL,
     accessToken: import.meta.env.VITE_PROXYSCOTCH_ACCESS_TOKEN ?? "",
   })
 

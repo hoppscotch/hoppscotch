@@ -47,7 +47,20 @@ if (altPort !== undefined) {
 // Caddy always binds this port (env value or the :80 default).
 await assertPortBindable(+(process.env.HOPP_ALTERNATE_PORT ?? 80))
 
-const envFileContent = Object.entries(process.env)
+// PROXY_APP_URL is the documented backend/env knob for the default proxy URL.
+// Map it into VITE_PROXY_APP_URL so the frontend can seed settings without a
+// GQL round-trip when localStorage is empty (#6695). Explicit VITE_PROXY_APP_URL
+// wins if both are set.
+const runtimeEnv = { ...process.env }
+if (
+  runtimeEnv.PROXY_APP_URL &&
+  (runtimeEnv.VITE_PROXY_APP_URL === undefined ||
+    runtimeEnv.VITE_PROXY_APP_URL === "")
+) {
+  runtimeEnv.VITE_PROXY_APP_URL = runtimeEnv.PROXY_APP_URL
+}
+
+const envFileContent = Object.entries(runtimeEnv)
   .filter(([env]) => env.startsWith("VITE_"))
   .sort(([envA], [envB]) => envA.localeCompare(envB))
   .map(

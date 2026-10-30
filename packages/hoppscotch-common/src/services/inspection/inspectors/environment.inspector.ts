@@ -24,9 +24,12 @@ import {
   getEffectiveVariablesForRequest,
   filterNonEmptyEnvironmentVariables,
 } from "~/helpers/utils/environments"
-import { HOPP_ENVIRONMENT_REGEX } from "~/helpers/environment-regex"
+import {
+  HOPP_ENVIRONMENT_REGEX,
+  HOPP_ENVIRONMENT_TEST_REGEX,
+} from "~/helpers/environment-regex"
 
-const isENVInString = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
+const isENVInString = (str: string) => HOPP_ENVIRONMENT_TEST_REGEX.test(str)
 
 /**
  * This inspector is responsible for inspecting the environment variables of a input.

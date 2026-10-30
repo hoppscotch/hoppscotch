@@ -257,6 +257,7 @@ export class TeamSearchService extends Service {
 
     if (!query.length) {
       this.teamsSearchResultsLoading.value = false
+      this.expandingCollections.value = []
       return
     }
 
@@ -355,6 +356,8 @@ export class TeamSearchService extends Service {
       this.searchResultsCollections = searchResultsCollections
       this.searchResultsRequests = searchResultsRequests
       this.expandedCollections.value = []
+      // folders still loading belong to the previous results
+      this.expandingCollections.value = []
 
       const collectionTree = convertToTeamTree(
         Object.values(this.searchResultsCollections),
@@ -641,9 +644,9 @@ export class TeamSearchService extends Service {
 
     this.expandingCollections.value.push(collectionID)
 
-    try {
-      const searchID = this.latestSearchID
+    const searchID = this.latestSearchID
 
+    try {
       const childCollectionsPromise =
         getCollectionChildCollections(collectionID)
       const childRequestsPromise = getCollectionChildRequests(collectionID)
@@ -710,10 +713,15 @@ export class TeamSearchService extends Service {
 
       this.expandedCollections.value.push(collectionID)
     } finally {
-      // always clear the loading state, or the folder can never be opened again
-      this.expandingCollections.value = this.expandingCollections.value.filter(
-        (colID) => colID !== collectionID
-      )
+      // Always clear the loading state, or the folder can never be opened
+      // again. A newer search already reset the list, and may be loading the
+      // same folder again, so leave its entry alone.
+      if (searchID === this.latestSearchID) {
+        this.expandingCollections.value =
+          this.expandingCollections.value.filter(
+            (colID) => colID !== collectionID
+          )
+      }
     }
   }
 }

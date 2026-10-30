@@ -38,7 +38,11 @@ import {
 } from 'src/generated/prisma/client';
 import { CollectionFolder } from 'src/types/CollectionFolder';
 import { CollectionSearchNode } from 'src/types/CollectionSearchNode';
-import { GetCollectionResponse, SearchQueryReturnType } from './helper';
+import {
+  GetCollectionResponse,
+  ParentTreeQueryReturnType,
+  SearchQueryReturnType,
+} from './helper';
 import { RESTError } from 'src/types/RESTError';
 import { TeamService } from 'src/team/team.service';
 import { PrismaError } from 'src/prisma/prisma-error-codes';
@@ -1366,8 +1370,9 @@ export class TeamCollectionService {
   /**
    * Attach the chain of parent collections to every search result
    *
-   * The team's collections are read once and the paths are built in memory,
-   * instead of running one recursive query per search result.
+   * The parents of all results are read with one recursive query, and the
+   * paths are built in memory, instead of one query per search result.
+   * Only collections on the path to a result are read.
    *
    * @param teamID The Team ID
    * @param searchResults The matched collections and requests
@@ -1379,10 +1384,36 @@ export class TeamCollectionService {
   ): Promise<CollectionSearchNode[]> {
     if (searchResults.length === 0) return [];
 
-    const collections = await this.prisma.teamCollection.findMany({
-      where: { teamID },
-      select: { id: true, parentID: true, title: true, data: true },
-    });
+    const parentIDs = [
+      ...new Set(
+        searchResults
+          .map((result) =>
+            result.type === 'request' ? result.collectionID : result.parentID,
+          )
+          .filter((id): id is string => !!id),
+      ),
+    ];
+
+    const collections =
+      parentIDs.length === 0
+        ? []
+        : await this.prisma.$queryRaw<ParentTreeQueryReturnType[]>(
+            Prisma.sql`
+      WITH RECURSIVE ancestors AS (
+        SELECT id, "parentID", title, data
+        FROM "TeamCollection"
+        WHERE "teamID" = ${teamID} AND id IN (${Prisma.join(parentIDs)})
+
+        UNION
+
+        SELECT parent.id, parent."parentID", parent.title, parent.data
+        FROM "TeamCollection" AS parent
+        JOIN ancestors ON parent.id = ancestors."parentID"
+        WHERE parent."teamID" = ${teamID}
+      )
+      SELECT id, "parentID", title, data FROM ancestors;
+    `,
+          );
     const collectionsByID = new Map(
       collections.map((collection) => [collection.id, collection]),
     );

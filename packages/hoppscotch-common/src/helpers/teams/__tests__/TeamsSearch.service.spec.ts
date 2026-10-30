@@ -251,4 +251,42 @@ describe("TeamSearchService.searchTeams", () => {
 
     expect(service.expandingCollections.value).toEqual([])
   })
+
+  it("lets a newer search load a folder an older search is still loading", async () => {
+    const matchedFolder = {
+      type: "collection",
+      id: "col-images",
+      title: "Images",
+      data: null,
+      path: [],
+    }
+    mocks.axiosGet.mockResolvedValue(okResponse([matchedFolder]))
+    await service.searchTeams("images", "team-1")
+
+    const olderLoad = deferred<unknown>()
+    mocks.getCollectionChildCollections.mockReturnValueOnce(olderLoad.promise)
+    mocks.getCollectionChildRequests.mockResolvedValue(
+      E.right({ requestsInCollection: [] })
+    )
+    const olderExpand = service.expandCollection("col-images")
+
+    // a newer search returns the same folder while the older load is pending
+    await service.searchTeams("image", "team-1")
+    expect(service.expandingCollections.value).toEqual([])
+
+    const newerLoad = deferred<unknown>()
+    mocks.getCollectionChildCollections.mockReturnValueOnce(newerLoad.promise)
+    const newerExpand = service.expandCollection("col-images")
+    expect(mocks.getCollectionChildCollections).toHaveBeenCalledTimes(2)
+
+    // the older load finishing must not clear the newer one
+    olderLoad.resolve(E.right({ collection: { children: [] } }))
+    await olderExpand
+    expect(service.expandingCollections.value).toEqual(["col-images"])
+
+    newerLoad.resolve(E.right({ collection: { children: [] } }))
+    await newerExpand
+    expect(service.expandingCollections.value).toEqual([])
+    expect(service.expandedCollections.value).toEqual(["col-images"])
+  })
 })

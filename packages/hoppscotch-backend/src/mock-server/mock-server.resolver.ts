@@ -172,11 +172,16 @@ export class MockServerResolver {
   @UseGuards(GqlAuthGuard)
   async updateMockServer(
     @GqlUser() user: AuthUser,
-    @Args() args: MockServerMutationArgs,
+    @Args({
+      name: 'id',
+      type: () => ID,
+      description: 'Id of the mockserver to update',
+    })
+    id: string,
     @Args('input') input: UpdateMockServerInput,
   ): Promise<MockServer> {
     const result = await this.mockServerService.updateMockServer(
-      args.id,
+      id,
       user.uid,
       input,
     );

@@ -14,6 +14,14 @@ export type SearchQueryReturnType = {
   parentID?: string | null;
 };
 
+// Type of data returned from the query to obtain all parents of search results
+export type ParentTreeQueryReturnType = {
+  id: string;
+  parentID: string | null;
+  title: string;
+  data: Prisma.JsonValue;
+};
+
 // Type of data returned from the query to fetch collection details from CLI
 export type GetCollectionResponse = {
   id: string;

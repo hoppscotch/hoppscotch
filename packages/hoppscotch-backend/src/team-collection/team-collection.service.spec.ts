@@ -14,6 +14,7 @@ import {
   TEAM_COLL_SHORT_TITLE,
   TEAM_COL_ALREADY_ROOT,
   TEAM_COL_REORDERING_FAILED,
+  TEAM_COL_SEARCH_FAILED,
   TEAM_COL_SAME_NEXT_COLL,
   TEAM_INVALID_COLL_ID,
   TEAM_MEMBER_NOT_FOUND,
@@ -2179,4 +2180,196 @@ describe('getCollectionForCLI', () => {
   //     requests: [],
   //   });
   // });
+});
+
+describe('searchByTitle', () => {
+  const searchTeamCollections = [
+    {
+      id: 'root',
+      parentID: null,
+      title: 'Images',
+      data: { auth: { authType: 'none', authActive: true } },
+    },
+    { id: 'child', parentID: 'root', title: 'Upload', data: null },
+  ];
+
+  const requestHit = {
+    id: 'req_1',
+    title: 'Get image details',
+    method: 'GET',
+    request: { name: 'Get image details', method: 'GET' },
+    collectionID: 'child',
+    type: 'request',
+  };
+
+  const sqlText = (callIndex: number) => {
+    const query = (mockPrisma.$queryRaw as jest.Mock).mock.calls[callIndex][0];
+    return { text: query.strings.join('?'), values: query.values };
+  };
+
+  test('should return no results and skip the database for a blank query', async () => {
+    const result = await teamCollectionService.searchByTitle('   ', team.id);
+
+    expect(result).toEqualRight({ data: [] });
+    expect(mockPrisma.$queryRaw).not.toHaveBeenCalled();
+  });
+
+  test('should match every word of the query in any order', async () => {
+    mockPrisma.$queryRaw
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([requestHit]);
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce(
+      searchTeamCollections as any,
+    );
+
+    await teamCollectionService.searchByTitle('Details  GET image', team.id);
+
+    const { values } = sqlText(1);
+    expect(values).toEqual(
+      expect.arrayContaining(['%details%', '%get%', '%image%']),
+    );
+  });
+
+  test('should return requests with the full request and their parent path', async () => {
+    mockPrisma.$queryRaw
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([requestHit]);
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce(
+      searchTeamCollections as any,
+    );
+
+    const result = await teamCollectionService.searchByTitle('image', team.id);
+
+    expect(result).toEqualRight({
+      data: [
+        {
+          type: 'request',
+          id: 'req_1',
+          title: 'Get image details',
+          method: 'GET',
+          request: { name: 'Get image details', method: 'GET' },
+          path: [
+            {
+              type: 'collection',
+              id: 'child',
+              title: 'Upload',
+              data: null,
+              path: [
+                {
+                  type: 'collection',
+                  id: 'root',
+                  title: 'Images',
+                  data: JSON.stringify(searchTeamCollections[0].data),
+                  path: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    // one query for the whole tree, not one per result
+    expect(mockPrisma.teamCollection.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  test('should return collections with their data and parent path', async () => {
+    mockPrisma.$queryRaw
+      .mockResolvedValueOnce([
+        {
+          id: 'child',
+          title: 'Upload',
+          data: null,
+          parentID: 'root',
+          type: 'collection',
+        },
+      ])
+      .mockResolvedValueOnce([]);
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce(
+      searchTeamCollections as any,
+    );
+
+    const result = await teamCollectionService.searchByTitle('upload', team.id);
+
+    expect(result).toEqualRight({
+      data: [
+        {
+          type: 'collection',
+          id: 'child',
+          title: 'Upload',
+          data: null,
+          path: [
+            {
+              type: 'collection',
+              id: 'root',
+              title: 'Images',
+              data: JSON.stringify(searchTeamCollections[0].data),
+              path: [],
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  test('should not fall back to typo matching when titles match', async () => {
+    mockPrisma.$queryRaw
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([requestHit]);
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce(
+      searchTeamCollections as any,
+    );
+
+    await teamCollectionService.searchByTitle('image', team.id);
+
+    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(2);
+    expect(sqlText(0).text).not.toContain('strict_word_similarity');
+  });
+
+  test('should fall back to typo matching when no title matches', async () => {
+    mockPrisma.$queryRaw
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([requestHit]);
+    mockPrisma.teamCollection.findMany.mockResolvedValueOnce(
+      searchTeamCollections as any,
+    );
+
+    const result = await teamCollectionService.searchByTitle(
+      'imgae detials',
+      team.id,
+    );
+
+    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(4);
+    expect(sqlText(2).text).toContain('strict_word_similarity');
+    expect(sqlText(3).values).toEqual(
+      expect.arrayContaining(['imgae', 'detials']),
+    );
+    expect(result).toBeRight();
+  });
+
+  test('should not fall back to typo matching after the first page', async () => {
+    mockPrisma.$queryRaw.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
+
+    const result = await teamCollectionService.searchByTitle(
+      'image',
+      team.id,
+      10,
+      2,
+    );
+
+    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(2);
+    expect(result).toEqualRight({ data: [] });
+  });
+
+  test('should return an error when the search query fails', async () => {
+    mockPrisma.$queryRaw.mockRejectedValueOnce(new Error('db down'));
+
+    const result = await teamCollectionService.searchByTitle('image', team.id);
+
+    expect(result).toEqualLeft({
+      message: TEAM_COL_SEARCH_FAILED,
+      statusCode: 404,
+    });
+  });
 });

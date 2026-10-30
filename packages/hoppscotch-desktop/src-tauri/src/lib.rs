@@ -15,8 +15,6 @@ use tauri::Emitter;
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_window_state::StateFlags;
 
-use random_port::{PortPicker, Protocol};
-
 use config::HoppApploadConfig;
 use error::HoppError;
 
@@ -61,11 +59,9 @@ fn setup_deep_link_handler(app: &tauri::App) -> Result<(), HoppError> {
 }
 
 fn setup_server(app: &tauri::App) -> Result<u16, HoppError> {
-    let server_port: u16 = PortPicker::new()
-        .protocol(Protocol::Tcp)
-        .port_range(15000..=25000)
-        .pick()
-        .map_err(|_| HoppError::ServerPortInitialization)?;
+    let listener =
+        server::bind_listener(15000..=25000).ok_or(HoppError::ServerPortInitialization)?;
+    let server_port = listener.local_addr()?.port();
 
     tracing::info!("Selected server port: {}", server_port);
     SERVER_PORT
@@ -77,7 +73,7 @@ fn setup_server(app: &tauri::App) -> Result<u16, HoppError> {
         .ok_or(HoppError::ServerPortInitialization)?;
     tracing::info!(port = port, "Initializing server with pre-selected port");
 
-    let port = server::init(port, app.handle().clone());
+    let port = server::init(listener, app.handle().clone())?;
     tracing::info!(port = port, "Server initialization complete");
 
     Ok(port)

@@ -94,6 +94,7 @@
     >
       <div ref="htmlResponse" class="absolute inset-0"></div>
     </div>
+    <!-- Isolate srcdoc from :root.dark so unstyled HTML stays readable. -->
     <iframe
       v-show="previewEnabled"
       ref="previewFrame"
@@ -101,6 +102,7 @@
       src="about:blank"
       loading="lazy"
       sandbox=""
+      style="color-scheme: light"
     ></iframe>
   </div>
 </template>
@@ -246,6 +248,7 @@ defineActionHandler("response.save-as-example", () => {
 
 <style lang="scss" scoped>
 .covers-response {
+  color-scheme: light;
   @apply bg-white;
   @apply h-full;
   @apply w-full;

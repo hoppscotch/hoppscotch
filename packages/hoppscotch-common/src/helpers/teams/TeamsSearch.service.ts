@@ -394,6 +394,7 @@ export class TeamSearchService extends Service {
     this.searchResultsCollections = {}
     this.searchResultsRequests = {}
     this.expandedCollections.value = []
+    this.expandingCollections.value = []
     this.teamsSearchResults.value = []
     this.teamsSearchResultsFormattedForSpotlight.value = []
   }
@@ -640,80 +641,80 @@ export class TeamSearchService extends Service {
 
     this.expandingCollections.value.push(collectionID)
 
-    const searchID = this.latestSearchID
+    try {
+      const searchID = this.latestSearchID
 
-    const childCollectionsPromise = getCollectionChildCollections(collectionID)
-    const childRequestsPromise = getCollectionChildRequests(collectionID)
+      const childCollectionsPromise =
+        getCollectionChildCollections(collectionID)
+      const childRequestsPromise = getCollectionChildRequests(collectionID)
 
-    const [childCollections, childRequests] = await Promise.all([
-      childCollectionsPromise,
-      childRequestsPromise,
-    ])
+      const [childCollections, childRequests] = await Promise.all([
+        childCollectionsPromise,
+        childRequestsPromise,
+      ])
 
-    if (E.isLeft(childCollections)) {
-      return
-    }
+      if (E.isLeft(childCollections)) {
+        return
+      }
 
-    if (E.isLeft(childRequests)) {
-      return
-    }
+      if (E.isLeft(childRequests)) {
+        return
+      }
 
-    // a newer search replaced the results this collection belonged to
-    if (searchID !== this.latestSearchID) {
+      // a newer search replaced the results this collection belonged to
+      if (searchID !== this.latestSearchID) {
+        return
+      }
+
+      childCollections.right.collection?.children
+        .map((child) => ({
+          id: child.id,
+          title: child.title,
+          data: child.data ?? null,
+          children: [],
+          requests: [],
+        }))
+        .forEach((child) => {
+          this.searchResultsCollections[child.id] = {
+            ...child,
+            parentID: collectionID,
+            meta: {
+              isSearchResult: false,
+              insertedWhileExpanding: true,
+            },
+          }
+        })
+
+      childRequests.right.requestsInCollection
+        .map((request) => ({
+          id: request.id,
+          collectionID: collectionID,
+          title: request.title,
+          request: JSON.parse(request.request) as TeamRequest["request"],
+        }))
+        .forEach((request) => {
+          this.searchResultsRequests[request.id] = {
+            ...request,
+            meta: {
+              isSearchResult: false,
+              insertedWhileExpanding: true,
+            },
+          }
+        })
+
+      this.teamsSearchResults.value = convertToTeamTree(
+        Object.values(this.searchResultsCollections),
+        // asserting because we've already added the missing properties after fetching the full details
+        Object.values(this.searchResultsRequests) as TeamRequest[]
+      )
+
+      this.expandedCollections.value.push(collectionID)
+    } finally {
+      // always clear the loading state, or the folder can never be opened again
       this.expandingCollections.value = this.expandingCollections.value.filter(
         (colID) => colID !== collectionID
       )
-      return
     }
-
-    childCollections.right.collection?.children
-      .map((child) => ({
-        id: child.id,
-        title: child.title,
-        data: child.data ?? null,
-        children: [],
-        requests: [],
-      }))
-      .forEach((child) => {
-        this.searchResultsCollections[child.id] = {
-          ...child,
-          parentID: collectionID,
-          meta: {
-            isSearchResult: false,
-            insertedWhileExpanding: true,
-          },
-        }
-      })
-
-    childRequests.right.requestsInCollection
-      .map((request) => ({
-        id: request.id,
-        collectionID: collectionID,
-        title: request.title,
-        request: JSON.parse(request.request) as TeamRequest["request"],
-      }))
-      .forEach((request) => {
-        this.searchResultsRequests[request.id] = {
-          ...request,
-          meta: {
-            isSearchResult: false,
-            insertedWhileExpanding: true,
-          },
-        }
-      })
-
-    this.teamsSearchResults.value = convertToTeamTree(
-      Object.values(this.searchResultsCollections),
-      // asserting because we've already added the missing properties after fetching the full details
-      Object.values(this.searchResultsRequests) as TeamRequest[]
-    )
-
-    // remove the collection after expanding
-    this.expandingCollections.value = this.expandingCollections.value.filter(
-      (colID) => colID !== collectionID
-    )
-
-    this.expandedCollections.value.push(collectionID)
   }
 }
 

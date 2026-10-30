@@ -415,3 +415,87 @@ describe("TestRunnerService.getTestResultInfo — pass/fail counting", () => {
     ).toEqual({ passed: 1, failed: 1 })
   })
 })
+
+describe("TestRunnerService.runPlan — delay between requests", () => {
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.restoreAllMocks()
+  })
+
+  const entry = (id: string) => ({
+    id,
+    request: {},
+    collection: {},
+    folderPath: [],
+    inheritedVariables: [],
+    inheritedPreRequestScripts: [],
+    inheritedTestScripts: [],
+    inheritedHeaders: [],
+  })
+
+  const startRun = () => {
+    const stopRef = ref(false)
+    const tab = ref({ document: { status: "running" } })
+    const options = {
+      iterations: 1,
+      delay: 60_000,
+      stopOnError: false,
+      persistResponses: false,
+      keepVariableValues: false,
+      stopRef,
+    }
+    const runTestRequest = vi
+      .spyOn(service as any, "runTestRequest")
+      .mockResolvedValue(undefined)
+
+    const outcome: { settled?: string } = {}
+    const run: Promise<void> = (service as any).runPlan(
+      tab,
+      [entry("a"), entry("b")],
+      options,
+      {},
+      [],
+      undefined
+    )
+    run.then(
+      () => (outcome.settled = "finished"),
+      (e: Error) => (outcome.settled = e.message)
+    )
+
+    return { stopRef, tab, runTestRequest, outcome }
+  }
+
+  test("Stop during the delay ends the run without starting the next request", async () => {
+    vi.useFakeTimers()
+    const { stopRef, tab, runTestRequest, outcome } = startRun()
+
+    await vi.advanceTimersByTimeAsync(0)
+    expect(runTestRequest).toHaveBeenCalledTimes(1)
+    expect(outcome.settled).toBeUndefined()
+
+    stopRef.value = true
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(outcome.settled).toBe("Test execution stopped")
+    expect(tab.value.document.status).toBe("stopped")
+    expect(runTestRequest).toHaveBeenCalledTimes(1)
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  test("an uninterrupted run still waits the full delay", async () => {
+    vi.useFakeTimers()
+    const { runTestRequest, outcome } = startRun()
+
+    await vi.advanceTimersByTimeAsync(0)
+    expect(runTestRequest).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(59_999)
+    expect(runTestRequest).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(1)
+    expect(runTestRequest).toHaveBeenCalledTimes(2)
+
+    await vi.advanceTimersByTimeAsync(60_000)
+    expect(outcome.settled).toBe("finished")
+  })
+})

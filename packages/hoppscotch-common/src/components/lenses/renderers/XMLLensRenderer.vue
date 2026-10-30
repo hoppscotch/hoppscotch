@@ -102,6 +102,7 @@ import {
   useResponseBody,
   useDownloadResponse,
   useCopyResponse,
+  useResponseFilename,
 } from "@composables/lens-actions"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
@@ -189,14 +190,13 @@ const responseName = computed(() => {
   return props.response.name
 })
 
-const filename = t("filename.lens", {
-  request_name: responseName.value,
-})
-
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,
   responseBodyText,
-  `${filename}.xml`
+  useResponseFilename(
+    () => props.response,
+    () => `${t("filename.lens", { request_name: responseName.value })}.xml`
+  )
 )
 
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)

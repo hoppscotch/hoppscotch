@@ -55,7 +55,10 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { useI18n } from "@composables/i18n"
-import { useDownloadResponse } from "@composables/lens-actions"
+import {
+  useDownloadResponse,
+  useResponseFilename,
+} from "@composables/lens-actions"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
@@ -112,9 +115,13 @@ const responseType = computed(() =>
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,
   computed(() => props.response.body),
-  t("filename.lens", {
-    request_name: props.response.req.name,
-  })
+  useResponseFilename(
+    () => props.response,
+    () =>
+      t("filename.lens", {
+        request_name: props.response.req.name,
+      })
+  )
 )
 
 /**

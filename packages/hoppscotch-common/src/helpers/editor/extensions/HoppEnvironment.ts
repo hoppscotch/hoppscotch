@@ -39,6 +39,7 @@ import {
 import {
   ENV_VAR_NAME_REGEX,
   HOPP_ENVIRONMENT_REGEX,
+  HOPP_ENVIRONMENT_REGEX_GLOBAL,
 } from "~/helpers/environment-regex"
 import {
   stabilizeTooltipHover,
@@ -332,7 +333,7 @@ function checkEnv(env: string, aggregateEnvs: AggregateEnvironment[]) {
 
 const getMatchDecorator = (aggregateEnvs: AggregateEnvironment[]) =>
   new MatchDecorator({
-    regexp: HOPP_ENVIRONMENT_REGEX,
+    regexp: HOPP_ENVIRONMENT_REGEX_GLOBAL,
     decoration: (m, view, pos) => {
       // Check if the current position is inside a comment then disable the highlight
       if (isComment(view.state, pos)) return null

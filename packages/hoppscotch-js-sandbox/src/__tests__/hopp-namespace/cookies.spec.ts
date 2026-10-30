@@ -216,6 +216,25 @@ describe("hopp.cookies", () => {
     )
   })
 
+  test("hopp.cookies.set should keep a same-named cookie on another domain", () => {
+    const otherDomain = { ...baseCookies[0], domain: "other.example.org" }
+    const updated = { ...baseCookies[0], value: "updated123" }
+    return expect(
+      runPreRequestScript(
+        `hopp.cookies.set("example.com", ${JSON.stringify(updated)})`,
+        {
+          envs: { global: [], selected: [] },
+          request: defaultRequest,
+          cookies: [...baseCookies, otherDomain],
+        }
+      )
+    ).resolves.toEqualRight(
+      expect.objectContaining({
+        updatedCookies: expect.arrayContaining([otherDomain, updated]),
+      })
+    )
+  })
+
   test("hopp.cookies.delete should remove a specific cookie", () => {
     return expect(
       runPreRequestScript(`hopp.cookies.delete("example.com", "pref")`, {

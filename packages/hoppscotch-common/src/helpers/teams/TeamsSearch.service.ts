@@ -282,7 +282,12 @@ export class TeamSearchService extends Service {
         axiosPlatformConfig
       )
 
-      if (isStale() || searchResponse.status !== 200) {
+      if (isStale()) {
+        return
+      }
+
+      if (searchResponse.status !== 200) {
+        this.clearSearchResults()
         return
       }
 
@@ -376,11 +381,21 @@ export class TeamSearchService extends Service {
       })
     } catch (error) {
       console.error(error)
+      // don't keep showing the matches of the previous query
+      if (!isStale()) this.clearSearchResults()
     } finally {
       if (!isStale()) {
         this.teamsSearchResultsLoading.value = false
       }
     }
+  }
+
+  private clearSearchResults() {
+    this.searchResultsCollections = {}
+    this.searchResultsRequests = {}
+    this.expandedCollections.value = []
+    this.teamsSearchResults.value = []
+    this.teamsSearchResultsFormattedForSpotlight.value = []
   }
 
   cascadeParentCollectionForPropertiesForSearchResults = (

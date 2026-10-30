@@ -2222,11 +2222,30 @@ describe('searchByTitle', () => {
       searchTeamCollections as any,
     );
 
-    await teamCollectionService.searchByTitle('Details  GET image', team.id);
+    const result = await teamCollectionService.searchByTitle(
+      'Details  GET image',
+      team.id,
+    );
 
-    const { values } = sqlText(1);
-    expect(values).toEqual(
-      expect.arrayContaining(['%details%', '%get%', '%image%']),
+    const { text, values } = sqlText(1);
+    expect(text).toMatch(
+      /title ILIKE \? AND title ILIKE \? AND title ILIKE \?/,
+    );
+    expect(values.slice(1, 4)).toEqual(['%details%', '%get%', '%image%']);
+    expect(result).toBeRight();
+    expect((result as any).right.data.map((node) => node.id)).toEqual([
+      'req_1',
+    ]);
+  });
+
+  test('should match every word of a long query', async () => {
+    mockPrisma.$queryRaw.mockResolvedValue([]);
+    const words = Array.from({ length: 12 }, (_, i) => `word${i}`);
+
+    await teamCollectionService.searchByTitle(words.join(' '), team.id);
+
+    expect(sqlText(0).values).toEqual(
+      expect.arrayContaining(words.map((word) => `%${word}%`)),
     );
   });
 

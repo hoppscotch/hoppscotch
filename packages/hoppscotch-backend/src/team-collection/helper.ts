@@ -1,8 +1,5 @@
 import { Prisma, TeamRequest } from 'src/generated/prisma/client';
 
-// Maximum number of words of a search query that are matched against titles
-export const MAX_SEARCH_WORDS = 10;
-
 // Type of data returned from the query to obtain all search results
 export type SearchQueryReturnType = {
   id: string;

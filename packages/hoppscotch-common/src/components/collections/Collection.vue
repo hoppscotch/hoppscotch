@@ -452,9 +452,14 @@ const emit = defineEmits<{
   ): void
 }>()
 
-onMounted(() => {
+const openIfAutoOpen = () => {
   if (props.autoOpen && !props.isOpen) emit("auto-open")
-})
+}
+
+onMounted(openIfAutoOpen)
+
+// rows already shown before a search can become folders that lead to a match
+watch(() => props.autoOpen, openIfAutoOpen)
 
 const tippyActions = ref<HTMLDivElement | null>(null)
 const requestAction = ref<HTMLButtonElement | null>(null)

@@ -38,11 +38,7 @@ import {
 } from 'src/generated/prisma/client';
 import { CollectionFolder } from 'src/types/CollectionFolder';
 import { CollectionSearchNode } from 'src/types/CollectionSearchNode';
-import {
-  GetCollectionResponse,
-  MAX_SEARCH_WORDS,
-  SearchQueryReturnType,
-} from './helper';
+import { GetCollectionResponse, SearchQueryReturnType } from './helper';
 import { RESTError } from 'src/types/RESTError';
 import { TeamService } from 'src/team/team.service';
 import { PrismaError } from 'src/prisma/prisma-error-codes';
@@ -1195,7 +1191,7 @@ export class TeamCollectionService {
           .split(/\s+/)
           .filter((word) => word.length > 0),
       ),
-    ].slice(0, MAX_SEARCH_WORDS);
+    ];
   }
 
   /**

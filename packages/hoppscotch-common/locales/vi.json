@@ -183,12 +183,13 @@
     "default": "mặc định: {value}"
   },
   "auth": {
-    "account_exists": "Tài khoản đã tồn tại với thông tin đăng nhập khác - Đăng nhập để liên kết hai tài khoản",
+    "account_deactivated": "Tài khoản của bạn đã bị vô hiệu hóa. Hãy liên hệ quản trị viên để được cấp quyền truy cập.",
+    "account_exists":"Tài khoản đã tồn tại với thông tin đăng nhập khác - Đăng nhập để liên kết hai tài khoản",
     "all_sign_in_options": "Tất cả các tùy chọn đăng nhập",
-    "continue_with_auth_provider": "Continue with {provider}",
+    "continue_with_auth_provider": "Tiếp tục với {provider}",
     "continue_with_email": "Tiếp tục bằng Email",
     "continue_with_github": "Tiếp tục bằng GitHub",
-    "continue_with_github_enterprise": "Continue with GitHub Enterprise",
+    "continue_with_github_enterprise": "Tiếp tục với GitHub Enterprise",
     "continue_with_google": "Tiếp tục bằng Google",
     "continue_with_microsoft": "Tiếp tục bằng Microsoft",
     "email": "Email",

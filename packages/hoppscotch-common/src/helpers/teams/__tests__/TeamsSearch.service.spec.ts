@@ -8,6 +8,8 @@ const mocks = vi.hoisted(() => ({
   axiosGet: vi.fn(),
   getSingleCollection: vi.fn(),
   getSingleRequest: vi.fn(),
+  getCollectionChildCollections: vi.fn(),
+  getCollectionChildRequests: vi.fn(),
 }))
 
 vi.mock("axios", () => ({
@@ -33,8 +35,8 @@ vi.mock("../TeamCollection", () => ({
 vi.mock("../TeamRequest", () => ({
   __esModule: true,
   getSingleRequest: mocks.getSingleRequest,
-  getCollectionChildRequests: vi.fn(),
-  getCollectionChildCollections: vi.fn(),
+  getCollectionChildRequests: mocks.getCollectionChildRequests,
+  getCollectionChildCollections: mocks.getCollectionChildCollections,
 }))
 
 vi.mock("@hoppscotch/js-sandbox/scripting", () => ({
@@ -207,4 +209,46 @@ describe("TeamSearchService.searchTeams", () => {
       expect(service.teamsSearchResultsLoading.value).toBe(false)
     }
   )
+
+  it("lets a folder be opened again after loading its contents fails", async () => {
+    const matchedFolder = {
+      type: "collection",
+      id: "col-images",
+      title: "Images",
+      data: null,
+      path: [],
+    }
+    mocks.axiosGet.mockResolvedValue(okResponse([matchedFolder]))
+    await service.searchTeams("images", "team-1")
+
+    mocks.getCollectionChildCollections.mockResolvedValueOnce(
+      E.left("network error")
+    )
+    mocks.getCollectionChildRequests.mockResolvedValueOnce(
+      E.right({ requestsInCollection: [] })
+    )
+    await service.expandCollection("col-images")
+
+    expect(service.expandingCollections.value).toEqual([])
+
+    mocks.getCollectionChildCollections.mockResolvedValueOnce(
+      E.right({ collection: { children: [] } })
+    )
+    mocks.getCollectionChildRequests.mockResolvedValueOnce(
+      E.right({ requestsInCollection: [] })
+    )
+    await service.expandCollection("col-images")
+
+    expect(mocks.getCollectionChildCollections).toHaveBeenCalledTimes(2)
+    expect(service.expandedCollections.value).toEqual(["col-images"])
+  })
+
+  it("clears folders still loading when the next search fails", async () => {
+    service.expandingCollections.value = ["col-images"]
+    mocks.axiosGet.mockResolvedValueOnce({ status: 500, data: {} })
+
+    await service.searchTeams("images", "team-1")
+
+    expect(service.expandingCollections.value).toEqual([])
+  })
 })

@@ -4,6 +4,7 @@ export type TestCmdOptions = {
   token?: string;
   server?: string;
   reporterJunit?: string;
+  reporterJson?: string;
   iterationCount?: number;
   iterationData?: string;
   legacySandbox?: boolean;

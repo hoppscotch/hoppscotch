@@ -1062,7 +1062,7 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         );
 
     beforeAll(() => {
-      fs.mkdirSync(genPath);
+      fs.mkdirSync(genPath, { recursive: true });
     });
 
     afterAll(() => {
@@ -1541,6 +1541,224 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       expect(result.stdout).toContain("env templated header echoed");
       expect(result.stdout).toContain("anonymous query in nested folder");
       expect(result.error).toBeNull();
+    });
+  });
+
+  describe("Test `hopp test <file_path_or_id> --reporter-json [path]` command:", () => {
+    const genPath = path.resolve("hopp-cli-test-json");
+    const COLL_PATH = getTestJsonFilePath(
+      "test-junit-report-export-coll.json",
+      "collection"
+    );
+    const COLL_REQUEST_COUNT = 6;
+
+    // Helper function to replace dynamic values (durations) before
+    // generating test snapshots
+    const replaceDynamicValuesInStr = (input: string): string =>
+      input
+        .replace(/"duration":\s*\{[^}]*\}/g, '"duration": "duration"')
+        .replace(/"duration":\s*[\d.]+/g, '"duration": "duration"');
+
+    beforeAll(() => {
+      fs.mkdirSync(genPath);
+    });
+
+    afterAll(() => {
+      fs.rmdirSync(genPath, { recursive: true });
+    });
+
+    test("Report export fails with the code `REPORT_EXPORT_FAILED` while encountering an error during path creation", async () => {
+      // A path whose parent is an existing *file* always fails to create,
+      // regardless of the privileges the test runs with.
+      const blockerFile = path.join(genPath, "blocker-file");
+      fs.writeFileSync(blockerFile, "blocker");
+      const invalidPath = path.join(blockerFile, "report.json");
+
+      const PASSES_COLL_PATH = getTestJsonFilePath(
+        "passes-coll.json",
+        "collection"
+      );
+
+      const args = `test ${PASSES_COLL_PATH} --reporter-json ${invalidPath}`;
+
+      const { stdout, stderr } = await runCLI(args, {
+        cwd: path.resolve(genPath),
+      });
+
+      const out = getErrorCode(stderr);
+      expect(out).toBe<HoppErrorCode>("REPORT_EXPORT_FAILED");
+
+      expect(stdout).not.toContain("Successfully exported the JSON report to:");
+    });
+
+    test("Generates a JSON report at the default path", async () => {
+      const exportPath = "hopp-json-report.json";
+
+      const args = `test ${COLL_PATH} --reporter-json`;
+
+      // Use retry logic to handle transient network errors (ECONNRESET, etc.)
+      // that can corrupt the JSON report and cause snapshot mismatches
+      const maxAttempts = 2;
+      let lastFileContents = "";
+
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        const result = await runCLI(args, {
+          cwd: path.resolve(genPath),
+        });
+
+        expect(result.stdout).toContain(
+          `Successfully exported the JSON report to: ${exportPath}`
+        );
+
+        lastFileContents = fs
+          .readFileSync(path.resolve(genPath, exportPath))
+          .toString();
+
+        const hasNetworkErrorInJSON =
+          /ECONNRESET|EAI_AGAIN|ENOTFOUND|ETIMEDOUT|ECONNREFUSED/i.test(
+            lastFileContents
+          ) ||
+          (/REQUEST_ERROR/i.test(lastFileContents) &&
+            !/ERR_INVALID_URL/i.test(lastFileContents));
+
+        if (!hasNetworkErrorInJSON) {
+          break;
+        }
+
+        // Network error detected - retry once if not last attempt
+        if (attempt < maxAttempts - 1) {
+          console.log(
+            `⚠️  Network error detected in JSON report (ECONNRESET/DNS). Retrying once to get clean snapshot...`
+          );
+          try {
+            fs.unlinkSync(path.resolve(genPath, exportPath));
+          } catch {}
+          await new Promise((r) => setTimeout(r, 2000));
+          continue;
+        }
+
+        // Last attempt exhausted - skip snapshot assertion to avoid false
+        // positive (infrastructure issue, not a CLI regression)
+        console.warn(
+          `⚠️  Skipping snapshot test: Network errors persisted in JSON report after retry. External services may be degraded.`
+        );
+        return;
+      }
+
+      expect(replaceDynamicValuesInStr(lastFileContents)).toMatchSnapshot();
+    });
+
+    test("Generates a JSON report at the specified path", async () => {
+      const exportPath = "outer-dir/inner-dir/report.json";
+
+      const args = `test ${COLL_PATH} --reporter-json ${exportPath}`;
+
+      const result = await runCLI(args, {
+        cwd: path.resolve(genPath),
+      });
+
+      expect(result.stdout).toContain(
+        `Successfully exported the JSON report to: ${exportPath}`
+      );
+
+      const report = JSON.parse(
+        fs.readFileSync(path.resolve(genPath, exportPath)).toString()
+      );
+
+      expect(report.iterations).toHaveLength(1);
+      expect(report.iterations[0].requests).toHaveLength(COLL_REQUEST_COUNT);
+      expect(report.summary.totalRequests).toBe(COLL_REQUEST_COUNT);
+      // Requests that errored (script/parse/network failures) are neither
+      // passed nor failed, so the three counters must add up to the total
+      expect(
+        report.summary.passed + report.summary.failed + report.summary.errored
+      ).toBe(COLL_REQUEST_COUNT);
+
+      // Every request entry carries the full set of report fields
+      report.iterations[0].requests.forEach(
+        (request: {
+          path: string;
+          result: boolean;
+          duration: { test: number; request: number; preRequest: number };
+          tests: { passed: number; failed: number };
+          errors: unknown[];
+        }) => {
+          expect(request.path).toBeTruthy();
+          expect(typeof request.result).toBe("boolean");
+          expect(request.duration).toBeTypeOf("object");
+          expect(request.tests).toBeTypeOf("object");
+          expect(request.errors).toBeInstanceOf(Array);
+        }
+      );
+    });
+
+    test("Overwrites the pre-existing report at the specified path", async () => {
+      const exportPath = "hopp-json-report.json";
+
+      // First run generates the report
+      await runCLI(`test ${COLL_PATH} --reporter-json ${exportPath}`, {
+        cwd: path.resolve(genPath),
+      });
+
+      // Second run must overwrite the pre-existing report
+      const result = await runCLI(
+        `test ${COLL_PATH} --reporter-json ${exportPath}`,
+        {
+          cwd: path.resolve(genPath),
+        }
+      );
+
+      expect(result.stdout).toContain(
+        `Overwriting the pre-existing path: ${exportPath}`
+      );
+
+      const report = JSON.parse(
+        fs.readFileSync(path.resolve(genPath, exportPath)).toString()
+      );
+      expect(report.iterations).toHaveLength(1);
+    });
+
+    test("Groups iterations in the JSON report when running with an iteration count", async () => {
+      const exportPath = "iterations-report.json";
+      const iterationCount = 2;
+
+      const args = `test ${COLL_PATH} --iteration-count ${iterationCount} --reporter-json ${exportPath}`;
+
+      const result = await runCLI(args, {
+        cwd: path.resolve(genPath),
+      });
+
+      expect(result.stdout).toContain(
+        `Successfully exported the JSON report to: ${exportPath}`
+      );
+
+      const report = JSON.parse(
+        fs.readFileSync(path.resolve(genPath, exportPath)).toString()
+      );
+
+      expect(report.iterations).toHaveLength(iterationCount);
+
+      report.iterations.forEach(
+        (iteration: {
+          iteration: number;
+          requests: unknown[];
+          passed: number;
+          failed: number;
+          errored: number;
+          duration: number;
+        }) => {
+          expect(iteration.requests).toHaveLength(COLL_REQUEST_COUNT);
+          expect(typeof iteration.passed).toBe("number");
+          expect(typeof iteration.failed).toBe("number");
+          expect(typeof iteration.errored).toBe("number");
+          expect(typeof iteration.duration).toBe("number");
+        }
+      );
+
+      expect(report.summary.iterations).toBe(iterationCount);
+      expect(report.summary.totalRequests).toBe(
+        iterationCount * COLL_REQUEST_COUNT
+      );
     });
   });
 });

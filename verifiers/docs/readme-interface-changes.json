@@ -1,0 +1,18 @@
+{
+  "name": "Interface changes update README",
+  "instruction": "Changes that alter the documented external interface update README.md in the same change set.",
+  "relevant_when": "Diff that changes externally visible setup, runtime, deployment, CLI, environment-variable, exposed-port, file-location, container-parameter, or user-facing interface behavior.",
+  "context": "CONTRIBUTING.md says pull requests must update README.md with interface changes, including new environment variables, exposed ports, useful file locations, and container parameters.",
+  "scope": "diff",
+  "scope_reason": "The rule depends on whether an interface-affecting source change and README.md update are present in the same diff.",
+  "checklist": [
+    {
+      "name": "readme-updated-for-interface-change",
+      "rule": "If the diff changes an externally documented interface, README.md is also changed to document the new or changed behavior; otherwise this check is not applicable."
+    },
+    {
+      "name": "documentation-covers-changed-surface",
+      "rule": "When README.md is changed for an interface update, the documentation mentions the specific changed surface such as the environment variable, port, file path, command, container parameter, setup step, or user-visible behavior."
+    }
+  ]
+}

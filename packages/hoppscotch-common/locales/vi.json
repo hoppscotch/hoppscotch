@@ -357,22 +357,25 @@
     "duplicated": "Đã nhân bản bộ sưu tập"
   },
   "confirm": {
-    "close_unsaved_tab": "Are you sure you want to close this tab?",
-    "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
+    "close_unsaved_tab": "Bạn có chắc chắn muốn đóng tab này?",
+    "close_unsaved_tabs": "Bạn có chắc chắn muốn đóng tất cả các tab? {count} tab chưa lưu sẽ bị mất.",
+    "delete_all_activity_logs": "Bạn có chắc chắn muốn xóa toàn bộ nhật ký hoạt động?",
     "exit_team": "Bạn có chắc chắn muốn rời khỏi nhóm này?",
     "logout": "Bạn có chắc chắn muốn đăng xuất?",
     "remove_collection": "Bạn có chắc chắn muốn xóa vĩnh viễn bộ sưu tập này?",
     "remove_environment": "Bạn có chắc chắn muốn xóa vĩnh viễn môi trường này?",
     "remove_folder": "Bạn có chắc chắn muốn xóa vĩnh viễn thư mục này?",
     "remove_history": "Bạn có chắc chắn muốn xóa vĩnh viễn toàn bộ lịch sử?",
-    "remove_request": "Bạn có chắc chắn muốn xóa vĩnh viễn request này?",
-    "remove_shared_request": "Are you sure you want to permanently delete this shared request?",
+    "remove_request": "Bạn có chắc chắn muốn xóa vĩnh viễn yêu cầu này?",
+    "remove_response": "Bạn có chắc chắn muốn xóa vĩnh viễn phản hồi này?",
+    "remove_shared_request": "Bạn có chắc chắn muốn xóa vĩnh viễn yêu cầu được chia sẻ này?",
     "remove_team": "Bạn có chắc chắn muốn xóa nhóm này?",
     "remove_telemetry": "Bạn có chắc chắn muốn tắt Telemetry?",
-    "request_change": "Bạn có chắc chắn muốn hủy request hiện tại? Những thay đổi chưa được lưu sẽ bị mất.",
+    "request_change": "Bạn có chắc chắn muốn hủy yêu cầu hiện tại? Những thay đổi chưa được lưu sẽ bị mất.",
     "save_unsaved_tab": "Bạn có muốn lưu các thay đổi đã được thực hiện trong tab này?",
     "sync": "Bạn có muốn khôi phục không gian làm việc từ đám mây? Điều này sẽ xóa bỏ tiến trình địa phương của bạn.",
-    "delete_access_token": "Are you sure you want to delete the access token {tokenLabel}?"
+    "delete_access_token": "Bạn có chắc chắn muốn xóa access token {tokenLabel}?",
+    "delete_mock_server": "Bạn có chắc chắn muốn xóa mock server này?"
   },
   "context_menu": {
     "add_parameters": "Add to parameters",

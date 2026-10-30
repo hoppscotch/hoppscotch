@@ -74,7 +74,7 @@ async function openLink(url: string) {
 onMounted(async () => {
   const port = await invoke<number>("hopp_auth_port")
 
-  const redirectURI = `http://localhost:${port}/device-token`
+  const redirectURI = `http://127.0.0.1:${port}/device-token`
   const openURL = `${import.meta.env.VITE_BASE_URL}/device-login?redirect_uri=${encodeURIComponent(redirectURI)}`
 
   await openLink(openURL)

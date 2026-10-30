@@ -472,6 +472,22 @@ export const CURRENT_SORT_VALUES_SCHEMA = z.union([
   ),
 ])
 
+export const COLLECTION_UPDATE_SOURCES_SCHEMA = z.union([
+  z.object({}).strict(),
+
+  z.record(
+    z.string(),
+    z.object({
+      importerId: z.string(),
+      sourceId: z.optional(z.string()),
+      sourceType: z.enum(["url", "file"]),
+      url: z.optional(z.string()),
+      fileName: z.optional(z.string()),
+      updatedAt: z.optional(z.number()),
+    })
+  ),
+])
+
 const HoppTestResultSchema = z
   .object({
     tests: z.array(HoppTestDataSchema),

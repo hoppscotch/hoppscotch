@@ -1,8 +1,14 @@
 import { generateUniqueRefId, type HoppCollection } from "@hoppscotch/data"
 
 import { getService } from "../modules/dioc"
-import { CurrentValueService } from "../services/current-environment-value.service"
-import { SecretEnvironmentService } from "../services/secret-environment.service"
+import {
+  CurrentValueService,
+  type Variable,
+} from "../services/current-environment-value.service"
+import {
+  SecretEnvironmentService,
+  type SecretVariable,
+} from "../services/secret-environment.service"
 
 /** Shape shared by collection and environment variables. */
 type SecretCapableVariable = {
@@ -113,6 +119,117 @@ export const populateLocalStoresFromCollectionTree = (
     )
   }
   ;(collection.folders ?? []).forEach(populateLocalStoresFromCollectionTree)
+}
+
+/**
+ * Synchronizes local variable stores (secrets and current values) during a collection update.
+ * - Preserves existing secrets and current values for retained nodes where the incoming spec had no variables.
+ * - For retained nodes where variables were deliberately provided by the incoming spec, preserves existing values
+ *   for unchanged/matching keys and seeds new variables with their defaults.
+ * - For newly added folders, seeds all variables into the local stores.
+ */
+export const syncLocalStoresForCollectionUpdate = (
+  originalCollection: HoppCollection,
+  finalCollection: HoppCollection,
+  incomingHadVariablesByRefId: ReadonlyMap<string, boolean>
+) => {
+  const secretEnvironmentService = getService(SecretEnvironmentService)
+  const currentEnvironmentValueService = getService(CurrentValueService)
+
+  const originalRefIds = new Set<string>()
+  const indexOriginalRefIds = (node: HoppCollection) => {
+    if (node._ref_id) originalRefIds.add(node._ref_id)
+    ;(node.folders ?? []).forEach(indexOriginalRefIds)
+  }
+  indexOriginalRefIds(originalCollection)
+
+  const walk = (node: HoppCollection) => {
+    if (node._ref_id) {
+      const isRetained = originalRefIds.has(node._ref_id)
+      const hadIncomingVars =
+        incomingHadVariablesByRefId.get(node._ref_id) ?? false
+
+      if (!isRetained) {
+        // Newly added node: seed its variables
+        populateLocalStoresFromVariables(
+          node._ref_id,
+          promoteInitialValueForImport(node.variables ?? [])
+        )
+      } else if (hadIncomingVars) {
+        // Retained node with deliberately provided incoming variables:
+        // preserve existing secrets/currentValues for matching keys, seed new variables
+        const existingSecrets =
+          secretEnvironmentService.getSecretEnvironment(node._ref_id) ?? []
+        const existingCurrentVals =
+          currentEnvironmentValueService.getEnvironment(node._ref_id) ?? []
+
+        // Sort by varIndex to guarantee strict FIFO preservation order
+        const sortedExistingSecrets = [...existingSecrets].sort(
+          (a, b) => a.varIndex - b.varIndex
+        )
+        const sortedExistingCurrentVals = [...existingCurrentVals].sort(
+          (a, b) => a.varIndex - b.varIndex
+        )
+
+        const secretsQueue = new Map<string, string[]>()
+        for (const s of sortedExistingSecrets) {
+          const list = secretsQueue.get(s.key) ?? []
+          list.push(s.value)
+          secretsQueue.set(s.key, list)
+        }
+        const currentValsQueue = new Map<string, string[]>()
+        for (const c of sortedExistingCurrentVals) {
+          const list = currentValsQueue.get(c.key) ?? []
+          list.push(c.currentValue)
+          currentValsQueue.set(c.key, list)
+        }
+
+        const promoted = promoteInitialValueForImport(node.variables ?? [])
+        const newSecrets: SecretVariable[] = []
+        const newNonSecrets: Variable[] = []
+
+        promoted.forEach((v, index) => {
+          if (v.secret) {
+            const queue = secretsQueue.get(v.key)
+            const existingVal =
+              queue && queue.length > 0 ? queue.shift() : undefined
+            newSecrets.push({
+              key: v.key,
+              value:
+                existingVal !== undefined
+                  ? existingVal
+                  : (v.currentValue ?? v.initialValue ?? ""),
+              initialValue: v.initialValue ?? "",
+              varIndex: index,
+            })
+          } else {
+            const queue = currentValsQueue.get(v.key)
+            const existingVal =
+              queue && queue.length > 0 ? queue.shift() : undefined
+            newNonSecrets.push({
+              key: v.key,
+              currentValue:
+                existingVal !== undefined
+                  ? existingVal
+                  : (v.currentValue ?? v.initialValue ?? ""),
+              varIndex: index,
+              isSecret: false as const,
+            })
+          }
+        })
+
+        secretEnvironmentService.addSecretEnvironment(node._ref_id, newSecrets)
+        currentEnvironmentValueService.addEnvironment(
+          node._ref_id,
+          newNonSecrets
+        )
+      }
+    }
+
+    ;(node.folders ?? []).forEach(walk)
+  }
+
+  walk(finalCollection)
 }
 
 /** Fresh node objects + `folders`/`requests` arrays; other fields alias the input. */

@@ -408,7 +408,11 @@
     }
   },
   "count": {
+    "currentValue": "Giá trị hiện tại {count}",
+    "description": "Mô tả {count}",
     "header": "Tiêu đề {count}",
+    "initialValue": "Giá trị ban đầu {count}",
+    "key": "Khóa {count}",
     "message": "Thông điệp {count}",
     "parameter": "Tham số {count}",
     "protocol": "Giao thức {count}",

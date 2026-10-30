@@ -1,0 +1,18 @@
+{
+  "name": "Native word-delete shortcuts stay unbound",
+  "instruction": "Global keybinding maps do not bind Ctrl+Backspace or Ctrl+Delete so editable fields keep native word-delete behavior.",
+  "relevant_when": "TypeScript code that defines Hoppscotch global keyboard shortcut maps or registers keyboard shortcuts used across the app.",
+  "context": "Recent UI review removed Ctrl+Backspace and Ctrl+Delete from baseBindings because they conflicted with native browser word-delete behavior in editable inputs such as URL, headers, and body fields.",
+  "scope": "file",
+  "scope_reason": "The keybinding file contains the shortcut map and enough evidence to see whether these shortcuts are globally bound.",
+  "checklist": [
+    {
+      "name": "ctrl-backspace-not-bound",
+      "rule": "The global shortcut map does not bind Ctrl+Backspace, ctrl-backspace, or equivalent normalized forms to any Hoppscotch action."
+    },
+    {
+      "name": "ctrl-delete-not-bound",
+      "rule": "The global shortcut map does not bind Ctrl+Delete, ctrl-delete, or equivalent normalized forms to any Hoppscotch action."
+    }
+  ]
+}

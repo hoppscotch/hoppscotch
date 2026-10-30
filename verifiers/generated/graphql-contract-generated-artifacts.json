@@ -1,0 +1,18 @@
+{
+  "name": "GraphQL contract changes update generated artifacts",
+  "instruction": "Backend GraphQL contract and frontend GraphQL document changes are accompanied by the generated schema and typed client artifacts they affect.",
+  "relevant_when": "Diff that changes backend GraphQL resolvers, DTOs, models, gql-codegen configuration, GraphQL operation documents, or generated GraphQL schema/type artifacts.",
+  "context": "The repo generates gql-gen/backend-schema.gql in the backend and packages/hoppscotch-common/src/helpers/backend/graphql.ts plus backend-schema.json from gql-codegen.yml; recent PR feedback called out missing frontend error union types when backend errors changed.",
+  "scope": "diff",
+  "scope_reason": "The invariant is about companion files being changed together in one patch.",
+  "checklist": [
+    {
+      "name": "backend-contract-regenerates-schema",
+      "rule": "If backend GraphQL schema, resolver return types, DTOs, models, enums, or API error unions change in a way that affects the GraphQL contract, the diff includes the regenerated gql-gen/backend-schema.gql artifact."
+    },
+    {
+      "name": "frontend-documents-regenerate-types",
+      "rule": "If GraphQL operation documents or the backend GraphQL schema used by the frontend change, the diff includes regenerated frontend GraphQL artifacts such as packages/hoppscotch-common/src/helpers/backend/graphql.ts or backend-schema.json."
+    }
+  ]
+}

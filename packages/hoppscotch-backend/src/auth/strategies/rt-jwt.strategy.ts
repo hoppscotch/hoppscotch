@@ -24,15 +24,39 @@ export class RTJwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request) => {
-          const RTCookie = request.cookies?.['refresh_token'];
-          if (!RTCookie) {
-            console.error('`refresh_token` not found');
-            throw new ForbiddenException(COOKIES_NOT_FOUND);
-          }
-          return RTCookie;
-        },
-      ]),
+  (request: Request) => {
+    // 1. Check cookie first
+    const RTCookie = request.cookies?.['refresh_token'];
+    if (RTCookie) {
+      return RTCookie;
+    }
+
+    // 2. Fallback to Authorization header
+    const authHeader = request.headers?.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.slice(7).trim();
+      if (token) {
+
+    let bearerHeader: string | undefined;
+
+    if (Array.isArray(authHeader)) {
+      bearerHeader = authHeader.find(
+        (value) => typeof value === 'string' && value.startsWith('Bearer '),
+      );
+    } else if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+      bearerHeader = authHeader;
+    }
+
+    if (bearerHeader) {
+      const parts = bearerHeader.split(' ');
+      if (parts.length >= 2 && parts[1]) {
+        return parts[1];
+      }
+    }
+    console.error('Refresh token not found in cookie or Authorization header');
+    throw new ForbiddenException(COOKIES_NOT_FOUND);
+  },
+]),
       secretOrKey: configService.get('INFRA.JWT_SECRET'),
     });
   }

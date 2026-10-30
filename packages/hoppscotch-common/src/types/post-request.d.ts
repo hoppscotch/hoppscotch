@@ -495,6 +495,7 @@ declare namespace pw {
   }>
   namespace env {
     function set(key: string, value: string): void
+    function setSecret(key: string, value: string): void
     function unset(key: string): void
     function get(key: string): string
     function getResolve(key: string): string
@@ -508,6 +509,7 @@ declare namespace hopp {
     getRaw(key: string): string | null
     getInitialRaw(key: string): string | null
     set(key: string, value: string): void
+    setSecret(key: string, value: string): void
     delete(key: string): void
     reset(key: string): void
     setInitial(key: string, value: string): void
@@ -516,6 +518,7 @@ declare namespace hopp {
       getRaw(key: string): string | null
       getInitialRaw(key: string): string | null
       set(key: string, value: string): void
+      setSecret(key: string, value: string): void;
       delete(key: string): void
       reset(key: string): void
       setInitial(key: string, value: string): void
@@ -525,6 +528,7 @@ declare namespace hopp {
       getRaw(key: string): string | null
       getInitialRaw(key: string): string | null
       set(key: string, value: string): void
+      setSecret(key: string, value: string): void;
       delete(key: string): void
       reset(key: string): void
       setInitial(key: string, value: string): void

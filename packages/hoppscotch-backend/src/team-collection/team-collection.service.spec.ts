@@ -2218,9 +2218,7 @@ describe('searchByTitle', () => {
     mockPrisma.$queryRaw
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([requestHit]);
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce(
-      searchTeamCollections as any,
-    );
+    mockPrisma.$queryRaw.mockResolvedValueOnce(searchTeamCollections);
 
     const result = await teamCollectionService.searchByTitle(
       'Details  GET image',
@@ -2253,9 +2251,7 @@ describe('searchByTitle', () => {
     mockPrisma.$queryRaw
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([requestHit]);
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce(
-      searchTeamCollections as any,
-    );
+    mockPrisma.$queryRaw.mockResolvedValueOnce(searchTeamCollections);
 
     const result = await teamCollectionService.searchByTitle('image', team.id);
 
@@ -2287,8 +2283,12 @@ describe('searchByTitle', () => {
         },
       ],
     });
-    // one query for the whole tree, not one per result
-    expect(mockPrisma.teamCollection.findMany).toHaveBeenCalledTimes(1);
+    // one query for all parents, not one per result, and not the whole team
+    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(3);
+    expect(mockPrisma.teamCollection.findMany).not.toHaveBeenCalled();
+    const { text, values } = sqlText(2);
+    expect(text).toContain('WITH RECURSIVE');
+    expect(values).toEqual([team.id, 'child', team.id]);
   });
 
   test('should return collections with their data and parent path', async () => {
@@ -2303,9 +2303,7 @@ describe('searchByTitle', () => {
         },
       ])
       .mockResolvedValueOnce([]);
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce(
-      searchTeamCollections as any,
-    );
+    mockPrisma.$queryRaw.mockResolvedValueOnce(searchTeamCollections);
 
     const result = await teamCollectionService.searchByTitle('upload', team.id);
 
@@ -2334,13 +2332,12 @@ describe('searchByTitle', () => {
     mockPrisma.$queryRaw
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([requestHit]);
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce(
-      searchTeamCollections as any,
-    );
+    mockPrisma.$queryRaw.mockResolvedValueOnce(searchTeamCollections);
 
     await teamCollectionService.searchByTitle('image', team.id);
 
-    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(2);
+    // two searches plus the parent lookup
+    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(3);
     expect(sqlText(0).text).not.toContain('strict_word_similarity');
   });
 
@@ -2350,16 +2347,15 @@ describe('searchByTitle', () => {
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([requestHit]);
-    mockPrisma.teamCollection.findMany.mockResolvedValueOnce(
-      searchTeamCollections as any,
-    );
+    mockPrisma.$queryRaw.mockResolvedValueOnce(searchTeamCollections);
 
     const result = await teamCollectionService.searchByTitle(
       'imgae detials',
       team.id,
     );
 
-    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(4);
+    // four searches plus the parent lookup
+    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(5);
     expect(sqlText(2).text).toContain('strict_word_similarity');
     expect(sqlText(3).values).toEqual(
       expect.arrayContaining(['imgae', 'detials']),

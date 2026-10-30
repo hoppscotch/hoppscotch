@@ -9,7 +9,7 @@
       <textarea
         ref="textareaRef"
         v-model="internalContent"
-        class="text-wrap w-full p-4 rounded-sm text-sm font-mono text-secondary outline-none resize-none focus:border focus:border-accent focus:bg-primaryLight transition placeholder:text-secondaryLight"
+        class="whitespace-pre-wrap overflow-auto w-full p-4 rounded-sm text-sm font-mono text-secondary outline-none resize-none focus:border focus:border-accent focus:bg-primaryLight transition placeholder:text-secondaryLight"
         :style="{ height: textareaHeight + 'px' }"
         spellcheck="false"
         :placeholder="placeholder"

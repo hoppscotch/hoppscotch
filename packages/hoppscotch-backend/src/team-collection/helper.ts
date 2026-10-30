@@ -1,4 +1,7 @@
-import { TeamRequest } from 'src/generated/prisma/client';
+import { Prisma, TeamRequest } from 'src/generated/prisma/client';
+
+// Maximum number of words of a search query that are matched against titles
+export const MAX_SEARCH_WORDS = 10;
 
 // Type of data returned from the query to obtain all search results
 export type SearchQueryReturnType = {
@@ -6,14 +9,14 @@ export type SearchQueryReturnType = {
   title: string;
   type: 'collection' | 'request';
   method?: string;
+  // Only set for requests
+  request?: Prisma.JsonValue;
+  collectionID?: string;
+  // Only set for collections
+  data?: Prisma.JsonValue;
+  parentID?: string | null;
 };
 
-// Type of data returned from the query to obtain all parents
-export type ParentTreeQueryReturnType = {
-  id: string;
-  parentID: string;
-  title: string;
-};
 // Type of data returned from the query to fetch collection details from CLI
 export type GetCollectionResponse = {
   id: string;

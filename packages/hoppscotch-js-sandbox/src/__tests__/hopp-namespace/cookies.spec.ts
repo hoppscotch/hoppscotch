@@ -230,7 +230,7 @@ describe("hopp.cookies", () => {
       )
     ).resolves.toEqualRight(
       expect.objectContaining({
-        updatedCookies: expect.arrayContaining([otherDomain, updated]),
+        updatedCookies: [baseCookies[1], otherDomain, updated],
       })
     )
   })

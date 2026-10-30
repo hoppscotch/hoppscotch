@@ -1947,7 +1947,7 @@
   },
   "team_environment": {
     "deleted": "Đã xóa môi trường",
-    "duplicate": "Một môi trường nhóm khác đã có tên này",
+    "duplicate": "Đã nhân bản môi trường",
     "not_found": "Không tìm thấy môi trường."
   },
   "test": {

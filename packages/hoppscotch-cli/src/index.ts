@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { Command } from "commander";
+import { Command, CommanderError } from "commander";
 import * as E from "fp-ts/Either";
 
 import { version } from "../package.json";
@@ -37,8 +37,17 @@ program
   .addHelpCommand(false)
   .showHelpAfterError(true);
 
+// Commander writes the error help text in several chunks, so make sure it is printed only once
+let isHelpShownOnError = false;
+
 program.exitOverride().configureOutput({
-  writeErr: (str) => program.help(),
+  // Print the help text without exiting, so the original error's exit code is preserved
+  writeErr: (str) => {
+    if (!isHelpShownOnError) {
+      isHelpShownOnError = true;
+      program.outputHelp();
+    }
+  },
   outputError: (str, write) =>
     handleError({ code: "INVALID_ARGUMENT", data: E.toError(str) }),
 });
@@ -104,5 +113,10 @@ program
 export const cli = async (args: string[]) => {
   try {
     await program.parseAsync(args);
-  } catch (e) {}
+  } catch (e) {
+    // `exitOverride()` turns Commander exits into thrown errors; propagate their exit code
+    if (e instanceof CommanderError) {
+      process.exitCode = e.exitCode;
+    }
+  }
 };

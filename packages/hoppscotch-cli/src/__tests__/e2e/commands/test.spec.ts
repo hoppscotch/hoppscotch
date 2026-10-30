@@ -31,6 +31,32 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         const out = getErrorCode(stderr);
         expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
       });
+
+      test("Exits with a non-zero code on invalid usage", async () => {
+        const invalidArgs = [
+          "",
+          "test",
+          "invalid-arg",
+          `${VALID_TEST_ARGS} --unknown-option`,
+          `${VALID_TEST_ARGS} extra-arg`,
+        ];
+
+        for (const args of invalidArgs) {
+          const { error } = await runCLI(args);
+
+          expect(error, `hopp ${args}`).toMatchObject(<ExecException>{
+            code: 1,
+          });
+        }
+      });
+
+      test("Exits with code 0 on `--help` and `--ver`", async () => {
+        for (const args of ["--help", "--ver", "test --help"]) {
+          const { error } = await runCLI(args);
+
+          expect(error, `hopp ${args}`).toBeNull();
+        }
+      });
     });
 
     describe("Supplied collection export file validations", () => {
@@ -585,10 +611,13 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       describe("Argument parsing", () => {
         test("Errors with the code `INVALID_ARGUMENT` if no file is supplied", async () => {
           const args = `${VALID_TEST_ARGS} --env`;
-          const { stderr } = await runCLI(args);
+          const { error, stderr } = await runCLI(args);
 
           const out = getErrorCode(stderr);
           expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
+          expect(error).toMatchObject(<ExecException>{
+            code: 1,
+          });
         });
       });
 

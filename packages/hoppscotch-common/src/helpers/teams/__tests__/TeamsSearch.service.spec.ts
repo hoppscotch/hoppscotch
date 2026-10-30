@@ -186,4 +186,25 @@ describe("TeamSearchService.searchTeams", () => {
 
     expect(service.teamsSearchResultsLoading.value).toBe(false)
   })
+
+  it.each([
+    ["an error status", () => Promise.resolve({ status: 500, data: {} })],
+    ["a network error", () => Promise.reject(new Error("Network Error"))],
+  ])(
+    "clears the previous results when the next search gets %s",
+    async (_, failure) => {
+      mocks.axiosGet
+        .mockResolvedValueOnce(okResponse([searchHit("Login", "Auth")]))
+        .mockImplementationOnce(failure)
+
+      await service.searchTeams("login", "team-1")
+      expect(requestTitles(service)).toEqual(["Login"])
+
+      await service.searchTeams("login otp", "team-1")
+
+      expect(service.teamsSearchResults.value).toEqual([])
+      expect(service.teamsSearchResultsFormattedForSpotlight.value).toEqual([])
+      expect(service.teamsSearchResultsLoading.value).toBe(false)
+    }
+  )
 })

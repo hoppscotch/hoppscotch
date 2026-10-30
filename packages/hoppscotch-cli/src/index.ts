@@ -111,12 +111,17 @@ program
   });
 
 export const cli = async (args: string[]) => {
+  isHelpShownOnError = false;
+
   try {
     await program.parseAsync(args);
   } catch (e) {
     // `exitOverride()` turns Commander exits into thrown errors; propagate their exit code
     if (e instanceof CommanderError) {
       process.exitCode = e.exitCode;
+    } else {
+      handleError({ code: "UNKNOWN_ERROR", data: e });
+      process.exitCode = 1;
     }
   }
 };

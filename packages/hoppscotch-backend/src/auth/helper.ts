@@ -8,7 +8,7 @@ import {
   COOKIES_NOT_FOUND,
   INVALID_AUTH_HEADER,
 } from 'src/errors';
-import { throwErr } from 'src/utils';
+import { throwErr, getWhitelistedOrigins } from 'src/utils';
 import { ConfigService } from '@nestjs/config';
 import { IncomingHttpHeaders } from 'http';
 
@@ -72,8 +72,9 @@ export const authCookieHandler = (
   }
 
   // check to see if redirectUrl is a whitelisted url
-  const whitelistedOrigins =
-    configService.get('WHITELISTED_ORIGINS')?.split(',') ?? [];
+  const whitelistedOrigins = getWhitelistedOrigins(
+    configService.get('WHITELISTED_ORIGINS'),
+  );
   if (!whitelistedOrigins.includes(redirectUrl))
     // if it is not redirect by default to App
     redirectUrl = configService.get('VITE_BASE_URL');

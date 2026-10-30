@@ -111,7 +111,9 @@ program
   });
 
 export const cli = async (args: string[]) => {
+  // Reset per-run state so that repeated invocations in the same process don't affect each other
   isHelpShownOnError = false;
+  process.exitCode = undefined;
 
   try {
     await program.parseAsync(args);

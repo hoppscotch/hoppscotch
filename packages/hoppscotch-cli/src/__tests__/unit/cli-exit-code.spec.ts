@@ -28,4 +28,15 @@ describe("cli() exit code", () => {
     expect(process.exitCode).toBe(1);
     expect(console.error).toHaveBeenCalled();
   });
+
+  test("Does not carry the exit code of a failed run over to a later successful run", async () => {
+    vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    vi.mocked(testCommand).mockReturnValue(() => Promise.resolve());
+
+    await cli(["node", "hopp", "invalid-arg"]);
+    expect(process.exitCode).toBe(1);
+
+    await cli(["node", "hopp", "test", "coll.json"]);
+    expect(process.exitCode).toBeUndefined();
+  });
 });

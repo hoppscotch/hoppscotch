@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-get-download-progress"
+description = "Enables the get_download_progress command without any pre-configured scope."
+commands.allow = ["get_download_progress"]
+
+[[permission]]
+identifier = "deny-get-download-progress"
+description = "Denies the get_download_progress command without any pre-configured scope."
+commands.deny = ["get_download_progress"]

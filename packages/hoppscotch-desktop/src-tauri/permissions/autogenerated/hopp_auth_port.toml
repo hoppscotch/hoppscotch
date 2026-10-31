@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-hopp-auth-port"
+description = "Enables the hopp_auth_port command without any pre-configured scope."
+commands.allow = ["hopp_auth_port"]
+
+[[permission]]
+identifier = "deny-hopp-auth-port"
+description = "Denies the hopp_auth_port command without any pre-configured scope."
+commands.deny = ["hopp_auth_port"]

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-get-store-dir"
+description = "Enables the get_store_dir command without any pre-configured scope."
+commands.allow = ["get_store_dir"]
+
+[[permission]]
+identifier = "deny-get-store-dir"
+description = "Denies the get_store_dir command without any pre-configured scope."
+commands.deny = ["get_store_dir"]

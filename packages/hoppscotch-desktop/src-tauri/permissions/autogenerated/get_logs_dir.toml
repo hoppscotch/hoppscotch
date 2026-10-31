@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-get-logs-dir"
+description = "Enables the get_logs_dir command without any pre-configured scope."
+commands.allow = ["get_logs_dir"]
+
+[[permission]]
+identifier = "deny-get-logs-dir"
+description = "Denies the get_logs_dir command without any pre-configured scope."
+commands.deny = ["get_logs_dir"]

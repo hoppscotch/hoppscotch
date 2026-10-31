@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-restart-application"
+description = "Enables the restart_application command without any pre-configured scope."
+commands.allow = ["restart_application"]
+
+[[permission]]
+identifier = "deny-restart-application"
+description = "Denies the restart_application command without any pre-configured scope."
+commands.deny = ["restart_application"]

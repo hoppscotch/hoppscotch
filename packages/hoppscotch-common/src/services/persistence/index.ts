@@ -22,6 +22,8 @@ import {
   SecretEnvironmentService,
   SecretVariable,
 } from "../secret-environment.service"
+import { TeamOAuthTokenService } from "../team-oauth-token.service"
+import type { OAuthTokenRecord } from "~/helpers/teamOAuthTokens"
 
 import { useToast } from "~/composables/toast"
 
@@ -83,6 +85,7 @@ import {
   REST_HISTORY_ENTRY_SCHEMA,
   WORKSPACE_TABS_STATE_SCHEMA,
   SECRET_ENVIRONMENT_VARIABLE_SCHEMA,
+  TEAM_OAUTH_TOKENS_SCHEMA,
   SELECTED_ENV_INDEX_SCHEMA,
   SETTINGS_SCHEMA,
   SOCKET_IO_REQUEST_SCHEMA,
@@ -125,6 +128,7 @@ export const STORE_KEYS = {
   REST_TABS: "restTabs",
   GQL_TABS: "gqlTabs",
   SECRET_ENVIRONMENTS: "secretEnvironments",
+  TEAM_OAUTH_TOKENS: "teamOAuthTokens",
   CURRENT_ENVIRONMENT_VALUE: "currentEnvironmentValue",
   CURRENT_SORT_VALUES: "currentSortValues",
   SCHEMA_VERSION: "schema_version",
@@ -261,6 +265,7 @@ export class PersistenceService extends Service {
   private readonly secretEnvironmentService = this.bind(
     SecretEnvironmentService
   )
+  private readonly teamOAuthTokenService = this.bind(TeamOAuthTokenService)
   private readonly currentEnvironmentValueService =
     this.bind(CurrentValueService)
 
@@ -725,6 +730,44 @@ export class PersistenceService extends Service {
     environments$.subscribe(async (envs) => {
       await Store.set(STORE_NAMESPACE, STORE_KEYS.ENVIRONMENTS, envs)
     })
+  }
+
+  private async setupTeamOAuthTokensPersistence() {
+    const loadResult = await Store.get<Record<string, OAuthTokenRecord>>(
+      STORE_NAMESPACE,
+      STORE_KEYS.TEAM_OAUTH_TOKENS
+    )
+
+    try {
+      if (E.isRight(loadResult) && loadResult.right) {
+        const result = TEAM_OAUTH_TOKENS_SCHEMA.safeParse(loadResult.right)
+
+        if (result.success) {
+          this.teamOAuthTokenService.loadFromPersistedState(result.data)
+        } else {
+          this.showErrorToast(STORE_KEYS.TEAM_OAUTH_TOKENS)
+          await Store.set(
+            STORE_NAMESPACE,
+            `${STORE_KEYS.TEAM_OAUTH_TOKENS}-backup`,
+            loadResult.right
+          )
+          console.error(
+            `Failed parsing persisted TEAM_OAUTH_TOKENS:`,
+            JSON.stringify(loadResult.right)
+          )
+        }
+      }
+    } catch (_e) {
+      console.error(`Failed parsing persisted TEAM_OAUTH_TOKENS:`, loadResult)
+    }
+
+    watchDebounced(
+      this.teamOAuthTokenService.persistableTokens,
+      async (newData: Record<string, OAuthTokenRecord>) => {
+        await Store.set(STORE_NAMESPACE, STORE_KEYS.TEAM_OAUTH_TOKENS, newData)
+      },
+      { debounce: 500 }
+    )
   }
 
   private async setupSecretEnvironmentsPersistence() {
@@ -1205,6 +1248,7 @@ export class PersistenceService extends Service {
       this.setupGQLTabsPersistence(),
 
       this.setupSecretEnvironmentsPersistence(),
+      this.setupTeamOAuthTokensPersistence(),
       this.setupCurrentEnvironmentValuePersistence(),
 
       this.setupCurrentSortValuesPersistence(),

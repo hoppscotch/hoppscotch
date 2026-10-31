@@ -424,6 +424,16 @@ const HoppTestDataSchema = z.lazy(() =>
     .strict()
 )
 
+export const TEAM_OAUTH_TOKENS_SCHEMA = z.record(
+  z.string(),
+  z
+    .object({
+      token: z.string(),
+      refreshToken: z.string().optional(),
+    })
+    .strict()
+)
+
 export const SECRET_ENVIRONMENT_VARIABLE_SCHEMA = z.union([
   z.object({}).strict(),
 

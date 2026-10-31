@@ -336,8 +336,8 @@ import { cloneDeep, debounce, isEqual } from "lodash-es"
 import { PropType, computed, nextTick, onMounted, ref, watch } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
-import { GQLError, runMutation } from "~/helpers/backend/GQLClient"
-import { UpdateRequestDocument } from "~/helpers/backend/graphql"
+import { GQLError } from "~/helpers/backend/GQLClient"
+import { hydrateCollectionAuth } from "~/helpers/teamOAuthTokens"
 import {
   CollectionDataProps,
   getTeamCollectionObject,
@@ -1990,16 +1990,11 @@ const onAddExample = async () => {
       return
     }
 
-    const data = {
-      requestID: editingRequestID.value,
-      data: {
+    pipe(
+      updateTeamRequest(editingRequestID.value, {
         title: request.name,
         request: JSON.stringify(updatedRequest),
-      },
-    }
-
-    pipe(
-      runMutation(UpdateRequestDocument, data),
+      }),
       TE.match(
         (err: GQLError<string>) => {
           toast.error(`${getErrorMessage(err)}`)
@@ -2166,13 +2161,11 @@ const addGQLExample = async (request: HoppGQLRequest, exampleName: string) => {
     if (!editingRequestID.value) return
     modalLoadingState.value = true
 
-    const data = {
-      requestID: editingRequestID.value,
-      data: { title: request.name, request: JSON.stringify(updatedRequest) },
-    }
-
     pipe(
-      runMutation(UpdateRequestDocument, data),
+      updateTeamRequest(editingRequestID.value, {
+        title: request.name,
+        request: JSON.stringify(updatedRequest),
+      }),
       TE.match(
         (err: GQLError<string>) => {
           toast.error(`${getErrorMessage(err)}`)
@@ -3893,7 +3886,7 @@ const editProperties = async (payload: {
       )
 
       const collectionData: CollectionDataProps = {
-        auth: data.auth,
+        auth: hydrateCollectionAuth(collection.id ?? collectionId!, data.auth),
         headers: data.headers,
         variables: collectionVariables,
         description: data.description,

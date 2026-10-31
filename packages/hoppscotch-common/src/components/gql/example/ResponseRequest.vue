@@ -67,9 +67,9 @@ import { useReadonlyStream } from "~/composables/stream"
 import { getRequestsByPath } from "~/helpers/collection/request"
 import { useToast } from "@composables/toast"
 import { defineActionHandler } from "~/helpers/actions"
-import { runMutation } from "~/helpers/backend/GQLClient"
-import { UpdateRequestDocument } from "~/helpers/backend/graphql"
+import { updateTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 import { getSingleRequest } from "~/helpers/teams/TeamRequest"
+import { hydrateTeamRequest } from "~/helpers/teamOAuthTokens"
 
 const t = useI18n()
 const toast = useToast()
@@ -145,20 +145,18 @@ const saveExample = async () => {
       return
     }
 
-    const parsedRequest: HoppGQLRequest = JSON.parse(
-      request.right.request.request
+    const parsedRequest: HoppGQLRequest = hydrateTeamRequest(
+      saveCtx.requestID,
+      JSON.parse(request.right.request.request)
     )
     parsedRequest.responses = {
       ...(parsedRequest.responses ?? {}),
       [response.name]: response,
     }
 
-    runMutation(UpdateRequestDocument, {
-      requestID: saveCtx.requestID,
-      data: {
-        title: parsedRequest.name,
-        request: JSON.stringify(parsedRequest),
-      },
+    updateTeamRequest(saveCtx.requestID, {
+      title: parsedRequest.name,
+      request: JSON.stringify(parsedRequest),
     })().then((result) => {
       if (E.isLeft(result)) {
         toast.error(`${t("profile.no_permission")}`)

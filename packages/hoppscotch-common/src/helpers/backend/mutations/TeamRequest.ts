@@ -1,4 +1,15 @@
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
+
+import { getService } from "~/modules/dioc"
+import { TeamOAuthTokenService } from "~/services/team-oauth-token.service"
+
 import { runMutation } from "../GQLClient"
+import {
+  splitRequestForTeamCreate,
+  redactRequestJsonForTeamWire,
+  teamRequestTokenKey,
+} from "../../teamOAuthTokens"
 import {
   CreateRequestInCollectionDocument,
   CreateRequestInCollectionMutation,
@@ -38,15 +49,33 @@ export const createRequestInCollection = (
     teamID: string
     title: string
   }
-) =>
-  runMutation<
-    CreateRequestInCollectionMutation,
-    CreateRequestInCollectionMutationVariables,
-    ""
-  >(CreateRequestInCollectionDocument, {
-    collectionID,
-    data,
-  })
+) => {
+  const { wireJson, captured } = splitRequestForTeamCreate(data.request)
+
+  return pipe(
+    runMutation<
+      CreateRequestInCollectionMutation,
+      CreateRequestInCollectionMutationVariables,
+      ""
+    >(CreateRequestInCollectionDocument, {
+      collectionID,
+      data: {
+        ...data,
+        request: wireJson,
+      },
+    }),
+    TE.map((result) => {
+      const id = result.createRequestInCollection?.id
+      if (id && captured) {
+        getService(TeamOAuthTokenService).remember(
+          teamRequestTokenKey(id),
+          captured
+        )
+      }
+      return result
+    })
+  )
+}
 
 export const updateTeamRequest = (
   requestID: string,
@@ -59,18 +88,27 @@ export const updateTeamRequest = (
     UpdateRequestDocument,
     {
       requestID,
-      data,
+      data: {
+        ...data,
+        request: redactRequestJsonForTeamWire(requestID, data.request),
+      },
     }
   )
 
 export const deleteTeamRequest = (requestID: string) =>
-  runMutation<
-    DeleteRequestMutation,
-    DeleteRequestMutationVariables,
-    DeleteRequestErrors
-  >(DeleteRequestDocument, {
-    requestID,
-  })
+  pipe(
+    runMutation<
+      DeleteRequestMutation,
+      DeleteRequestMutationVariables,
+      DeleteRequestErrors
+    >(DeleteRequestDocument, {
+      requestID,
+    }),
+    TE.map((result) => {
+      getService(TeamOAuthTokenService).forget(teamRequestTokenKey(requestID))
+      return result
+    })
+  )
 
 export const moveRESTTeamRequest = (collectionID: string, requestID: string) =>
   runMutation<

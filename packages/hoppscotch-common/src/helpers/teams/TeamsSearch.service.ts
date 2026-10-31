@@ -20,8 +20,10 @@ import {
   getCollectionChildRequests,
   TeamRequest,
   getCollectionChildCollections,
+  normalizeAndHydrateTeamRequest,
 } from "./TeamRequest"
 import { CollectionDataProps } from "../backend/helpers"
+import { hydrateCollectionAuth, hydrateTeamRequest } from "../teamOAuthTokens"
 
 /**
  * Parses collection data that may be double-encoded JSON
@@ -319,7 +321,10 @@ export class TeamSearchService extends Service {
         this.searchResultsRequests[request.id] = {
           id: request.id,
           title: request.title,
-          request: JSON.parse(request.request) as TeamRequest["request"],
+          request: hydrateTeamRequest(
+            request.id,
+            JSON.parse(request.request) as TeamRequest["request"]
+          ),
           collectionID: request.collectionID,
         }
       })
@@ -442,6 +447,8 @@ export class TeamSearchService extends Service {
       const parentInheritedData = parseCollectionData(collection.data)
 
       const inheritedAuth = parentInheritedData?.auth
+        ? hydrateCollectionAuth(collection.id, parentInheritedData.auth)
+        : parentInheritedData?.auth
 
       if (inheritedAuth && inheritedAuth.authType !== "inherit") {
         return E.right({
@@ -649,7 +656,7 @@ export class TeamSearchService extends Service {
         id: request.id,
         collectionID: collectionID,
         title: request.title,
-        request: JSON.parse(request.request) as TeamRequest["request"],
+        request: normalizeAndHydrateTeamRequest(request.id, request.request),
       }))
       .forEach((request) => {
         this.searchResultsRequests[request.id] = {

@@ -36,8 +36,7 @@ import {
 import { editRESTRequest } from "~/newstore/collections"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
-import { runMutation } from "~/helpers/backend/GQLClient"
-import { UpdateRequestDocument } from "~/helpers/backend/graphql"
+import { updateTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 import * as E from "fp-ts/Either"
 
 const t = useI18n()
@@ -148,12 +147,9 @@ const onSaveAsExample = () => {
         responseName.value = ""
       }
     } else {
-      runMutation(UpdateRequestDocument, {
-        requestID: saveCtx.requestID,
-        data: {
-          title: req.name,
-          request: JSON.stringify(req),
-        },
+      updateTeamRequest(saveCtx.requestID, {
+        title: req.name,
+        request: JSON.stringify(req),
       })().then((result) => {
         if (E.isLeft(result)) {
           toast.error(`${t("profile.no_permission")}`)

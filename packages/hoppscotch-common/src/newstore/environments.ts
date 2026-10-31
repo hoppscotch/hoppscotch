@@ -731,6 +731,11 @@ export function getSelectedEnvironmentType() {
   return environmentsStore.value.selectedEnvironmentIndex.type
 }
 
+/**
+ * Reemplaza la implementación previa de setSelectedEnvironmentIndex.
+ * - hace el dispatch como antes
+ * - además sincroniza CurrentValueService con los initial del env seleccionado
+ */
 export function setSelectedEnvironmentIndex(
   selectedEnvironmentIndex: SelectedEnvironmentIndex
 ) {
@@ -740,6 +745,52 @@ export function setSelectedEnvironmentIndex(
       selectedEnvironmentIndex,
     },
   })
+
+  // --- Sincronizar CurrentValueService con los initial del environment seleccionado ---
+  try {
+    if (selectedEnvironmentIndex.type === "NO_ENV_SELECTED") return
+
+    const currentValueService = getService(CurrentValueService)
+    const secretService = getService(SecretEnvironmentService)
+
+    let env: Environment | undefined
+
+    if (selectedEnvironmentIndex.type === "MY_ENV") {
+      env = environmentsStore.value.environments[selectedEnvironmentIndex.index]
+    } else {
+      // TEAM_ENV u otros: el objeto environment puede estar embebido en selectedEnvironmentIndex
+      env = (selectedEnvironmentIndex as any).environment
+    }
+
+    if (!env || !env.id) return
+
+    const vars = env.variables.map((v, idx) => {
+      if (v.secret) {
+        // Para secretos, leer el valor (seguro) desde el SecretEnvironmentService
+        const sec = secretService.getSecretEnvironmentVariableValue(env.id, idx)
+        return {
+          key: v.key,
+          currentValue: sec?.value ?? "",
+          varIndex: idx,
+          isSecret: true,
+        }
+      }
+
+      // Variables no secret -> inicializar current con initial
+      return {
+        key: v.key,
+        currentValue: v.initialValue ?? "",
+        varIndex: idx,
+        isSecret: false,
+      }
+    })
+
+    // Añadir/reemplazar en CurrentValueService para que las requests usen estos valores
+    currentValueService.addEnvironment(env.id, vars)
+  } catch (err) {
+    // No romper el flujo si la sincronización falla.
+    // Opcional: console.warn("Failed to sync initial -> current on env select", err)
+  }
 }
 
 export function getLegacyGlobalEnvironment(): Environment | null {

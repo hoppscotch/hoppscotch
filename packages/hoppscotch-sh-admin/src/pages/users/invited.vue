@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col">
     <div class="flex">
-      <button class="p-2 rounded-3xl bg-divider" @click="router.push('/users')">
+      <button class="p-2 rounded-3xl bg-divider" :aria-label="t('app.back')" @click="router.push('/users')">
         <icon-lucide-arrow-left class="text-xl" />
       </button>
     </div>

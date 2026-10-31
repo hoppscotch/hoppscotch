@@ -5,6 +5,11 @@
       class="flex items-center justify-center rounded transition hover:text-accent"
       :class="{ 'text-accent': isAdded, 'text-secondaryLight': !isAdded }"
       type="button"
+      :aria-label="
+        isAdded
+          ? t('graphql.remove_field_from_query')
+          : t('graphql.add_field_to_query')
+      "
       @click.stop="addField"
     >
       <icon-lucide-plus-circle v-if="!isAdded" class="svg-icons" />
@@ -23,6 +28,9 @@
 import { onBeforeUnmount } from "vue"
 import { type ExplorerFieldDef, useExplorer } from "~/helpers/graphql/explorer"
 import { debounce } from "lodash-es"
+import { useI18n } from "~/composables/i18n"
+
+const t = useI18n()
 
 const props = withDefaults(
   defineProps<{

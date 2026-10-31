@@ -184,8 +184,7 @@ import {
 } from "~/composables/lens-actions"
 import { editRESTRequest } from "~/newstore/collections"
 import { HoppGQLRequestDocument } from "~/helpers/tab/document"
-import { runMutation } from "~/helpers/backend/GQLClient"
-import { UpdateRequestDocument } from "~/helpers/backend/graphql"
+import { updateTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 import * as E from "fp-ts/Either"
 
 const t = useI18n()
@@ -473,12 +472,9 @@ const onSaveAsExample = () => {
   }
 
   if (saveCtx.originLocation === "team-collection") {
-    runMutation(UpdateRequestDocument, {
-      requestID: saveCtx.requestID,
-      data: {
-        title: doc.value.request.name,
-        request: JSON.stringify(doc.value.request),
-      },
+    updateTeamRequest(saveCtx.requestID, {
+      title: doc.value.request.name,
+      request: JSON.stringify(doc.value.request),
     })().then((result) => {
       if (E.isLeft(result)) {
         toast.error(`${t("profile.no_permission")}`)

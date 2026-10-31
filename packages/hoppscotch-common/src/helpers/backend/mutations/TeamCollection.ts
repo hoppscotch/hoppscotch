@@ -33,6 +33,10 @@ import {
   UpdateTeamCollectionMutationVariables,
 } from "../graphql"
 import { CollectionDataProps } from "../helpers"
+import {
+  redactCollectionDataForTeamWire,
+  stripOAuthTokensFromJsonString,
+} from "../../teamOAuthTokens"
 
 type CreateNewRootCollectionError = "team_coll/short_title"
 
@@ -130,7 +134,7 @@ export const importJSONToTeam = (collectionJSON: string, teamID: string) =>
   runMutation<ImportFromJsonMutation, ImportFromJsonMutationVariables, "">(
     ImportFromJsonDocument,
     {
-      jsonString: collectionJSON,
+      jsonString: stripOAuthTokensFromJsonString(collectionJSON),
       teamID,
     }
   )
@@ -146,7 +150,11 @@ export const updateTeamCollection = (
     ""
   >(UpdateTeamCollectionDocument, {
     collectionID,
-    data: JSON.stringify(data),
+    data: JSON.stringify(
+      data === undefined
+        ? data
+        : redactCollectionDataForTeamWire(collectionID, data)
+    ),
     newTitle,
   })
 

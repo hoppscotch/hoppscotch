@@ -3886,7 +3886,11 @@ const editProperties = async (payload: {
       )
 
       const collectionData: CollectionDataProps = {
-        auth: hydrateCollectionAuth(collection.id ?? collectionId!, data.auth),
+        auth: hydrateCollectionAuth(
+          collection.id ?? collectionId!,
+          data.auth,
+          data._ref_id
+        ),
         headers: data.headers,
         variables: collectionVariables,
         description: data.description,

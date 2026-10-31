@@ -447,7 +447,11 @@ export class TeamSearchService extends Service {
       const parentInheritedData = parseCollectionData(collection.data)
 
       const inheritedAuth = parentInheritedData?.auth
-        ? hydrateCollectionAuth(collection.id, parentInheritedData.auth)
+        ? hydrateCollectionAuth(
+            collection.id,
+            parentInheritedData.auth,
+            parentInheritedData._ref_id
+          )
         : parentInheritedData?.auth
 
       if (inheritedAuth && inheritedAuth.authType !== "inherit") {

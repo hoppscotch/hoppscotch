@@ -7,7 +7,8 @@ import { TeamOAuthTokenService } from "~/services/team-oauth-token.service"
 import { runMutation } from "../GQLClient"
 import {
   splitRequestForTeamCreate,
-  redactRequestJsonForTeamWire,
+  separateRequestForTeamUpdate,
+  commitTokenSyncPlan,
   teamRequestTokenKey,
 } from "../../teamOAuthTokens"
 import {
@@ -83,17 +84,29 @@ export const updateTeamRequest = (
     request: string
     title: string
   }
-) =>
-  runMutation<UpdateRequestMutation, UpdateRequestMutationVariables, "">(
-    UpdateRequestDocument,
-    {
-      requestID,
-      data: {
-        ...data,
-        request: redactRequestJsonForTeamWire(requestID, data.request),
-      },
-    }
+) => {
+  const { wireJson, plan } = separateRequestForTeamUpdate(
+    requestID,
+    data.request
   )
+
+  return pipe(
+    runMutation<UpdateRequestMutation, UpdateRequestMutationVariables, "">(
+      UpdateRequestDocument,
+      {
+        requestID,
+        data: {
+          ...data,
+          request: wireJson,
+        },
+      }
+    ),
+    TE.map((result) => {
+      commitTokenSyncPlan(plan)
+      return result
+    })
+  )
+}
 
 export const deleteTeamRequest = (requestID: string) =>
   pipe(

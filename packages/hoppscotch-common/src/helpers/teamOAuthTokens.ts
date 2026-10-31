@@ -1,3 +1,5 @@
+import { generateUniqueRefId } from "@hoppscotch/data"
+
 import { getService } from "~/modules/dioc"
 
 import { TeamOAuthTokenService } from "~/services/team-oauth-token.service"
@@ -17,6 +19,22 @@ export const teamRequestTokenKey = (requestId: string) => `request:${requestId}`
 
 export const teamCollectionTokenKey = (collectionId: string) =>
   `collection:${collectionId}`
+
+/** Token captured from an import, claimed once the backend assigns an id. */
+export const teamRequestImportKey = (refId: string) => `request-import:${refId}`
+
+export const teamCollectionImportKey = (refId: string) =>
+  `collection-import:${refId}`
+
+export type TokenSyncPlan =
+  | { type: "keep"; key: string; record: OAuthTokenRecord }
+  | { type: "drop"; key: string }
+  | { type: "noop" }
+
+export type PendingOAuthToken = {
+  key: string
+  record: OAuthTokenRecord
+}
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value)
@@ -121,17 +139,52 @@ export const applyOAuthTokenRecord = <T>(
   } as T
 }
 
-const syncStoredTokens = (storageKey: string, auth: unknown) => {
-  const service = getService(TeamOAuthTokenService)
+const planAuthTokenSync = (key: string, auth: unknown): TokenSyncPlan => {
+  if (!isOAuth2Auth(auth)) return { type: "drop", key }
 
-  if (!isOAuth2Auth(auth)) {
-    service.forget(storageKey)
+  const captured = readOAuthTokenRecord(auth)
+  if (captured) return { type: "keep", key, record: captured }
+  return { type: "drop", key }
+}
+
+/**
+ * Apply a planned remember/forget. Call this only after the team save that
+ * produced `plan` has succeeded, so a rejected update cannot clear the token
+ * the shared request still has.
+ */
+export const commitTokenSyncPlan = (plan: TokenSyncPlan) => {
+  if (plan.type === "noop") return
+
+  const service = getService(TeamOAuthTokenService)
+  if (plan.type === "keep") {
+    service.remember(plan.key, plan.record)
     return
   }
 
-  const captured = readOAuthTokenRecord(auth)
-  if (captured) service.remember(storageKey, captured)
-  else service.forget(storageKey)
+  service.forget(plan.key)
+}
+
+const adoptImportedToken = (storageKey: string, importKey: string) => {
+  const service = getService(TeamOAuthTokenService)
+  const pending = service.recall(importKey)
+  if (!pending) return
+
+  if (!service.recall(storageKey)) {
+    service.remember(storageKey, pending)
+  }
+  service.forget(importKey)
+}
+
+/** Move a collection token captured at import onto the backend collection id. */
+export const adoptImportedCollectionToken = (
+  collectionId: string,
+  refId: string
+) => {
+  if (!collectionId || !refId) return
+  adoptImportedToken(
+    teamCollectionTokenKey(collectionId),
+    teamCollectionImportKey(refId)
+  )
 }
 
 /**
@@ -146,6 +199,13 @@ export const hydrateTeamRequest = <T>(requestId: string, request: T): T => {
   if (!requestId || !isRecord(stripped) || !("auth" in stripped))
     return stripped
 
+  if (typeof stripped._ref_id === "string") {
+    adoptImportedToken(
+      teamRequestTokenKey(requestId),
+      teamRequestImportKey(stripped._ref_id)
+    )
+  }
+
   const record = getService(TeamOAuthTokenService).recall(
     teamRequestTokenKey(requestId)
   )
@@ -157,9 +217,15 @@ export const hydrateTeamRequest = <T>(requestId: string, request: T): T => {
   } as T
 }
 
-export const hydrateCollectionAuth = <T>(collectionId: string, auth: T): T => {
+export const hydrateCollectionAuth = <T>(
+  collectionId: string,
+  auth: T,
+  refId?: string | null
+): T => {
   const stripped = stripOAuthTokensDeep(auth)
   if (!collectionId) return stripped
+
+  if (refId) adoptImportedCollectionToken(collectionId, refId)
 
   const record = getService(TeamOAuthTokenService).recall(
     teamCollectionTokenKey(collectionId)
@@ -167,28 +233,67 @@ export const hydrateCollectionAuth = <T>(collectionId: string, auth: T): T => {
   return applyOAuthTokenRecord(stripped, record)
 }
 
+type OAuthTokenTreeNode = {
+  requests: { id: string; request: unknown }[] | null
+  children: OAuthTokenTreeNode[] | null
+}
+
 /**
- * Prepare a team request JSON body for the backend. Stores the caller's
- * token locally and returns JSON with every OAuth token blanked.
+ * Re-apply the active member's tokens onto requests already stored in the
+ * team collection tree. Hydration snapshots credentials, so a load or account
+ * switch that finishes afterwards has to refresh those requests.
  */
-export const redactRequestJsonForTeamWire = (
+export const rehydrateTeamCollectionOAuthTokens = (
+  collections: OAuthTokenTreeNode[]
+) => {
+  const walk = (nodes: OAuthTokenTreeNode[]) => {
+    for (const node of nodes) {
+      node.requests?.forEach((request) => {
+        request.request = hydrateTeamRequest(request.id, request.request)
+      })
+      if (node.children?.length) walk(node.children)
+    }
+  }
+
+  walk(collections)
+}
+
+/**
+ * Split a team request update into the wire body and the local token change.
+ * The store is not touched until `commitTokenSyncPlan`.
+ */
+export const separateRequestForTeamUpdate = (
   requestId: string,
   requestJson: string
-): string => {
+): { wireJson: string; plan: TokenSyncPlan } => {
   let parsed: unknown
   try {
     parsed = JSON.parse(requestJson)
   } catch {
-    return requestJson
+    return { wireJson: requestJson, plan: { type: "noop" } }
   }
 
-  if (isRecord(parsed) && "auth" in parsed) {
-    syncStoredTokens(teamRequestTokenKey(requestId), parsed.auth)
-  }
+  const plan =
+    isRecord(parsed) && "auth" in parsed
+      ? planAuthTokenSync(teamRequestTokenKey(requestId), parsed.auth)
+      : { type: "noop" as const }
 
   const stripped = stripOAuthTokensDeep(parsed)
-  return stripped === parsed ? requestJson : JSON.stringify(stripped)
+  return {
+    wireJson: stripped === parsed ? requestJson : JSON.stringify(stripped),
+    plan,
+  }
 }
+
+/**
+ * Prepare a team request JSON body for the backend. Returns JSON with every
+ * OAuth token blanked. Does not write the local token store; commit
+ * `separateRequestForTeamUpdate(...).plan` after the save succeeds.
+ */
+export const redactRequestJsonForTeamWire = (
+  requestId: string,
+  requestJson: string
+): string => separateRequestForTeamUpdate(requestId, requestJson).wireJson
 
 /**
  * Split a create payload: the wire body has no tokens, and `captured` is the
@@ -213,25 +318,181 @@ export const splitRequestForTeamCreate = (
   }
 }
 
+/**
+ * Split a team collection update into the wire body and the local token
+ * change. The store is not touched until `commitTokenSyncPlan`.
+ */
+export const separateCollectionForTeamUpdate = <T>(
+  collectionId: string,
+  data: T
+): { wire: T; plan: TokenSyncPlan } => {
+  const plan =
+    isRecord(data) && "auth" in data
+      ? planAuthTokenSync(teamCollectionTokenKey(collectionId), data.auth)
+      : { type: "noop" as const }
+
+  return {
+    wire: stripOAuthTokensDeep(data),
+    plan,
+  }
+}
+
 export const redactCollectionDataForTeamWire = <T>(
   collectionId: string,
   data: T
-): T => {
-  if (isRecord(data) && "auth" in data) {
-    syncStoredTokens(teamCollectionTokenKey(collectionId), data.auth)
-  }
+): T => separateCollectionForTeamUpdate(collectionId, data).wire
 
-  return stripOAuthTokensDeep(data)
+const ensureRefId = (
+  value: Record<string, unknown>,
+  prefix: "req" | "coll"
+) => {
+  if (typeof value._ref_id === "string" && value._ref_id) return value._ref_id
+  const refId = generateUniqueRefId(prefix)
+  value._ref_id = refId
+  return refId
 }
 
-export const stripOAuthTokensFromJsonString = (json: string): string => {
+/**
+ * Blank OAuth tokens inside a collection `data` payload. `data` is a JSON
+ * string on the import wire, so a plain object walk would leave it untouched.
+ */
+const redactCollectionDataValue = (
+  data: unknown,
+  pending: PendingOAuthToken[]
+): { value: unknown; changed: boolean } => {
+  if (typeof data === "string") {
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(data)
+    } catch {
+      return { value: data, changed: false }
+    }
+
+    if (typeof parsed === "string") {
+      const inner = redactCollectionDataValue(parsed, pending)
+      if (!inner.changed) return { value: data, changed: false }
+      return { value: JSON.stringify(inner.value), changed: true }
+    }
+
+    const redacted = redactCollectionDataValue(parsed, pending)
+    if (!redacted.changed) return { value: data, changed: false }
+    return { value: JSON.stringify(redacted.value), changed: true }
+  }
+
+  if (!isRecord(data)) return { value: data, changed: false }
+
+  const captured = readOAuthTokenRecord(data.auth)
+  if (captured) {
+    const refId = ensureRefId(data, "coll")
+    pending.push({ key: teamCollectionImportKey(refId), record: captured })
+  }
+
+  const stripped = stripOAuthTokensDeep(data)
+  return { value: stripped, changed: stripped !== data || captured !== null }
+}
+
+const redactImportedRequest = (
+  request: unknown,
+  pending: PendingOAuthToken[]
+): { value: unknown; changed: boolean } => {
+  if (typeof request === "string") {
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(request)
+    } catch {
+      return { value: request, changed: false }
+    }
+
+    const redacted = redactImportedRequest(parsed, pending)
+    if (!redacted.changed) return { value: request, changed: false }
+    return { value: JSON.stringify(redacted.value), changed: true }
+  }
+
+  if (!isRecord(request)) return { value: request, changed: false }
+
+  const captured = readOAuthTokenRecord(request.auth)
+  if (captured) {
+    const refId = ensureRefId(request, "req")
+    pending.push({ key: teamRequestImportKey(refId), record: captured })
+  }
+
+  const stripped = stripOAuthTokensDeep(request)
+  return {
+    value: stripped,
+    changed: stripped !== request || captured !== null,
+  }
+}
+
+const redactImportedFolder = (
+  folder: Record<string, unknown>,
+  pending: PendingOAuthToken[]
+): boolean => {
+  let changed = false
+
+  if ("data" in folder) {
+    const redacted = redactCollectionDataValue(folder.data, pending)
+    if (redacted.changed) {
+      folder.data = redacted.value
+      changed = true
+    }
+  }
+
+  if (Array.isArray(folder.requests)) {
+    let requestsChanged = false
+    const requests = folder.requests.map((request) => {
+      const redacted = redactImportedRequest(request, pending)
+      if (redacted.changed) requestsChanged = true
+      return redacted.value
+    })
+    if (requestsChanged) {
+      folder.requests = requests
+      changed = true
+    }
+  }
+
+  if (Array.isArray(folder.folders)) {
+    for (const child of folder.folders) {
+      if (isRecord(child) && redactImportedFolder(child, pending)) {
+        changed = true
+      }
+    }
+  }
+
+  return changed
+}
+
+/**
+ * Blank OAuth tokens in a team import document, including collection auth
+ * stored as a JSON string on `data`, and return the caller's tokens so they
+ * can be kept locally under each `_ref_id`.
+ */
+export const prepareTeamImportJson = (
+  json: string
+): { wireJson: string; pending: PendingOAuthToken[] } => {
   let parsed: unknown
   try {
     parsed = JSON.parse(json)
   } catch {
-    return json
+    return { wireJson: json, pending: [] }
   }
 
-  const stripped = stripOAuthTokensDeep(parsed)
-  return stripped === parsed ? json : JSON.stringify(stripped)
+  const pending: PendingOAuthToken[] = []
+  let changed = false
+  const folders = Array.isArray(parsed)
+    ? parsed
+    : isRecord(parsed)
+      ? [parsed]
+      : []
+
+  for (const folder of folders) {
+    if (isRecord(folder) && redactImportedFolder(folder, pending)) {
+      changed = true
+    }
+  }
+
+  if (!changed) return { wireJson: json, pending }
+  return { wireJson: JSON.stringify(parsed), pending }
 }
+
+export const stripOAuthTokensFromJsonString = (json: string): string =>
+  prepareTeamImportJson(json).wireJson

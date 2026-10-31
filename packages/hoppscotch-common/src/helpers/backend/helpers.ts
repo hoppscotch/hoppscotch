@@ -187,6 +187,13 @@ const parseCollectionData = (
       ? parsedData.testScript
       : defaultDataProps.testScript
 
+  const refId =
+    parsedData &&
+    typeof parsedData === "object" &&
+    typeof (parsedData as { _ref_id?: unknown })._ref_id === "string"
+      ? (parsedData as { _ref_id: string })._ref_id
+      : undefined
+
   return {
     auth,
     headers,
@@ -194,6 +201,7 @@ const parseCollectionData = (
     description,
     preRequestScript,
     testScript,
+    _ref_id: refId,
   }
 }
 
@@ -296,6 +304,7 @@ export const teamCollToHoppRESTColl = (
     description,
     preRequestScript,
     testScript,
+    _ref_id,
   } = parseCollectionData(data)
 
   return makeCollection({
@@ -306,7 +315,8 @@ export const teamCollToHoppRESTColl = (
       coll.requests?.map((x) => hydrateTeamRequest(x.id, x.request)) ?? [],
     auth: hydrateCollectionAuth(
       coll.id,
-      auth ?? { authType: "inherit", authActive: true }
+      auth ?? { authType: "inherit", authActive: true },
+      _ref_id
     ),
     headers: headers ?? [],
     variables: variables ?? [],

@@ -22,7 +22,10 @@ import {
   SecretEnvironmentService,
   SecretVariable,
 } from "../secret-environment.service"
-import { TeamOAuthTokenService } from "../team-oauth-token.service"
+import {
+  readScopedTeamOAuthTokenStore,
+  TeamOAuthTokenService,
+} from "../team-oauth-token.service"
 import type { OAuthTokenRecord } from "~/helpers/teamOAuthTokens"
 
 import { useToast } from "~/composables/toast"
@@ -85,7 +88,6 @@ import {
   REST_HISTORY_ENTRY_SCHEMA,
   WORKSPACE_TABS_STATE_SCHEMA,
   SECRET_ENVIRONMENT_VARIABLE_SCHEMA,
-  TEAM_OAUTH_TOKENS_SCHEMA,
   SELECTED_ENV_INDEX_SCHEMA,
   SETTINGS_SCHEMA,
   SOCKET_IO_REQUEST_SCHEMA,
@@ -732,18 +734,31 @@ export class PersistenceService extends Service {
     })
   }
 
-  private async setupTeamOAuthTokensPersistence() {
-    const loadResult = await Store.get<Record<string, OAuthTokenRecord>>(
+  private teamOAuthTokensPersistenceStarted = false
+
+  /**
+   * Load member-scoped team OAuth tokens and start persisting them.
+   * Call this after the signed-in user is known and before team collection
+   * reads, so request hydration does not snapshot an empty token map.
+   */
+  public async setupTeamOAuthTokensPersistence() {
+    if (this.teamOAuthTokensPersistenceStarted) return
+    this.teamOAuthTokensPersistenceStarted = true
+
+    const loadResult = await Store.get<Record<string, unknown>>(
       STORE_NAMESPACE,
       STORE_KEYS.TEAM_OAUTH_TOKENS
     )
 
     try {
       if (E.isRight(loadResult) && loadResult.right) {
-        const result = TEAM_OAUTH_TOKENS_SCHEMA.safeParse(loadResult.right)
+        const stored = readScopedTeamOAuthTokenStore(loadResult.right)
 
-        if (result.success) {
-          this.teamOAuthTokenService.loadFromPersistedState(result.data)
+        if (stored) {
+          if (stored.legacyUnscoped) {
+            await Store.set(STORE_NAMESPACE, STORE_KEYS.TEAM_OAUTH_TOKENS, {})
+          }
+          this.teamOAuthTokenService.loadFromPersistedState(stored.tokens)
         } else {
           this.showErrorToast(STORE_KEYS.TEAM_OAUTH_TOKENS)
           await Store.set(
@@ -763,7 +778,7 @@ export class PersistenceService extends Service {
 
     watchDebounced(
       this.teamOAuthTokenService.persistableTokens,
-      async (newData: Record<string, OAuthTokenRecord>) => {
+      async (newData: Record<string, Record<string, OAuthTokenRecord>>) => {
         await Store.set(STORE_NAMESPACE, STORE_KEYS.TEAM_OAUTH_TOKENS, newData)
       },
       { debounce: 500 }
@@ -1248,7 +1263,6 @@ export class PersistenceService extends Service {
       this.setupGQLTabsPersistence(),
 
       this.setupSecretEnvironmentsPersistence(),
-      this.setupTeamOAuthTokensPersistence(),
       this.setupCurrentEnvironmentValuePersistence(),
 
       this.setupCurrentSortValuesPersistence(),

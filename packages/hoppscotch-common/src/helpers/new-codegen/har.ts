@@ -1,20 +1,13 @@
+import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
-import * as S from "fp-ts/string"
-import { pipe, flow } from "fp-ts/function"
+import { pipe } from "fp-ts/function"
 import * as Har from "har-format"
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppRESTRequest, parseRawKeyValueEntriesE } from "@hoppscotch/data"
 import { FieldEquals, objectFieldIncludes } from "../typeutils"
 
 // Hoppscotch support HAR Spec 1.2
 // For more info on the spec: http://www.softwareishard.com/blog/har-12-spec/
-
-const splitHarQueryParams = (sep: string) => {
-  return (s: string): Array<string> => {
-    const out = pipe(s, S.split(sep))
-    const [key, ...rest] = out
-    return [key, rest.join(sep)] // Split by the first colon and join the rest
-  }
-}
 
 const buildHarHeaders = (req: HoppRESTRequest): Har.Header[] => {
   return req.headers
@@ -42,25 +35,19 @@ const buildHarPostParams = (
       }
     }
 ): Har.Param[] => {
-  // URL Encoded strings have a string style of contents
+  // URL Encoded bodies are stored in the raw key-value format: values may be
+  // quoted and disabled pairs are kept as commented (`# key: value`) lines
   if (req.body.contentType === "application/x-www-form-urlencoded") {
     return pipe(
-      req.body.body,
-      S.split("\n"),
-      RA.map(
-        flow(
-          // Define how each lines are parsed
-
-          splitHarQueryParams(":"), // Split by the first ":"
-          RA.map(S.trim), // Remove trailing spaces in key/value begins and ends
-          ([key, value]) => ({
-            // Convert into a proper key value definition
-            name: key,
-            value: value ?? "", // Value can be undefined (if no ":" is present)
-          })
+      parseRawKeyValueEntriesE(req.body.body),
+      E.map(
+        RA.filterMap(({ key, value, active }) =>
+          // Skip disabled pairs and pairs without a key, like the request sender
+          active && key !== "" ? O.some({ name: key, value }) : O.none
         )
       ),
-      RA.toArray
+      E.map(RA.toArray),
+      E.getOrElse((): Har.Param[] => [])
     )
   }
   // FormData has its own format

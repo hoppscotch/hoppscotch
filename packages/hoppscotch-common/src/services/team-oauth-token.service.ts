@@ -16,7 +16,12 @@ import { TEAM_OAUTH_TOKENS_SCHEMA } from "~/services/persistence/validation-sche
 export class TeamOAuthTokenService extends Service {
   public static readonly ID = "TEAM_OAUTH_TOKEN_SERVICE"
 
-  /** Bumps when the active member or the loaded store changes. */
+  /**
+   * Bumps when requests already stored in the collection tree should copy
+   * tokens again. Account changes and persistence loads bump it here. A
+   * committed request token bumps it from `commitTokenSyncPlan`, because
+   * that write can land after the tree has snapshotted the previous token.
+   */
   public revision = ref(0)
 
   private activeUserId: string | null = null

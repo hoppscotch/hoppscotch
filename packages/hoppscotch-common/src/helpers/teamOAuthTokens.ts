@@ -15,7 +15,10 @@ export type OAuthTokenRecord = {
   refreshToken?: string
 }
 
-export const teamRequestTokenKey = (requestId: string) => `request:${requestId}`
+const REQUEST_TOKEN_KEY_PREFIX = "request:"
+
+export const teamRequestTokenKey = (requestId: string) =>
+  `${REQUEST_TOKEN_KEY_PREFIX}${requestId}`
 
 export const teamCollectionTokenKey = (collectionId: string) =>
   `collection:${collectionId}`
@@ -151,6 +154,11 @@ const planAuthTokenSync = (key: string, auth: unknown): TokenSyncPlan => {
  * Apply a planned remember/forget. Call this only after the team save that
  * produced `plan` has succeeded, so a rejected update cannot clear the token
  * the shared request still has.
+ *
+ * A request-token plan also bumps `TeamOAuthTokenService.revision`. The
+ * collection tree copies a token in when `teamRequestUpdated` arrives, and
+ * that event can run before this commit, so the cached request still has the
+ * previous token (or none) until the tree is hydrated again.
  */
 export const commitTokenSyncPlan = (plan: TokenSyncPlan) => {
   if (plan.type === "noop") return
@@ -158,10 +166,15 @@ export const commitTokenSyncPlan = (plan: TokenSyncPlan) => {
   const service = getService(TeamOAuthTokenService)
   if (plan.type === "keep") {
     service.remember(plan.key, plan.record)
-    return
+  } else {
+    service.forget(plan.key)
   }
 
-  service.forget(plan.key)
+  // Collection tokens are read when the collection is opened, and import
+  // keys are claimed later. Only request snapshots live on the tree.
+  if (plan.key.startsWith(REQUEST_TOKEN_KEY_PREFIX)) {
+    service.revision.value++
+  }
 }
 
 const adoptImportedToken = (storageKey: string, importKey: string) => {

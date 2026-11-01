@@ -106,8 +106,10 @@ describe("team OAuth tokens", () => {
       getService(TeamOAuthTokenService).recall(teamRequestTokenKey("req-1"))
     ).toBeUndefined()
 
+    const revision = getService(TeamOAuthTokenService).revision.value
     commitTokenSyncPlan(plan)
 
+    expect(getService(TeamOAuthTokenService).revision.value).toBe(revision + 1)
     expect(
       getService(TeamOAuthTokenService).recall(teamRequestTokenKey("req-1"))
     ).toEqual({ token: "live-token", refreshToken: "live-refresh" })
@@ -158,8 +160,10 @@ describe("team OAuth tokens", () => {
       refreshToken: "live-refresh",
     })
 
+    const revision = service.revision.value
     commitTokenSyncPlan(plan)
 
+    expect(service.revision.value).toBe(revision + 1)
     expect(service.recall(teamRequestTokenKey("req-1"))).toBeUndefined()
   })
 
@@ -196,15 +200,18 @@ describe("team OAuth tokens", () => {
 
     expect(wire.auth.grantTypeInfo.token).toBe("")
     expect(data.auth.grantTypeInfo.token).toBe("collection-token")
-    expect(
-      getService(TeamOAuthTokenService).recall(teamCollectionTokenKey("coll-1"))
-    ).toBeUndefined()
+    const service = getService(TeamOAuthTokenService)
+    expect(service.recall(teamCollectionTokenKey("coll-1"))).toBeUndefined()
 
+    const revision = service.revision.value
     commitTokenSyncPlan(plan)
 
-    expect(
-      getService(TeamOAuthTokenService).recall(teamCollectionTokenKey("coll-1"))
-    ).toEqual({ token: "collection-token" })
+    // Collection auth is read when the folder is opened, so a collection
+    // commit must not force every cached request to hydrate again.
+    expect(service.revision.value).toBe(revision)
+    expect(service.recall(teamCollectionTokenKey("coll-1"))).toEqual({
+      token: "collection-token",
+    })
     expect(redactCollectionDataForTeamWire("coll-1", data)).toEqual(wire)
   })
 
@@ -410,6 +417,9 @@ describe("team OAuth tokens", () => {
         .token
     ).toBe("")
     expect(wire[0].folders[0].requests[0].auth.grantTypeInfo.token).toBe("")
+    expect(wire[0].folders[0].requests[0].auth.grantTypeInfo.refreshToken).toBe(
+      ""
+    )
     expect(wireJson).not.toContain("root-access")
     expect(wireJson).not.toContain("root-coll-access")
     expect(wireJson).not.toContain("nested-access")

@@ -1,9 +1,6 @@
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 
-import { getService } from "~/modules/dioc"
-import { TeamOAuthTokenService } from "~/services/team-oauth-token.service"
-
 import { runMutation } from "../GQLClient"
 import {
   splitRequestForTeamCreate,
@@ -68,10 +65,11 @@ export const createRequestInCollection = (
     TE.map((result) => {
       const id = result.createRequestInCollection?.id
       if (id && captured) {
-        getService(TeamOAuthTokenService).remember(
-          teamRequestTokenKey(id),
-          captured
-        )
+        commitTokenSyncPlan({
+          type: "keep",
+          key: teamRequestTokenKey(id),
+          record: captured,
+        })
       }
       return result
     })
@@ -118,7 +116,10 @@ export const deleteTeamRequest = (requestID: string) =>
       requestID,
     }),
     TE.map((result) => {
-      getService(TeamOAuthTokenService).forget(teamRequestTokenKey(requestID))
+      commitTokenSyncPlan({
+        type: "drop",
+        key: teamRequestTokenKey(requestID),
+      })
       return result
     })
   )

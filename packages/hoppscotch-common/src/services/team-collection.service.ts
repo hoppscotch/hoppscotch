@@ -181,8 +181,9 @@ export class TeamCollectionsService extends Service<void> {
 
   override onServiceInit() {
     this.collectionLoadingWatcher()
-    // Token load and account changes bump `revision`. Requests already
-    // copied into the tree are hydrated once, so refresh them in place.
+    // Token load, account changes, and a committed request token bump
+    // `revision`. Requests already copied into the tree are hydrated once,
+    // so refresh them in place.
     watch(
       () => this.teamOAuthTokenService.revision.value,
       () => {

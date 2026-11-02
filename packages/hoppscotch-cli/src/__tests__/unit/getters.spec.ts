@@ -223,9 +223,21 @@ describe("getters", () => {
             data: "test-environment-id-or-path",
           },
         },
+        {
+          description:
+            "Promise rejects with the code `UNKNOWN_ERROR` if the network call fails with a timeout error (ETIMEDOUT)",
+          args,
+          axiosMock: {
+            code: "ETIMEDOUT",
+          },
+          expected: {
+            code: "UNKNOWN_ERROR",
+            data: expect.objectContaining({ code: "ETIMEDOUT" }),
+          },
+        },
       ];
 
-      test.each(cases)("$description", ({ args, axiosMock, expected }) => {
+      test.each(cases)("$description", async ({ args, axiosMock, expected }) => {
         const { code, response } = axiosMock;
         const axiosErrMessage = code ?? response?.data?.reason;
 
@@ -241,10 +253,10 @@ describe("getters", () => {
           )
         );
 
-        expect(getResourceContents(args)).rejects.toEqual(expected);
+        await expect(getResourceContents(args)).rejects.toEqual(expected);
       });
 
-      test("Promise rejects with the code `INVALID_SERVER_URL` if the network call succeeds and the received response content type is not `application/json`", () => {
+      test("Promise rejects with the code `INVALID_SERVER_URL` if the network call succeeds and the received response content type is not `application/json`", async () => {
         const expected = {
           code: "INVALID_SERVER_URL",
           data: args.serverUrl,
@@ -257,20 +269,20 @@ describe("getters", () => {
           })
         );
 
-        expect(getResourceContents(args)).rejects.toEqual(expected);
+        await expect(getResourceContents(args)).rejects.toEqual(expected);
       });
 
-      test("Promise rejects with the code `UNKNOWN_ERROR` while encountering an error that is not an instance of `AxiosError`", () => {
+      test("Promise rejects with the code `UNKNOWN_ERROR` while encountering an error that is not an instance of `AxiosError`", async () => {
         const expected = {
           code: "UNKNOWN_ERROR",
-          data: new Error("UNKNOWN_ERROR"),
+          data: expect.objectContaining({ message: "UNKNOWN_ERROR" }),
         };
 
         vi.spyOn(axios, "get").mockImplementation(() =>
           Promise.reject(new Error("UNKNOWN_ERROR"))
         );
 
-        expect(getResourceContents(args)).rejects.toEqual(expected);
+        await expect(getResourceContents(args)).rejects.toMatchObject(expected);
       });
     });
 
@@ -501,6 +513,82 @@ describe("getters", () => {
 
       expect(
         getResolvedVariables(requestVariables, environmentVariables)
+      ).toEqual(expected);
+    });
+
+    test("Priority logic: Request variables > Collection variables > Environment variables", () => {
+      const collectionVariables = [
+        {
+          key: "SHARED_KEY_I",
+          initialValue: "collection-variable-shared-value-I",
+          currentValue: "collection-variable-shared-value-I",
+          secret: false,
+        },
+        {
+          key: "ENV_VAR_III",
+          initialValue: "collection-variable-value-III",
+          currentValue: "collection-variable-value-III",
+          secret: false,
+        },
+        {
+          key: "COLL_VAR_VI",
+          initialValue: "collection-variable-value-VI",
+          currentValue: "collection-variable-value-VI",
+          secret: false,
+        },
+      ];
+
+      const expected = [
+        {
+          key: "SHARED_KEY_I",
+          currentValue: "request-variable-shared-value-I",
+          initialValue: "request-variable-shared-value-I",
+          secret: false,
+        },
+        {
+          key: "REQUEST_VAR_III",
+          currentValue: "request-variable-value-III",
+          initialValue: "request-variable-value-III",
+          secret: false,
+        },
+        {
+          key: "ENV_VAR_III",
+          currentValue: "collection-variable-value-III",
+          initialValue: "collection-variable-value-III",
+          secret: false,
+        },
+        {
+          key: "COLL_VAR_VI",
+          currentValue: "collection-variable-value-VI",
+          initialValue: "collection-variable-value-VI",
+          secret: false,
+        },
+        {
+          key: "SHARED_KEY_II",
+          currentValue: "environment-variable-shared-value-II",
+          initialValue: "environment-variable-shared-value-II",
+          secret: false,
+        },
+        {
+          key: "ENV_VAR_IV",
+          currentValue: "environment-variable-value-IV",
+          initialValue: "environment-variable-value-IV",
+          secret: false,
+        },
+        {
+          key: "ENV_VAR_V",
+          currentValue: "environment-variable-value-V",
+          initialValue: "environment-variable-value-V",
+          secret: false,
+        },
+      ];
+
+      expect(
+        getResolvedVariables(
+          requestVariables,
+          environmentVariables,
+          collectionVariables
+        )
       ).toEqual(expected);
     });
   });

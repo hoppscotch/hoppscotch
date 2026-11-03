@@ -659,7 +659,13 @@ watch(
       request.value.auth.authActive &&
       !request.value.headers.some(
         (requestHeader) =>
-          requestHeader.key === "Authorization" && requestHeader.active
+          requestHeader.key.toLowerCase() === "authorization" &&
+          requestHeader.active
+      ) &&
+      !props.inheritedProperties.headers.some(
+        (inheritedHeader) =>
+          inheritedHeader.inheritedHeader?.key?.toLowerCase() ===
+            "authorization" && inheritedHeader.inheritedHeader?.active
       )
     ) {
       const [computedAuthHeader] = await getComputedAuthHeaders(

@@ -133,7 +133,7 @@
                 :shortcut="['⌫']"
                 @click="
                   () => {
-                    clearContent()
+                    openClearAllModal()
                     hide()
                   }
                 "
@@ -232,6 +232,16 @@
       :request="request"
       @hide-modal="showSaveRequestModal = false"
     />
+    <HoppSmartConfirmModal
+      :show="confirmClearAll"
+      :title="t('confirm.clear_all')"
+      @hide-modal="confirmClearAll = false"
+      @resolve="
+        () => {
+          confirmClearAllAction()
+        }
+      "
+    />
   </div>
 </template>
 
@@ -314,6 +324,7 @@ const isTabResponseLoading = computed(
 const showCurlImportModal = ref(false)
 const showCodegenModal = ref(false)
 const showSaveRequestModal = ref(false)
+const confirmClearAll = ref(false)
 
 const methodTippyActions = ref<any | null>(null)
 const sendTippyActions = ref<any | null>(null)
@@ -519,7 +530,21 @@ const onSelectMethod = (e: Event | any) => {
 }
 
 const clearContent = () => {
+  tab.value.document.cancelFunction?.()
+  loading.value = false
+
   tab.value.document.request = getDefaultRESTRequest()
+  tab.value.document.response = null
+  tab.value.document.testResults = null
+}
+
+const openClearAllModal = () => {
+  confirmClearAll.value = true
+}
+
+const confirmClearAllAction = () => {
+  clearContent()
+  confirmClearAll.value = false
 }
 
 const updateRESTResponse = (response: HoppRESTResponse | null) => {

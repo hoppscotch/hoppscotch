@@ -357,6 +357,7 @@
     "duplicated": "Collection duplicated"
   },
   "confirm": {
+    "clear_all": "Clear all?",
     "close_unsaved_tab": "Are you sure you want to close this tab?",
     "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
     "delete_all_activity_logs": "Are you sure you want to delete all activity logs?",

@@ -129,6 +129,7 @@ const getHoppReqAuth = (req: InsomniaRequestResource): HoppRESTAuth => {
         scopes: replaceVarTemplating(auth.scope ?? ""),
         token: "",
         isPKCE: false,
+        clientAuthentication: "IN_BODY",
         tokenEndpoint: replaceVarTemplating(auth.accessTokenUrl ?? ""),
         authRequestParams: [],
         refreshRequestParams: [],

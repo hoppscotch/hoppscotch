@@ -59,12 +59,25 @@ export const useOAuth2GrantTypes = (
   const tokenTypeOptionFor = (value: string | undefined) =>
     tokenTypeOptions.find((o) => o.id === value) ?? tokenTypeOptions[0]
 
+  const clientAuthenticationOptionFor = (
+    value: "AS_BASIC_AUTH_HEADERS" | "IN_BODY" | undefined
+  ) =>
+    value === "AS_BASIC_AUTH_HEADERS"
+      ? {
+          id: "AS_BASIC_AUTH_HEADERS" as const,
+          label: t("authorization.oauth.label_send_as_basic_auth"),
+        }
+      : {
+          id: "IN_BODY" as const,
+          label: t("authorization.oauth.label_send_in_body"),
+        }
+
   // Helper function to prepare request parameters
   const prepareRequestParams = (
     params: Ref<AuthRequestParam[] | TokenRequestParam[]>
   ) => {
     return params.value
-      .filter((p) => p.active && p.key && p.value)
+      .filter((p) => p.active && p.key)
       .map((p) => ({
         id: p.id,
         key: replaceTemplateString(p.key),
@@ -162,6 +175,24 @@ export const useOAuth2GrantTypes = (
           }
         )
 
+        const clientAuthentication = refWithCallbackOnChange(
+          clientAuthenticationOptionFor(
+            "clientAuthentication" in grantType
+              ? grantType.clientAuthentication
+              : undefined
+          ),
+          (value) => {
+            if (auth.value.grantTypeInfo.grantType !== "AUTHORIZATION_CODE") {
+              return
+            }
+
+            auth.value.grantTypeInfo = {
+              ...auth.value.grantTypeInfo,
+              clientAuthentication: value.id,
+            }
+          }
+        )
+
         const scopes = refWithCallbackOnChange(
           grantType?.scopes ? grantType.scopes : undefined,
           (value) => {
@@ -254,6 +285,8 @@ export const useOAuth2GrantTypes = (
             clientSecret: clientSecret.value,
             tokenEndpoint: tokenEndpoint.value,
             refreshToken,
+            clientAuthentication: clientAuthentication.value.id,
+            refreshRequestParams: preparedRefreshRequestParams.value,
           }
 
           const unwrappedParams = replaceTemplateStringsInObjectValues(params)
@@ -284,6 +317,7 @@ export const useOAuth2GrantTypes = (
             tokenEndpoint: tokenEndpoint.value,
             clientID: clientID.value,
             clientSecret: clientSecret.value,
+            clientAuthentication: clientAuthentication.value.id,
             scopes: scopes.value,
             isPKCE: isPKCE.value,
             // Ensure older collections without `codeVerifierMethod` get a default
@@ -386,6 +420,24 @@ export const useOAuth2GrantTypes = (
               ref: scopes,
             },
             {
+              id: "clientAuthentication",
+              label: t("authorization.oauth.label_send_as"),
+              type: "dropdown" as const,
+              ref: clientAuthentication,
+              tippyRefName: "clientAuthenticationTippyActions",
+              tippyRef: clientAuthenticationTippyActions,
+              options: [
+                {
+                  id: "IN_BODY" as const,
+                  label: t("authorization.oauth.label_send_in_body"),
+                },
+                {
+                  id: "AS_BASIC_AUTH_HEADERS" as const,
+                  label: t("authorization.oauth.label_send_as_basic_auth"),
+                },
+              ],
+            },
+            {
               id: "tokenType",
               label: "Token Type",
               type: "dropdown" as const,
@@ -459,22 +511,13 @@ export const useOAuth2GrantTypes = (
         )
 
         const clientAuthentication = refWithCallbackOnChange(
-          grantTypeInfo.clientAuthentication
-            ? grantTypeInfo.clientAuthentication === "AS_BASIC_AUTH_HEADERS"
-              ? {
-                  id: "AS_BASIC_AUTH_HEADERS" as const,
-                  label: t("authorization.oauth.label_send_as_basic_auth"),
-                }
-              : {
-                  id: "IN_BODY" as const,
-                  label: t("authorization.oauth.label_send_in_body"),
-                }
-            : {
-                id: "IN_BODY" as const,
-                label: t("authorization.oauth.label_send_in_body"),
-              },
+          clientAuthenticationOptionFor(
+            "clientAuthentication" in grantTypeInfo
+              ? grantTypeInfo.clientAuthentication
+              : undefined
+          ),
           (value) => {
-            if (!("clientAuthentication" in auth.value.grantTypeInfo)) {
+            if (auth.value.grantTypeInfo.grantType !== "CLIENT_CREDENTIALS") {
               return
             }
 

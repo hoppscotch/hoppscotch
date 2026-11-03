@@ -359,6 +359,7 @@
   "confirm": {
     "close_unsaved_tab": "Are you sure you want to close this tab?",
     "close_unsaved_tabs": "Are you sure you want to close all tabs? {count} unsaved tabs will be lost.",
+    "clear_all_fields": "Are you sure you want to clear all fields? This action cannot be undone.",
     "delete_all_activity_logs": "Are you sure you want to delete all activity logs?",
     "exit_team": "Are you sure you want to leave this workspace?",
     "logout": "Are you sure you want to logout?",

@@ -114,7 +114,7 @@ export default defineConfig({
           nuxtStyle: true,
           allowRobots: true,
           dest: ".sitemap-gen",
-          hostname: ENV.VITE_BASE_URL,
+          hostname: ENV.VITE_BASE_URL || "http://localhost:3000",
         })
       },
     }),

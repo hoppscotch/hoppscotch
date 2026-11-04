@@ -13,12 +13,12 @@ export function isValidLocalhostRedirectUri(
     return false;
   }
 
-  // no https — desktop loopback listeners don't serve TLS
   if (url.protocol !== 'http:') return false;
-
-  // block credential-stuffed URIs like http://user:pass@localhost
   if (url.username || url.password) return false;
 
-  // exact match only
-  return LOOPBACK_HOSTS.indexOf(url.hostname) !== -1;
+  return LOOPBACK_HOSTS.includes(url.hostname);
+}
+
+export function isValidRedirectUri(uri: string | undefined | null): boolean {
+  return isValidLocalhostRedirectUri(uri);
 }

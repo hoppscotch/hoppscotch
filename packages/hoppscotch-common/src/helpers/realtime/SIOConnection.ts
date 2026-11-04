@@ -135,7 +135,21 @@ export class SIOConnection {
     if (this.connectionState$.value === "DISCONNECTED") return
     const { message, eventName } = event
 
-    this.socket?.emit(eventName, message, (data) => {
+    // Parse JSON object/array strings into native values so socket.io
+    // sends them as structured JSON rather than double-serialized strings.
+    // Only attempt parsing for object/array shapes to avoid silently
+    // coercing primitives like "null", "true", or "42".
+    let payload: unknown = message
+    const trimmed = message.trim()
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      try {
+        payload = JSON.parse(message)
+      } catch {
+        // Not valid JSON, send as plain string
+      }
+    }
+
+    this.socket?.emit(eventName, payload, (data) => {
       // receive response from server
       this.addEvent({
         time: Date.now(),
@@ -152,7 +166,7 @@ export class SIOConnection {
       type: "MESSAGE_SENT",
       message: {
         eventName,
-        value: message,
+        value: payload,
       },
     })
   }

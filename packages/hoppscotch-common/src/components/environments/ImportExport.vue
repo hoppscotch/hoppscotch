@@ -489,10 +489,12 @@ const importToTeams = async (content: Environment[]) => {
     toast.error(t("import.failed"))
   } else {
     toast.success(t("import.success"))
+    emit("refetch-environments")
   }
 }
 
 const emit = defineEmits<{
   (e: "hide-modal"): () => void
+  (e: "refetch-environments"): void
 }>()
 </script>

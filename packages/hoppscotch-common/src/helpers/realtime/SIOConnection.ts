@@ -44,6 +44,7 @@ export class SIOConnection {
   connectionState$: BehaviorSubject<ConnectionState>
   event$: Subject<SIOEvent> = new Subject()
   socket: SIOClient | undefined
+  private manualDisconnect = false
   constructor() {
     this.connectionState$ = new BehaviorSubject<ConnectionState>("DISCONNECTED")
   }
@@ -106,8 +107,9 @@ export class SIOConnection {
         this.addEvent({
           type: "DISCONNECTED",
           time: Date.now(),
-          manual: true,
+          manual: this.manualDisconnect,
         })
+        this.manualDisconnect = false
       })
     } catch (error) {
       this.handleError(error, "CONNECTION")
@@ -120,7 +122,8 @@ export class SIOConnection {
   }
 
   private handleError(error: unknown, type: SIOErrorType) {
-    this.disconnect()
+    this.socket?.close()
+    this.connectionState$.next("DISCONNECTED")
     this.addEvent({
       time: Date.now(),
       type: "ERROR",
@@ -158,6 +161,7 @@ export class SIOConnection {
   }
 
   disconnect() {
+    this.manualDisconnect = true
     this.socket?.close()
     this.connectionState$.next("DISCONNECTED")
   }

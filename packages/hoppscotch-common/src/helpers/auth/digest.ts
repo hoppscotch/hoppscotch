@@ -78,6 +78,48 @@ export interface DigestAuthInfo {
   algorithm: string
 }
 
+type DigestAuthHeaderParams = Record<string, string>
+const DIGEST_DIRECTIVE_NAME_PATTERN = /^[a-z0-9_-]+$/i
+
+function extractDigestChallenge(header: string) {
+  let index = 0
+
+  while (index < header.length) {
+    while (index < header.length && /[\s,]/.test(header[index])) {
+      index++
+    }
+
+    if (
+      header.slice(index, index + 6).toLowerCase() === "digest" &&
+      /\s/.test(header[index + 6] ?? "")
+    ) {
+      return header.slice(index + 6).trim()
+    }
+
+    let inQuotes = false
+
+    while (index < header.length) {
+      const char = header[index]
+
+      if (char === "\\" && inQuotes) {
+        index += 2
+        continue
+      }
+
+      if (char === '"') {
+        inQuotes = !inQuotes
+      } else if (!inQuotes && char === ",") {
+        index++
+        break
+      }
+
+      index++
+    }
+  }
+
+  return header.trim()
+}
+
 export async function fetchInitialDigestAuthInfo(
   url: string,
   method: string
@@ -127,7 +169,7 @@ export async function fetchInitialDigestAuthInfo(
             nonce: authParams.nonce,
             qop: authParams.qop,
             opaque: authParams.opaque,
-            algorithm: authParams.algorithm,
+            algorithm: authParams.algorithm ?? "MD5",
           }
         }
       }
@@ -148,17 +190,182 @@ export async function fetchInitialDigestAuthInfo(
 }
 
 // Utility function to parse Digest auth header values
-function parseDigestAuthHeader(
-  header: string
-): { [key: string]: string } | null {
-  const matches = header.match(/([a-z0-9]+)="([^"]+)"/gi)
-  if (!matches) return null
+function parseDigestAuthHeader(header: string): DigestAuthHeaderParams | null {
+  const digestHeader = extractDigestChallenge(header)
 
-  const authParams: { [key: string]: string } = {}
-  matches.forEach((match) => {
-    const parts = match.split("=")
-    authParams[parts[0]] = parts[1].replace(/"/g, "")
-  })
+  if (!digestHeader) return null
 
-  return authParams
+  const authParams: DigestAuthHeaderParams = {}
+  let index = 0
+
+  while (index < digestHeader.length) {
+    while (index < digestHeader.length && /[\s,]/.test(digestHeader[index])) {
+      index++
+    }
+
+    if (index >= digestHeader.length) break
+
+    const keyStart = index
+
+    while (
+      index < digestHeader.length &&
+      digestHeader[index] !== "=" &&
+      digestHeader[index] !== ","
+    ) {
+      index++
+    }
+
+    const key = digestHeader.slice(keyStart, index).trim().toLowerCase()
+
+    const hasAssignment = digestHeader[index] === "="
+    const isValidDirectiveName = DIGEST_DIRECTIVE_NAME_PATTERN.test(key)
+
+    if (!key || !hasAssignment || !isValidDirectiveName) {
+      if (index === keyStart) index++
+      else if (hasAssignment) {
+        index = skipDigestDirectiveValue(digestHeader, index + 1)
+      }
+      continue
+    }
+
+    index++
+
+    while (index < digestHeader.length && /\s/.test(digestHeader[index])) {
+      index++
+    }
+
+    let value = ""
+
+    if (digestHeader[index] === '"') {
+      index++
+
+      while (index < digestHeader.length) {
+        const char = digestHeader[index]
+
+        if (char === "\\") {
+          index++
+
+          if (index < digestHeader.length) {
+            value += digestHeader[index]
+            index++
+          }
+
+          continue
+        }
+
+        if (char === '"') {
+          index++
+          break
+        }
+
+        value += char
+        index++
+      }
+    } else {
+      const valueStart = index
+
+      while (index < digestHeader.length) {
+        if (digestHeader[index] !== ",") {
+          index++
+          continue
+        }
+
+        if (key !== "qop") break
+
+        const rest = digestHeader.slice(index + 1)
+
+        if (/^\s*[a-z0-9_-]+\s*=/i.test(rest)) break
+
+        index++
+      }
+
+      value = digestHeader.slice(valueStart, index).trim()
+    }
+
+    const normalizedValue = normalizeDigestAuthValue(key, value)
+
+    if (!normalizedValue && (key === "qop" || key === "algorithm")) {
+      return null
+    }
+
+    authParams[key] = normalizedValue
+  }
+
+  return Object.keys(authParams).length > 0 ? authParams : null
+}
+
+function normalizeDigestAuthValue(key: string, value: string) {
+  if (key === "qop") {
+    return selectDigestQop(value)
+  }
+
+  if (key === "algorithm") {
+    return normalizeDigestAlgorithm(value)
+  }
+
+  return value
+}
+
+function selectDigestQop(value: string) {
+  const qopOptions = value
+    .split(",")
+    .map((option) => option.trim().toLowerCase())
+    .filter(Boolean)
+
+  if (qopOptions.includes("auth")) {
+    return "auth"
+  }
+
+  if (qopOptions.includes("auth-int")) {
+    return "auth-int"
+  }
+
+  return ""
+}
+
+function normalizeDigestAlgorithm(value: string) {
+  const normalizedAlgorithm = value.trim().toLowerCase()
+
+  if (normalizedAlgorithm === "md5-sess") {
+    return "MD5-sess"
+  }
+
+  if (normalizedAlgorithm === "md5") {
+    return "MD5"
+  }
+
+  return ""
+}
+
+function skipDigestDirectiveValue(header: string, index: number) {
+  while (index < header.length && /\s/.test(header[index])) {
+    index++
+  }
+
+  if (header[index] === '"') {
+    index++
+
+    while (index < header.length) {
+      const char = header[index]
+
+      if (char === "\\") {
+        index += 2
+        continue
+      }
+
+      index++
+
+      if (char === '"') {
+        break
+      }
+    }
+
+    return index
+  }
+
+  while (index < header.length && header[index] !== ",") {
+    index++
+  }
+
+  return index
 }

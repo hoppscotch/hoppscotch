@@ -1,0 +1,29 @@
+name: Manual Version Bump
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-type:
+        description: "Choose version bump type"
+        required: true
+        default: "patch"
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Bump version
+        uses: phips28/gh-action-bump-version@v10
+        with:
+          bump-type: ${{ github.event.inputs.release-type }}
+          tag-prefix: "v"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -31,3 +31,57 @@ If you notice spelling or grammar errors, typos, or opportunities for better phr
 ### Broken links
 
 When tests find broken links, try to fix them across all translations. Ideally, only update the linked URLs, so that translation changes will definitely not be necessary.
+
+---
+
+## Additional Translation Guidelines
+
+The following recommendations help maintain consistency and prevent common issues when contributing translations.
+
+### Do not modify JSON keys
+
+When translating language files, **only translate the values** and do not modify or rename JSON keys.
+
+Example:
+
+Correct:
+
+{
+  "action.save": "Guardar"
+}
+
+Incorrect:
+
+{
+  "guardar": "Guardar"
+}
+
+Changing keys may cause the application to fail to locate the correct translations.
+
+### Language file naming
+
+Translation filenames should match the locale `code`/`file` entries in `languages.json` (typically lowercase, e.g., `en.json`, `pt-br.json`).
+
+Examples:
+
+| Language | File |
+|--------|------|
+| English | `en.json` |
+| Spanish | `es.json` |
+| French | `fr.json` |
+| German | `de.json` |
+| Japanese | `ja.json` |
+
+Use lowercase language codes when creating new language files.
+
+### Keeping translations updated
+
+When new translation keys are added to `en.json`, translators should update their language files accordingly. Missing keys will fall back to English text in the user interface.
+
+### Testing translations
+
+Before submitting a pull request, it is recommended to verify the translation locally if possible:
+
+1. Run the development server.
+2. Switch to your translated language in the interface.
+3. Confirm that all translated text appears correctly and the JSON format is valid.

@@ -65,7 +65,12 @@ const getCollectionSchema = (jsonStr: string): string | null => {
 
 export const replacePMVarTemplating = (value: unknown): string => {
   const str = typeof value === "string" ? value : String(value ?? "")
-  return pipe(str, S.replace(/{{\s*/g, "<<"), S.replace(/\s*}}/g, ">>"))
+  // Only convert a complete Postman variable token (`{{ name }}`) into a
+  // Hoppscotch variable (`<<name>>`). Requiring a matched pair wrapping a
+  // non-empty, non-whitespace token with no braces inside ensures literal
+  // adjacent braces in raw bodies (e.g. JSON `}}}`) and empty/whitespace-only
+  // brace pairs are left untouched. See hoppscotch/hoppscotch#6324.
+  return pipe(str, S.replace(/{{\s*([^{}\s]+)\s*}}/g, "<<$1>>"))
 }
 
 const PMRawLanguageOptionsToContentTypeMap: Record<

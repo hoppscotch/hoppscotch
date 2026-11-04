@@ -1,12 +1,23 @@
 import { HoppRESTAuth } from "@hoppscotch/data"
 import parser from "yargs-parser"
 import * as O from "fp-ts/Option"
-import * as S from "fp-ts/string"
 import { pipe } from "fp-ts/function"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { objHasProperty } from "~/helpers/functional/object"
 
 const defaultRESTReq = getDefaultRESTRequest()
+
+/**
+ * Split a `username:password` credential on the FIRST colon only.
+ * curl uses the first colon as the separator, so the password may itself
+ * contain colons (e.g. tokens, base64); the username cannot.
+ */
+const splitOnFirstColon = (value: string): [string, string] => {
+  const separatorIndex = value.indexOf(":")
+  return separatorIndex === -1
+    ? [value, ""]
+    : [value.slice(0, separatorIndex), value.slice(separatorIndex + 1)]
+}
 
 const getAuthFromAuthHeader = (headers: Record<string, string>) =>
   pipe(
@@ -27,14 +38,9 @@ const getAuthFromAuthHeader = (headers: Record<string, string>) =>
             case "basic": {
               const [username, password] = pipe(
                 O.tryCatch(() => atob(kv[1])),
-                O.map(S.split(":")),
-                // can have a username with no password
-                O.filter((arr) => arr.length > 0),
-                O.map(
-                  ([username, password]) =>
-                    <[string, string]>[username, password]
-                ),
-                O.getOrElse(() => ["", ""])
+                // split on the first colon only — password may contain colons
+                O.map(splitOnFirstColon),
+                O.getOrElse(() => ["", ""] as [string, string])
               )
 
               if (!username) return undefined
@@ -58,17 +64,10 @@ const getAuthFromParsedArgs = (parsedArguments: parser.Arguments) =>
   pipe(
     parsedArguments,
     O.fromPredicate(objHasProperty("u", "string")),
-    O.chain((args) =>
-      pipe(
-        args.u,
-        S.split(":"),
-        // can have a username with no password
-        O.fromPredicate((arr) => arr.length > 0 && arr[0].length > 0),
-        O.map(
-          ([username, password]) => <[string, string]>[username, password ?? ""]
-        )
-      )
-    ),
+    // split on the first colon only — password may contain colons
+    O.map((args) => splitOnFirstColon(args.u)),
+    // can have a username with no password
+    O.filter(([username]) => username.length > 0),
     O.map(
       ([username, password]) =>
         <HoppRESTAuth>{

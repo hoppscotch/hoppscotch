@@ -111,7 +111,9 @@
               :key="tab.id"
               :label="tab.label"
             >
-              <div class="divide-y divide-dividerLight">
+              <div
+                class="divide-y divide-dividerLight overflow-y-auto max-h-[50vh]"
+              >
                 <HoppSmartPlaceholder
                   v-if="tab.variables.length === 0"
                   :src="`/images/states/${colorMode.value}/blockchain.svg`"

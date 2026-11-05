@@ -1054,20 +1054,25 @@ export class UserCollectionService {
   }
 
   /**
-   * Generate a Prisma query object representation of a collection and its child collections and requests
+   * Recursively create a UserCollection together with its requests and child
+   * collections, guaranteeing that a collection row exists before any row that
+   * references it (its requests and its children) is inserted.
    *
-   * @param folder CollectionFolder from client
-   * @param userID The User ID
-   * @param orderIndex Initial OrderIndex of
-   * @param reqType The Type of Collection
-   * @returns A Prisma query object to create a collection, its child collections and requests
+   * Mirrors the team-collection fix: avoids the deeply-nested `create` over the
+   * recursive `children` self-relation combined with `Promise.all`. Concurrent
+   * writes on a single interactive transaction under Prisma 7 + the pg driver
+   * adapter can interleave statements so a UserRequest is inserted before its
+   * parent UserCollection, violating `UserRequest_collectionID_fkey` (P2003) on
+   * large imports.
    */
-  private generatePrismaQueryObj(
+  private async createUserCollectionTree(
+    tx: Prisma.TransactionClient,
     folder: CollectionFolder,
     userID: string,
+    parentID: string | null,
     orderIndex: number,
     reqType: DBReqType,
-  ): Prisma.UserCollectionCreateInput {
+  ): Promise<UserCollection> {
     // Parse collection data if it exists
     let data = null;
     if (folder.data) {
@@ -1082,35 +1087,43 @@ export class UserCollectionService {
       }
     }
 
-    return {
-      title: folder.name,
-      data,
-      user: {
-        connect: {
-          uid: userID,
-        },
+    const collection = await tx.userCollection.create({
+      data: {
+        title: folder.name,
+        data,
+        user: { connect: { uid: userID } },
+        parent: parentID ? { connect: { id: parentID } } : undefined,
+        orderIndex,
+        type: reqType,
       },
-      requests: {
-        create: folder.requests.map((r, index) => ({
-          title: r.name,
-          user: {
-            connect: {
-              uid: userID,
-            },
-          },
+    });
+
+    if (folder.requests.length > 0) {
+      await tx.userRequest.createMany({
+        data: folder.requests.map((request, index) => ({
+          title: request.name,
+          userUid: userID,
+          collectionID: collection.id,
           type: reqType,
-          request: r,
+          request: request as Prisma.InputJsonValue,
           orderIndex: index + 1,
         })),
-      },
-      orderIndex: orderIndex,
-      type: reqType,
-      children: {
-        create: folder.folders.map((f, index) =>
-          this.generatePrismaQueryObj(f, userID, index + 1, reqType),
-        ),
-      },
-    };
+      });
+    }
+
+    let childOrderIndex = 0;
+    for (const childFolder of folder.folders) {
+      await this.createUserCollectionTree(
+        tx,
+        childFolder,
+        userID,
+        collection.id,
+        ++childOrderIndex,
+        reqType,
+      );
+    }
+
+    return collection;
   }
 
   /**
@@ -1170,25 +1183,32 @@ export class UserCollectionService {
           });
           let lastOrderIndex = lastCollection ? lastCollection.orderIndex : 0;
 
-          // Generate Prisma Query Object for all child collections in collectionsList
-          const queryList = collectionsList.right.map((x) =>
-            this.generatePrismaQueryObj(x, userID, ++lastOrderIndex, reqType),
-          );
-
-          const parent = destCollectionID
-            ? { connect: { id: destCollectionID } }
-            : undefined;
-
-          const promises = queryList.map((query) =>
-            tx.userCollection.create({
-              data: { ...query, parent },
-            }),
-          );
-
-          userCollections = await Promise.all(promises);
+          // Create each root collection tree sequentially (parent-before-child)
+          // to guarantee FK ordering. See createUserCollectionTree for why the
+          // previous nested-create + Promise.all caused P2003 on large imports.
+          userCollections = [];
+          for (const collFolder of collectionsList.right) {
+            userCollections.push(
+              await this.createUserCollectionTree(
+                tx,
+                collFolder,
+                userID,
+                destCollectionID,
+                ++lastOrderIndex,
+                reqType,
+              ),
+            );
+          }
         } catch (error) {
           throw new ConflictException(error);
         }
+      }, {
+        // Large imports run many sequential inserts; the default 10s interactive
+        // transaction timeout (set in PrismaService) is not enough for big collections.
+        // Kept in one transaction for atomicity; trade-off: holds one pooled
+        // connection for up to this long on very large imports.
+        timeout: 60000,
+        maxWait: 10000,
       });
     } catch (error) {
       return E.left(USER_COLLECTION_CREATION_FAILED);

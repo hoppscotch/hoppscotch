@@ -108,7 +108,8 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   computed(() => props.response.body),
   t("filename.lens", {
     request_name: props.response.req.name,
-  })
+  }),
+  computed(() => props.response.headers)
 )
 
 watch(props.response, () => {

@@ -1,5 +1,9 @@
-import { HoppRESTResponse } from "@helpers/types/HoppRESTResponse"
+import {
+  HoppRESTResponse,
+  HoppRESTResponseHeader,
+} from "@helpers/types/HoppRESTResponse"
 import { copyToClipboard } from "@helpers/utils/clipboard"
+import { filenameFromResponseHeaders } from "@helpers/utils/content-disposition"
 import { refAutoReset } from "@vueuse/core"
 import { computed, ComputedRef, ref, Ref, watch } from "vue"
 
@@ -57,7 +61,8 @@ export type downloadResponseReturnType = (() => void) | Ref<any>
 export function useDownloadResponse(
   contentType: string,
   responseBody: Ref<string | ArrayBuffer>,
-  filename: string
+  filename: string,
+  responseHeaders?: Ref<ReadonlyArray<HoppRESTResponseHeader> | undefined>
 ) {
   const downloadIcon = refAutoReset(IconDownload, 1000)
 
@@ -67,11 +72,16 @@ export function useDownloadResponse(
   const downloadResponse = async () => {
     const dataToWrite = responseBody.value
 
-    // TODO: Look at the mime type and determine extension ?
+    // RFC 6266: when the server sets Content-Disposition with a filename,
+    // prefer that over the request-name-derived default so browsers behave
+    // the same way native HTTP clients do for file downloads.
+    const suggestedFilename =
+      filenameFromResponseHeaders(responseHeaders?.value) ?? filename
+
     const result = await platform.kernelIO.saveFileWithDialog({
       data: dataToWrite,
       contentType: contentType,
-      suggestedFilename: filename,
+      suggestedFilename,
     })
 
     // Assume success if unknown as we cannot determine

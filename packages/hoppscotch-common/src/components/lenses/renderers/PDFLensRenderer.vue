@@ -96,7 +96,8 @@ const filename = t("filename.lens", {
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/pdf",
   computed(() => props.response.body),
-  `${filename}.pdf`
+  `${filename}.pdf`,
+  computed(() => props.response.headers)
 )
 
 /**

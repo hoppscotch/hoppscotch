@@ -16,7 +16,6 @@ import {
   TEAM_COLL_DATA_INVALID,
   TEAM_REQ_SEARCH_FAILED,
   TEAM_COL_SEARCH_FAILED,
-  TEAM_REQ_PARENT_TREE_GEN_FAILED,
   TEAM_COLL_PARENT_TREE_GEN_FAILED,
   TEAM_MEMBER_NOT_FOUND,
   TEAM_COLL_CREATION_FAILED,
@@ -1119,6 +1118,11 @@ export class TeamCollectionService {
   /**
    * Search for TeamCollections and TeamRequests by title
    *
+   * Every word of the query has to appear in the title, in any order and
+   * ignoring case. If nothing matches, titles are matched by trigram word
+   * similarity instead, so a small typo still finds results. Best matches
+   * are returned first.
+   *
    * @param searchQuery The search query
    * @param teamID The Team ID
    * @param take Number of items we want returned
@@ -1131,85 +1135,184 @@ export class TeamCollectionService {
     take = 10,
     skip = 0,
   ) {
-    // Fetch all collections and requests that match the search query
-    const searchResults: SearchQueryReturnType[] = [];
+    const words = this.getSearchWords(searchQuery);
+    if (words.length === 0) return E.right({ data: [] });
 
-    const matchedCollections = await this.searchCollections(
+    let searchResults = await this.searchTitles(
       searchQuery,
+      words,
       teamID,
       take,
       skip,
+      false,
     );
-    if (E.isLeft(matchedCollections))
+
+    const isFirstPage = !(skip > 1);
+    if (
+      E.isRight(searchResults) &&
+      searchResults.right.length === 0 &&
+      isFirstPage
+    ) {
+      searchResults = await this.searchTitles(
+        searchQuery,
+        words,
+        teamID,
+        take,
+        skip,
+        true,
+      );
+    }
+
+    if (E.isLeft(searchResults))
       return E.left(<RESTError>{
-        message: matchedCollections.left,
+        message: searchResults.left,
         statusCode: HttpStatus.NOT_FOUND,
       });
-    searchResults.push(...matchedCollections.right);
+
+    try {
+      const data = await this.addParentPaths(teamID, searchResults.right);
+      return E.right({ data });
+    } catch (error) {
+      return E.left(<RESTError>{
+        message: TEAM_COLL_PARENT_TREE_GEN_FAILED,
+        statusCode: HttpStatus.NOT_FOUND,
+      });
+    }
+  }
+
+  /**
+   * Split a search query into unique, lowercase words
+   *
+   * @param searchQuery The search query
+   * @returns The words to match against titles
+   */
+  private getSearchWords(searchQuery: string) {
+    return [
+      ...new Set(
+        searchQuery
+          .trim()
+          .toLowerCase()
+          .split(/\s+/)
+          .filter((word) => word.length > 0),
+      ),
+    ];
+  }
+
+  /**
+   * Search for TeamCollections and TeamRequests by title
+   *
+   * @param searchQuery The search query
+   * @param words The words of the search query
+   * @param teamID The Team ID
+   * @param take Number of items we want returned
+   * @param skip Number of items we want to skip
+   * @param fuzzy Match words by trigram similarity instead of substring
+   * @returns An Either of the matched collections and requests
+   */
+  private async searchTitles(
+    searchQuery: string,
+    words: string[],
+    teamID: string,
+    take: number,
+    skip: number,
+    fuzzy: boolean,
+  ): Promise<E.Either<string, SearchQueryReturnType[]>> {
+    const matchedCollections = await this.searchCollections(
+      searchQuery,
+      words,
+      teamID,
+      take,
+      skip,
+      fuzzy,
+    );
+    if (E.isLeft(matchedCollections)) return matchedCollections;
 
     const matchedRequests = await this.searchRequests(
       searchQuery,
+      words,
       teamID,
       take,
       skip,
+      fuzzy,
     );
-    if (E.isLeft(matchedRequests))
-      return E.left(<RESTError>{
-        message: matchedRequests.left,
-        statusCode: HttpStatus.NOT_FOUND,
-      });
-    searchResults.push(...matchedRequests.right);
+    if (E.isLeft(matchedRequests)) return matchedRequests;
 
-    // Generate the parent tree for searchResults
-    const searchResultsWithTree: CollectionSearchNode[] = [];
+    return E.right([...matchedCollections.right, ...matchedRequests.right]);
+  }
 
-    for (let i = 0; i < searchResults.length; i++) {
-      const fetchedParentTree = await this.fetchParentTree(searchResults[i]);
-      if (E.isLeft(fetchedParentTree))
-        return E.left(<RESTError>{
-          message: fetchedParentTree.left,
-          statusCode: HttpStatus.NOT_FOUND,
-        });
-      searchResultsWithTree.push({
-        type: searchResults[i].type,
-        title: searchResults[i].title,
-        method: searchResults[i].method,
-        id: searchResults[i].id,
-        path: !fetchedParentTree
-          ? []
-          : (fetchedParentTree.right as CollectionSearchNode[]),
-      });
+  /**
+   * Build the SQL condition a title has to satisfy for a search
+   *
+   * @param words The words of the search query
+   * @param fuzzy Match words by trigram similarity instead of substring
+   * @returns The SQL condition
+   */
+  private titleMatchCondition(words: string[], fuzzy: boolean) {
+    return Prisma.join(
+      words.map((word) =>
+        fuzzy
+          ? Prisma.sql`strict_word_similarity(${word}, title) >= 0.5`
+          : Prisma.sql`title ILIKE ${`%${escapeSqlLikeString(word)}%`}`,
+      ),
+      ' AND ',
+    );
+  }
+
+  /**
+   * Build the SQL ordering that puts the best matching titles first
+   *
+   * @param searchQuery The search query
+   * @param words The words of the search query
+   * @param fuzzy Match words by trigram similarity instead of substring
+   * @returns The SQL ordering
+   */
+  private titleRankOrder(searchQuery: string, words: string[], fuzzy: boolean) {
+    if (fuzzy) {
+      const score = Prisma.join(
+        words.map((word) => Prisma.sql`strict_word_similarity(${word}, title)`),
+        ' + ',
+      );
+      return Prisma.sql`(${score}) DESC, title ASC`;
     }
 
-    return E.right({ data: searchResultsWithTree });
+    return Prisma.sql`
+      lower(title) = lower(${searchQuery}) DESC,
+      title ILIKE ${`${escapeSqlLikeString(searchQuery)}%`} DESC,
+      title ILIKE ${`%${escapeSqlLikeString(searchQuery)}%`} DESC,
+      similarity(title, ${searchQuery}) DESC,
+      title ASC`;
   }
 
   /**
    * Search for TeamCollections by title
    *
    * @param searchQuery The search query
+   * @param words The words of the search query
    * @param teamID The Team ID
    * @param take Number of items we want returned
    * @param skip Number of items we want to skip
+   * @param fuzzy Match words by trigram similarity instead of substring
    * @returns An Either of the search results
    */
   private async searchCollections(
     searchQuery: string,
+    words: string[],
     teamID: string,
     take: number,
     skip: number,
+    fuzzy: boolean,
   ) {
     const query = Prisma.sql`
     SELECT
-      id,title,'collection' AS type
+      id,title,data,"parentID",'collection' AS type
     FROM
       "TeamCollection"
     WHERE
       "TeamCollection"."teamID"=${teamID}
       AND
-        title ILIKE ${`%${escapeSqlLikeString(searchQuery)}%`}
+        ${this.titleMatchCondition(words, fuzzy)}
     ORDER BY
-      similarity(title, ${searchQuery})
+      ${this.titleRankOrder(searchQuery, words, fuzzy)}
     LIMIT ${take}
     OFFSET ${skip === 0 ? 0 : (skip - 1) * take};
   `;
@@ -1226,28 +1329,32 @@ export class TeamCollectionService {
    * Search for TeamRequests by title
    *
    * @param searchQuery The search query
+   * @param words The words of the search query
    * @param teamID The Team ID
    * @param take Number of items we want returned
    * @param skip Number of items we want to skip
+   * @param fuzzy Match words by trigram similarity instead of substring
    * @returns An Either of the search results
    */
   private async searchRequests(
     searchQuery: string,
+    words: string[],
     teamID: string,
     take: number,
     skip: number,
+    fuzzy: boolean,
   ) {
     const query = Prisma.sql`
     SELECT
-      id,title,request->>'method' as method,'request' AS type
+      id,title,request,request->>'method' as method,"collectionID",'request' AS type
     FROM
       "TeamRequest"
     WHERE
       "TeamRequest"."teamID"=${teamID}
       AND
-        title ILIKE ${`%${escapeSqlLikeString(searchQuery)}%`}
+        ${this.titleMatchCondition(words, fuzzy)}
     ORDER BY
-      similarity(title, ${searchQuery})
+      ${this.titleRankOrder(searchQuery, words, fuzzy)}
     LIMIT ${take}
     OFFSET ${skip === 0 ? 0 : (skip - 1) * take};
   `;
@@ -1261,138 +1368,95 @@ export class TeamCollectionService {
   }
 
   /**
-   * Generate the parent tree of a search result
+   * Attach the chain of parent collections to every search result
    *
-   * @param searchResult The search result for which we want to generate the parent tree
-   * @returns The parent tree of the search result
-   */
-  private async fetchParentTree(searchResult: SearchQueryReturnType) {
-    return searchResult.type === 'collection'
-      ? await this.fetchCollectionParentTree(searchResult.id)
-      : await this.fetchRequestParentTree(searchResult.id);
-  }
-
-  /**
-   * Generate the parent tree of a collection
+   * The parents of all results are read with one recursive query, and the
+   * paths are built in memory, instead of one query per search result.
+   * Only collections on the path to a result are read.
    *
-   * @param id The ID of the collection
-   * @returns The parent tree of the collection
+   * @param teamID The Team ID
+   * @param searchResults The matched collections and requests
+   * @returns The search results with their parent paths
    */
-  private async fetchCollectionParentTree(id: string) {
-    try {
-      const query = Prisma.sql`
-      WITH RECURSIVE collection_tree AS (
-        SELECT tc.id, tc."parentID", tc.title
-        FROM "TeamCollection" AS tc
-        JOIN "TeamCollection" AS tr ON tc.id = tr."parentID"
-        WHERE tr.id = ${id}
+  private async addParentPaths(
+    teamID: string,
+    searchResults: SearchQueryReturnType[],
+  ): Promise<CollectionSearchNode[]> {
+    if (searchResults.length === 0) return [];
 
-        UNION ALL
+    const parentIDs = [
+      ...new Set(
+        searchResults
+          .map((result) =>
+            result.type === 'request' ? result.collectionID : result.parentID,
+          )
+          .filter((id): id is string => !!id),
+      ),
+    ];
 
-        SELECT parent.id,  parent."parentID", parent.title
+    const collections =
+      parentIDs.length === 0
+        ? []
+        : await this.prisma.$queryRaw<ParentTreeQueryReturnType[]>(
+            Prisma.sql`
+      WITH RECURSIVE ancestors AS (
+        SELECT id, "parentID", title, data
+        FROM "TeamCollection"
+        WHERE "teamID" = ${teamID} AND id IN (${Prisma.join(parentIDs)})
+
+        UNION
+
+        SELECT parent.id, parent."parentID", parent.title, parent.data
         FROM "TeamCollection" AS parent
-        JOIN collection_tree AS ct ON parent.id = ct."parentID"
+        JOIN ancestors ON parent.id = ancestors."parentID"
+        WHERE parent."teamID" = ${teamID}
       )
-      SELECT * FROM collection_tree;
-      `;
-      const res =
-        await this.prisma.$queryRaw<ParentTreeQueryReturnType[]>(query);
+      SELECT id, "parentID", title, data FROM ancestors;
+    `,
+          );
+    const collectionsByID = new Map(
+      collections.map((collection) => [collection.id, collection]),
+    );
 
-      const collectionParentTree = this.generateParentTree(res);
-      return E.right(collectionParentTree);
-    } catch (error) {
-      E.left(TEAM_COLL_PARENT_TREE_GEN_FAILED);
-    }
-  }
+    const buildPath = (
+      collectionID: string | null,
+      visited = new Set<string>(),
+    ): CollectionSearchNode[] => {
+      const collection = collectionID
+        ? collectionsByID.get(collectionID)
+        : undefined;
+      if (!collection || visited.has(collection.id)) return [];
+      visited.add(collection.id);
 
-  /**
-   * Generate the parent tree from the collections
-   *
-   * @param parentCollections The parent collections
-   * @returns The parent tree of the parent collections
-   */
-  private generateParentTree(parentCollections: ParentTreeQueryReturnType[]) {
-    function findChildren(id: string): CollectionSearchNode[] {
-      const collection = parentCollections.filter((item) => item.id === id)[0];
-      if (collection.parentID == null) {
-        return <CollectionSearchNode[]>[
-          {
-            id: collection.id,
-            title: collection.title,
-            type: 'collection' as const,
-            path: [],
-          },
-        ];
-      }
-
-      const res = <CollectionSearchNode[]>[
+      return [
         {
+          type: 'collection',
           id: collection.id,
           title: collection.title,
-          type: 'collection' as const,
-          path: findChildren(collection.parentID),
+          data: transformCollectionData(collection.data),
+          path: buildPath(collection.parentID, visited),
         },
       ];
-      return res;
-    }
+    };
 
-    if (parentCollections.length > 0) {
-      if (parentCollections[0].parentID == null) {
-        return <CollectionSearchNode[]>[
-          {
-            id: parentCollections[0].id,
-            title: parentCollections[0].title,
+    return searchResults.map((result) =>
+      result.type === 'request'
+        ? {
+            type: 'request',
+            id: result.id,
+            title: result.title,
+            method: result.method,
+            request: result.request,
+            path: buildPath(result.collectionID),
+          }
+        : {
             type: 'collection',
-            path: [],
+            id: result.id,
+            title: result.title,
+            data: transformCollectionData(result.data),
+            path: buildPath(result.parentID),
           },
-        ];
-      }
-
-      return <CollectionSearchNode[]>[
-        {
-          id: parentCollections[0].id,
-          title: parentCollections[0].title,
-          type: 'collection',
-          path: findChildren(parentCollections[0].parentID),
-        },
-      ];
-    }
-
-    return <CollectionSearchNode[]>[];
-  }
-
-  /**
-   * Generate the parent tree of a request
-   *
-   * @param id The ID of the request
-   * @returns The parent tree of the request
-   */
-  private async fetchRequestParentTree(id: string) {
-    try {
-      const query = Prisma.sql`
-      WITH RECURSIVE request_collection_tree AS (
-        SELECT tc.id, tc."parentID", tc.title
-        FROM "TeamCollection" AS tc
-        JOIN "TeamRequest" AS tr ON tc.id = tr."collectionID"
-        WHERE tr.id = ${id}
-
-        UNION ALL
-
-        SELECT parent.id, parent."parentID", parent.title
-        FROM "TeamCollection" AS parent
-        JOIN request_collection_tree AS ct ON parent.id = ct."parentID"
-      )
-      SELECT * FROM request_collection_tree;
-
-      `;
-      const res =
-        await this.prisma.$queryRaw<ParentTreeQueryReturnType[]>(query);
-
-      const requestParentTree = this.generateParentTree(res);
-      return E.right(requestParentTree);
-    } catch (error) {
-      return E.left(TEAM_REQ_PARENT_TREE_GEN_FAILED);
-    }
+    );
   }
 
   /**

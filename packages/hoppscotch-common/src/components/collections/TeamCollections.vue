@@ -83,7 +83,9 @@
                 collectionID: node.id,
               })
             "
+            :auto-open="isSearchPathFolder(node.data.data.data)"
             folder-type="collection"
+            @auto-open="toggleChildren"
             @add-request="
               node.data.type === 'collections' &&
               emit('add-request', {
@@ -207,7 +209,9 @@
                 folderID: node.data.data.data.id,
               })
             "
+            :auto-open="isSearchPathFolder(node.data.data.data)"
             folder-type="folder"
+            @auto-open="toggleChildren"
             @add-request="
               node.data.type === 'folders' &&
               emit('add-request', {
@@ -620,6 +624,26 @@ const props = defineProps({
 })
 
 const isShowingSearchResults = computed(() => props.filterText.length > 0)
+
+/**
+ * A folder shown in search results only because a match is inside it.
+ * Open it so the match is visible. Matched folders stay closed, opening
+ * them loads all of their contents.
+ */
+const isSearchPathFolder = (collection: TeamCollection) => {
+  const meta = (
+    collection as TeamCollection & {
+      meta?: { isSearchResult?: boolean; insertedWhileExpanding?: boolean }
+    }
+  ).meta
+
+  return (
+    isShowingSearchResults.value &&
+    !!meta &&
+    !meta.isSearchResult &&
+    !meta.insertedWhileExpanding
+  )
+}
 
 type ResponsePayload = {
   folderPath: string

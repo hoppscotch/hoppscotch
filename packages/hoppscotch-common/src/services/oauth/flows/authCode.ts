@@ -101,7 +101,7 @@ const initAuthCodeOauthFlow = async ({
     isPKCE && !codeVerifierMethod ? ("plain" as const) : codeVerifierMethod
 
   if (isPKCE) {
-    codeVerifier = generateCodeVerifier()
+    codeVerifier = generateRandomString()
     // codeVerifierMethodNormalized might be undefined only if isPKCE is false,
     // but here we guard with isPKCE so it's safe to pass a value.
     codeChallenge = await generateCodeChallenge(
@@ -327,20 +327,6 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
           "",
     refresh_token: parsedTokenResponse.data.refresh_token,
   })
-}
-
-const generateCodeVerifier = () => {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
-  const length = Math.floor(Math.random() * (128 - 43 + 1)) + 43 // Random length between 43 and 128
-  let codeVerifier = ""
-
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length)
-    codeVerifier += characters[randomIndex]
-  }
-
-  return codeVerifier
 }
 
 const generateCodeChallenge = async (

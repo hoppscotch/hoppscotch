@@ -4,6 +4,7 @@ import {
   HoppRESTRequest,
   RESTReqSchemaVersion,
 } from "@hoppscotch/data";
+import type { TestResponse } from "@hoppscotch/js-sandbox";
 import axios, { Method } from "axios";
 import * as A from "fp-ts/Array";
 import * as E from "fp-ts/Either";
@@ -31,6 +32,17 @@ import {
 import { getDurationInSeconds, getMetaDataPairs } from "./getters";
 import { preRequestScriptRunner } from "./pre-request";
 import { getTestScriptParams, hasAllTestsPassed, testRunner } from "./test";
+
+/**
+ * Header name carrying the response media type.
+ */
+const CONTENT_TYPE_HEADER = "content-type";
+
+/**
+ * Matches any JSON media type, including suffixed ones such as
+ * `application/vnd.api+json`.
+ */
+const JSON_CONTENT_TYPE_REGEX = /\bjson\b/i;
 
 /**
  * Processes given variable, which includes checking for secret variables
@@ -90,7 +102,46 @@ export const createRequest = (req: EffectiveHoppRESTRequest): RequestConfig => {
 
   config.data = finalBody(req);
 
+  // Keep the payload as received so `getTestableBody` can decide how to expose
+  // it based on the response content type, the way the web app does. Axios
+  // otherwise parses any JSON-looking payload regardless of content type.
+  config.transformResponse = [(data) => data];
+
   return config;
+};
+
+/**
+ * Resolves the response body exposed to test scripts as `pw.response.body`.
+ *
+ * Applies the same content-type decision as `getTestableBody` in
+ * `hoppscotch-common`, so a script sees the same value in the CLI and in the
+ * web app: the parsed object for a JSON content type, the raw body string
+ * otherwise. The web app additionally strips NUL bytes, because it decodes the
+ * response bytes itself; here the payload already arrives decoded and is left
+ * untouched.
+ * @param rawBody Response payload, as received.
+ * @param headers Response headers in key-value form.
+ * @returns Parsed object for a JSON content type, else the raw body string.
+ */
+export const getTestableBody = (
+  rawBody: string,
+  headers: { key: string; value: string }[]
+): TestResponse["body"] => {
+  const contentType = headers.find(
+    ({ key }) => key.toLowerCase() === CONTENT_TYPE_HEADER
+  )?.value;
+
+  if (!contentType || !JSON_CONTENT_TYPE_REGEX.test(contentType)) {
+    return rawBody;
+  }
+
+  try {
+    return JSON.parse(rawBody);
+  } catch {
+    // A JSON content type carrying an unparseable payload falls back to the
+    // raw string rather than failing the run, matching the web app.
+    return rawBody;
+  }
 };
 
 /**
@@ -134,7 +185,7 @@ export const requestRunner =
       const runnerResponse: RequestRunnerResponse = {
         endpoint: getRequest.endpoint(config.url),
         method: getRequest.method(config.method),
-        body: baseResponse.data,
+        body: getTestableBody(baseResponse.data, transformedHeaders),
         responseTime,
         duration: duration,
         status: baseResponse.status,
@@ -160,7 +211,6 @@ export const requestRunner =
 
         if (e.response) {
           const { data, status, statusText, headers } = e.response;
-          runnerResponse.body = data;
           runnerResponse.statusText = statusText;
           runnerResponse.status = status;
 
@@ -179,6 +229,7 @@ export const requestRunner =
             }
           }
           runnerResponse.headers = transformedHeaders;
+          runnerResponse.body = getTestableBody(data, transformedHeaders);
         } else if (e.request) {
           return E.left(error({ code: "REQUEST_ERROR", data: E.toError(e) }));
         }

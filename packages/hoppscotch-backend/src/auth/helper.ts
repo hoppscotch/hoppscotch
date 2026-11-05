@@ -58,7 +58,9 @@ export const authCookieHandler = (
     httpOnly: true,
     secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
     sameSite: 'lax',
-    maxAge: accessTokenValidityInMs,
+    // Keep the access cookie in the browser at least as long as the session
+    // (the refresh cookie); the JWT's own `exp` still bounds authentication.
+    maxAge: Math.max(accessTokenValidityInMs, refreshTokenValidityInMs),
   });
   res.cookie(AuthTokenType.REFRESH_TOKEN, authTokens.refresh_token, {
     httpOnly: true,

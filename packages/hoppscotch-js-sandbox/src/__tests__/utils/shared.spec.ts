@@ -101,7 +101,7 @@ describe("getSharedCookieMethods", () => {
   test("get() should throw for non-string args", () => {
     const { methods } = getSharedCookieMethods([validCookie])
     expect(() => methods.get(123, "session")).toThrow(
-      "Expected domain and cookieName to be strings"
+      "Expected domain and cookieName to be strings",
     )
   })
 
@@ -125,7 +125,7 @@ describe("getSharedCookieMethods", () => {
   test("set() should throw for invalid cookie per schema", () => {
     const { methods } = getSharedCookieMethods([])
     expect(() => methods.set("example.com", { bad: "cookie" })).toThrow(
-      "Invalid cookie"
+      "Invalid cookie",
     )
   })
 
@@ -226,10 +226,10 @@ describe("getSharedEnvMethods - Experimental Sandbox (isHoppNamespace=true)", ()
     const { methods } = getSharedEnvMethods(baseEnvs, true)
 
     expect(() => methods.pw.set(123 as any, "value")).toThrow(
-      "Expected key to be a string"
+      "Expected key to be a string",
     )
     expect(() => methods.pw.set("key", 123 as any)).toThrow(
-      "Expected value to be a string"
+      "Expected value to be a string",
     )
   })
 
@@ -252,7 +252,7 @@ describe("getSharedEnvMethods - Experimental Sandbox (isHoppNamespace=true)", ()
           },
         ],
       },
-      true
+      true,
     )
 
     const resolved = methods.pw.resolve("<<greeting>>")
@@ -278,7 +278,7 @@ describe("getSharedEnvMethods - Experimental Sandbox (isHoppNamespace=true)", ()
           },
         ],
       },
-      true
+      true,
     )
 
     const resolved = methods.pw.getResolve("endpoint")
@@ -302,10 +302,10 @@ describe("getSharedEnvMethods - Experimental Sandbox (isHoppNamespace=true)", ()
     const { methods } = getSharedEnvMethods(baseEnvs, true)
 
     expect(() => methods.hopp.set(123 as any, "value")).toThrow(
-      "Expected key to be a string"
+      "Expected key to be a string",
     )
     expect(() => methods.hopp.set("key", 123 as any)).toThrow(
-      "Expected value to be a string"
+      "Expected value to be a string",
     )
   })
 
@@ -315,7 +315,7 @@ describe("getSharedEnvMethods - Experimental Sandbox (isHoppNamespace=true)", ()
     methods.hopp.delete("selectedKey")
 
     expect(updatedEnvs.selected).not.toContainEqual(
-      expect.objectContaining({ key: "selectedKey" })
+      expect.objectContaining({ key: "selectedKey" }),
     )
     expect(updatedEnvs.global.length).toBe(1)
   })
@@ -333,7 +333,7 @@ describe("getSharedEnvMethods - Experimental Sandbox (isHoppNamespace=true)", ()
           },
         ],
       },
-      true
+      true,
     )
 
     methods.hopp.reset("testKey")
@@ -356,7 +356,7 @@ describe("getSharedEnvMethods - Experimental Sandbox (isHoppNamespace=true)", ()
           },
         ],
       },
-      true
+      true,
     )
 
     expect(methods.hopp.getInitialRaw("testKey")).toBe("initialVal")
@@ -438,10 +438,10 @@ describe("getSharedEnvMethods - Legacy Sandbox (isHoppNamespace=false)", () => {
 
     // This is the bug that was fixed in #5433 - missing validation
     expect(() => methods.env.set(123 as any, "value")).toThrow(
-      "Expected key to be a string"
+      "Expected key to be a string",
     )
     expect(() => methods.env.set("key", 123 as any)).toThrow(
-      "Expected value to be a string"
+      "Expected value to be a string",
     )
   })
 
@@ -464,7 +464,7 @@ describe("getSharedEnvMethods - Legacy Sandbox (isHoppNamespace=false)", () => {
           },
         ],
       },
-      false
+      false,
     )
 
     const resolved = methods.env.resolve("<<message>>")
@@ -490,7 +490,7 @@ describe("getSharedEnvMethods - Legacy Sandbox (isHoppNamespace=false)", () => {
           },
         ],
       },
-      false
+      false,
     )
 
     const resolved = methods.env.getResolve("apiUrl")
@@ -506,5 +506,72 @@ describe("getSharedEnvMethods - Legacy Sandbox (isHoppNamespace=false)", () => {
     expect(typeof methods.env).toBe("object")
     expect(methods.env.get).toBeDefined()
     expect(methods.env.set).toBeDefined()
+  })
+})
+
+describe("setSecret functionality", () => {
+  test("should create a new secret variable", () => {
+    const initialEnvs = { global: [], selected: [] }
+    const { methods, updatedEnvs } = getSharedEnvMethods(initialEnvs, true)
+
+    methods.pw.setSecret("NEW_SECRET", "123")
+
+    expect(updatedEnvs.selected).toContainEqual(
+      expect.objectContaining({
+        key: "NEW_SECRET",
+        currentValue: "123",
+        secret: true,
+      }),
+    )
+  })
+
+  test("should upgrade an existing non-secret variable to secret", () => {
+    const initialEnvs = {
+      global: [],
+      selected: [
+        {
+          key: "EXISTING",
+          currentValue: "old",
+          initialValue: "old",
+          secret: false,
+        },
+      ],
+    }
+    const { methods, updatedEnvs } = getSharedEnvMethods(initialEnvs, true)
+
+    methods.pw.setSecret("EXISTING", "new")
+
+    expect(updatedEnvs.selected).toContainEqual(
+      expect.objectContaining({
+        key: "EXISTING",
+        currentValue: "new",
+        secret: true,
+      }),
+    )
+  })
+
+  test("should not clear the secret flag when using standard set() on a secret variable", () => {
+    const initialEnvs = {
+      global: [],
+      selected: [
+        {
+          key: "MY_SECRET",
+          currentValue: "old",
+          initialValue: "old",
+          secret: true,
+        },
+      ],
+    }
+    const { methods, updatedEnvs } = getSharedEnvMethods(initialEnvs, true)
+
+    methods.pw.set("MY_SECRET", "new") // standard set
+
+    expect(updatedEnvs.selected).toContainEqual(
+      expect.objectContaining({
+        key: "MY_SECRET",
+        currentValue: "new",
+        secret: true,
+      }),
+    )
   })
 })

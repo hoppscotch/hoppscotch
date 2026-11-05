@@ -182,6 +182,31 @@ export class AdminResolver {
   }
 
   @Mutation(() => Boolean, {
+    description: 'Update user email',
+  })
+  @UseGuards(GqlAuthGuard, GqlAdminGuard)
+  async updateUserEmailByAdmin(
+    @Args({
+      name: 'userUID',
+      description: 'users UID',
+      type: () => ID,
+    })
+    userUID: string,
+    @Args({
+      name: 'email',
+      description: 'users email',
+    })
+    email: string,
+  ): Promise<boolean> {
+    const isUpdated = await this.adminService.updateUserEmail(
+      userUID,
+      email,
+    );
+    if (E.isLeft(isUpdated)) throwErr(isUpdated.left);
+    return isUpdated.right;
+  }
+
+  @Mutation(() => Boolean, {
     description: 'Remove user as admin',
     deprecationReason: 'Use demoteUsersByAdmin instead',
   })

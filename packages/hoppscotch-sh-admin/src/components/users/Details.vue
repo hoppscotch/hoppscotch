@@ -55,6 +55,37 @@
           </div>
         </div>
 
+        <div v-else-if="key === 'email'" class="flex flex-col space-y-3">
+          <label class="text-accentContrast" for="teamname"
+            >{{ t('users.email') }}
+          </label>
+          <div
+            class="flex bg-divider rounded-md items-stretch flex-1 border border-divider"
+            :class="{
+              '!border-accent': isEmailBeingEdited,
+            }"
+          >
+            <HoppSmartInput
+              v-model="updatedEmail"
+              styles="bg-transparent flex-1 rounded-md !rounded-r-none disabled:select-none border-r-0 disabled:cursor-default disabled:opacity-50"
+              :placeholder="t('users.email')"
+              :disabled="!isEmailBeingEdited"
+            >
+              <template #button>
+                <HoppButtonPrimary
+                  class="!rounded-l-none"
+                  filled
+                  :icon="isEmailBeingEdited ? IconSave : IconEdit"
+                  :label="
+                    isEmailBeingEdited ? t('users.update') : t('users.edit')
+                  "
+                  @click="handleEmailEdit"
+                />
+              </template>
+            </HoppSmartInput>
+          </div>
+        </div>
+
         <div v-else-if="info.condition">
           <label class="text-secondaryDark" :for="key">{{ info.label }}</label>
           <div class="w-full p-3 mt-2 bg-divider border-gray-600 rounded-md">
@@ -107,6 +138,7 @@ import { useI18n } from '~/composables/i18n';
 import { useToast } from '~/composables/toast';
 import {
   UpdateUserDisplayNameByAdminDocument,
+  UpdateUserEmailByAdminDocument,
   UserInfoQuery,
 } from '~/helpers/backend/graphql';
 import IconEdit from '~icons/lucide/edit';
@@ -127,6 +159,7 @@ const emit = defineEmits<{
   (event: 'make-admin', userID: string): void;
   (event: 'remove-admin', userID: string): void;
   (event: 'update-user-name', newName: string): void;
+  (event: 'update-user-email', newName: string): void;
 }>();
 
 // Get Proper Date Formats
@@ -174,12 +207,22 @@ const userName = computed({
   },
 });
 
-// Contains the stored user name from the actual name before being edited
+// Contains the actual email
+const actualEmail = computed({
+  get: () => props.user.email,
+  set: (value) => {
+    return value;
+  },
+});
+
+// Contains the stored user name and email from the actual name before being edited
 const currentUserName = ref('');
+const currentEmail = ref('');
 
 // Set the current user name to the actual user name
 onMounted(() => {
   if (displayName) currentUserName.value = displayName;
+  if (email) currentEmail.value = email;
 });
 
 // Contains the user name that is being edited
@@ -190,9 +233,21 @@ const updatedUserName = computed({
   },
 });
 
+// Contains the email that is being edited
+const updatedEmail = computed({
+  get: () => currentEmail.value,
+  set: (value) => {
+    currentEmail.value = value;
+  },
+});
+
 // Rename the user
 const isNameBeingEdited = ref(false);
 const userRename = useMutation(UpdateUserDisplayNameByAdminDocument);
+
+// Change the email
+const isEmailBeingEdited = ref(false);
+const updateEmailMutation = useMutation(UpdateUserEmailByAdminDocument);
 
 const handleNameEdit = () => {
   if (isNameBeingEdited.value) {
@@ -202,6 +257,17 @@ const handleNameEdit = () => {
     } else isNameBeingEdited.value = false;
   } else {
     isNameBeingEdited.value = true;
+  }
+};
+
+const handleEmailEdit = () => {
+  if (isEmailBeingEdited.value) {
+    // If the email is not changed, then return control
+    if (actualEmail.value !== updatedEmail.value) {
+      updateEmail();
+    } else isEmailBeingEdited.value = false;
+  } else {
+    isEmailBeingEdited.value = true;
   }
 };
 
@@ -223,4 +289,24 @@ const renameUserName = async () => {
     userName.value = updatedUserName.value;
   }
 };
+
+const updateEmail = async () => {
+  if (updatedEmail.value?.trim() === '') {
+    toast.error(t('users.valid_email'));
+    return;
+  }
+
+  const variables = { userUID: uid, email: updatedEmail.value as string };
+  const result = await updateEmailMutation.executeMutation(variables);
+
+  if (result.error) {
+    toast.error(t('state.update_email_failure'));
+  } else {
+    isEmailBeingEdited.value = false;
+    toast.success(t('state.update_email_success'));
+    emit('update-user-email', updatedEmail.value as string);
+    actualEmail.value = updatedEmail.value;
+  }
+};
+
 </script>

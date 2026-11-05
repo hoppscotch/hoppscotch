@@ -1,4 +1,13 @@
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
+
 import { runMutation } from "../GQLClient"
+import {
+  splitRequestForTeamCreate,
+  separateRequestForTeamUpdate,
+  commitTokenSyncPlan,
+  teamRequestTokenKey,
+} from "../../teamOAuthTokens"
 import {
   CreateRequestInCollectionDocument,
   CreateRequestInCollectionMutation,
@@ -38,15 +47,34 @@ export const createRequestInCollection = (
     teamID: string
     title: string
   }
-) =>
-  runMutation<
-    CreateRequestInCollectionMutation,
-    CreateRequestInCollectionMutationVariables,
-    ""
-  >(CreateRequestInCollectionDocument, {
-    collectionID,
-    data,
-  })
+) => {
+  const { wireJson, captured } = splitRequestForTeamCreate(data.request)
+
+  return pipe(
+    runMutation<
+      CreateRequestInCollectionMutation,
+      CreateRequestInCollectionMutationVariables,
+      ""
+    >(CreateRequestInCollectionDocument, {
+      collectionID,
+      data: {
+        ...data,
+        request: wireJson,
+      },
+    }),
+    TE.map((result) => {
+      const id = result.createRequestInCollection?.id
+      if (id && captured) {
+        commitTokenSyncPlan({
+          type: "keep",
+          key: teamRequestTokenKey(id),
+          record: captured,
+        })
+      }
+      return result
+    })
+  )
+}
 
 export const updateTeamRequest = (
   requestID: string,
@@ -54,23 +82,47 @@ export const updateTeamRequest = (
     request: string
     title: string
   }
-) =>
-  runMutation<UpdateRequestMutation, UpdateRequestMutationVariables, "">(
-    UpdateRequestDocument,
-    {
-      requestID,
-      data,
-    }
+) => {
+  const { wireJson, plan } = separateRequestForTeamUpdate(
+    requestID,
+    data.request
   )
 
+  return pipe(
+    runMutation<UpdateRequestMutation, UpdateRequestMutationVariables, "">(
+      UpdateRequestDocument,
+      {
+        requestID,
+        data: {
+          ...data,
+          request: wireJson,
+        },
+      }
+    ),
+    TE.map((result) => {
+      commitTokenSyncPlan(plan)
+      return result
+    })
+  )
+}
+
 export const deleteTeamRequest = (requestID: string) =>
-  runMutation<
-    DeleteRequestMutation,
-    DeleteRequestMutationVariables,
-    DeleteRequestErrors
-  >(DeleteRequestDocument, {
-    requestID,
-  })
+  pipe(
+    runMutation<
+      DeleteRequestMutation,
+      DeleteRequestMutationVariables,
+      DeleteRequestErrors
+    >(DeleteRequestDocument, {
+      requestID,
+    }),
+    TE.map((result) => {
+      commitTokenSyncPlan({
+        type: "drop",
+        key: teamRequestTokenKey(requestID),
+      })
+      return result
+    })
+  )
 
 export const moveRESTTeamRequest = (collectionID: string, requestID: string) =>
   runMutation<

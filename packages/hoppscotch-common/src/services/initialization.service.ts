@@ -3,6 +3,7 @@ import * as E from "fp-ts/Either"
 import { getService } from "~/modules/dioc"
 
 import { PersistenceService } from "~/services/persistence"
+import { TeamOAuthTokenService } from "~/services/team-oauth-token.service"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { GQLTabService } from "~/services/tab/graphql"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
@@ -32,6 +33,8 @@ type InitEvent =
  */
 export class InitializationService extends Service<InitEvent> {
   public static readonly ID = "INITIALIZATION_SERVICE"
+
+  private teamOAuthUserSub: { unsubscribe(): void } | null = null
 
   private initState = {
     store: false,
@@ -107,9 +110,29 @@ export class InitializationService extends Service<InitEvent> {
     }
 
     await platform.auth.performAuthInit()
+    this.bindSignedInUserToTeamOAuthTokens()
 
     this.initState.auth = true
     this.emit({ type: "AUTH_READY" })
+  }
+
+  /**
+   * Keep the team OAuth token map aligned with the signed-in member.
+   * Logout clears the active map; the persisted copy stays under that uid.
+   */
+  private bindSignedInUserToTeamOAuthTokens() {
+    const tokenService = getService(TeamOAuthTokenService)
+    const apply = (user: { uid: string } | null) => {
+      tokenService.setActiveUser(user?.uid ?? null)
+    }
+
+    if (!this.teamOAuthUserSub) {
+      this.teamOAuthUserSub = platform.auth
+        .getCurrentUserStream()
+        .subscribe(apply)
+    }
+
+    apply(platform.auth.getCurrentUser())
   }
 
   private async initBackendClient() {
@@ -169,6 +192,10 @@ export class InitializationService extends Service<InitEvent> {
     diag("init", "initAuthAndSync() start")
     await this.initAuth()
     diag("init", "initAuthAndSync() auth done")
+    // Hydration reads this map. Load it before collection sync and app mount
+    // so startup cannot store team requests with blank OAuth credentials.
+    await getService(PersistenceService).setupTeamOAuthTokensPersistence()
+    diag("init", "initAuthAndSync() team OAuth tokens loaded")
     await this.initSync()
     diag("init", "initAuthAndSync() sync done, initAuthAndSync complete")
   }

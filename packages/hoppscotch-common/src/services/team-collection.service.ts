@@ -25,8 +25,14 @@ import { CurrentValueService } from "~/services/current-environment-value.servic
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import {
   TeamRequest,
-  normalizeTeamRequestBody,
+  normalizeAndHydrateTeamRequest,
 } from "~/helpers/teams/TeamRequest"
+import {
+  adoptImportedCollectionToken,
+  hydrateCollectionAuth,
+  rehydrateTeamCollectionOAuthTokens,
+} from "~/helpers/teamOAuthTokens"
+import { TeamOAuthTokenService } from "~/services/team-oauth-token.service"
 import { runGQLQuery, runGQLSubscription } from "~/helpers/backend/GQLClient"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { ref, watch } from "vue"
@@ -137,6 +143,7 @@ export class TeamCollectionsService extends Service<void> {
   //collection variables current value and secret value services
   private secretEnvironmentService = this.bind(SecretEnvironmentService)
   private currentEnvironmentValueService = this.bind(CurrentValueService)
+  private teamOAuthTokenService = this.bind(TeamOAuthTokenService)
 
   private teamID: string | null = null
 
@@ -174,6 +181,37 @@ export class TeamCollectionsService extends Service<void> {
 
   override onServiceInit() {
     this.collectionLoadingWatcher()
+    // Token load, account changes, and a committed request token bump
+    // `revision`. Requests already copied into the tree are hydrated once,
+    // so refresh them in place.
+    watch(
+      () => this.teamOAuthTokenService.revision.value,
+      () => {
+        this.rehydrateStoredOAuthTokens()
+      },
+      { flush: "sync" }
+    )
+  }
+
+  private rehydrateStoredOAuthTokens() {
+    const tree = this.collections.value
+    if (tree.length === 0) return
+    rehydrateTeamCollectionOAuthTokens(tree)
+    this.collections.value = [...tree]
+  }
+
+  private claimImportedCollectionToken(collection: {
+    id: string
+    data?: string | null
+  }) {
+    if (!collection.id || !collection.data) return
+    try {
+      const parsed = JSON.parse(collection.data) as { _ref_id?: unknown }
+      if (typeof parsed._ref_id !== "string" || !parsed._ref_id) return
+      adoptImportedCollectionToken(collection.id, parsed._ref_id)
+    } catch {
+      // Collection `data` is not JSON; there is no import ref to claim.
+    }
   }
 
   /**
@@ -322,6 +360,7 @@ export class TeamCollectionsService extends Service<void> {
     try {
       const parsed = JSON.parse(collection.data) as { _ref_id?: unknown }
       if (typeof parsed._ref_id !== "string" || !parsed._ref_id) return
+      adoptImportedCollectionToken(collection.id, parsed._ref_id)
       this.secretEnvironmentService.updateSecretEnvironmentID(
         parsed._ref_id,
         collection.id
@@ -407,9 +446,10 @@ export class TeamCollectionsService extends Service<void> {
     )
 
     // Add all the collections to the entity ids list
-    totalCollections.forEach((coll) =>
+    totalCollections.forEach((coll) => {
       this.entityIDs.add(`collection-${coll.id}`)
-    )
+      this.claimImportedCollectionToken(coll)
+    })
 
     this.collections.value.push(...totalCollections)
   }
@@ -535,7 +575,7 @@ export class TeamCollectionsService extends Service<void> {
     if (!collection.requests) return
 
     // `currentRequest` was already normalized by the subscription handler
-    // (`teamRequestMoved$` → `normalizeTeamRequestBody`); pass through verbatim.
+    // (`teamRequestMoved$` → `normalizeAndHydrateTeamRequest`); pass through verbatim.
     this.addRequest({
       id: request.id,
       collectionID: request.collectionID,
@@ -787,7 +827,8 @@ export class TeamCollectionsService extends Service<void> {
       this.addRequest({
         id: result.right.teamRequestAdded.id,
         collectionID: result.right.teamRequestAdded.collectionID,
-        request: normalizeTeamRequestBody(
+        request: normalizeAndHydrateTeamRequest(
+          result.right.teamRequestAdded.id,
           result.right.teamRequestAdded.request
         ),
         title: result.right.teamRequestAdded.title,
@@ -811,7 +852,8 @@ export class TeamCollectionsService extends Service<void> {
       this.updateRequest({
         id: result.right.teamRequestUpdated.id,
         collectionID: result.right.teamRequestUpdated.collectionID,
-        request: normalizeTeamRequestBody(
+        request: normalizeAndHydrateTeamRequest(
+          result.right.teamRequestUpdated.id,
           result.right.teamRequestUpdated.request
         ),
         title: result.right.teamRequestUpdated.title,
@@ -855,7 +897,10 @@ export class TeamCollectionsService extends Service<void> {
         id: requestMoved.id,
         collectionID: requestMoved.collectionID,
         title: requestMoved.title,
-        request: normalizeTeamRequestBody(requestMoved.request),
+        request: normalizeAndHydrateTeamRequest(
+          requestMoved.id,
+          requestMoved.request
+        ),
       }
 
       this.moveRequest(request)
@@ -1025,6 +1070,8 @@ export class TeamCollectionsService extends Service<void> {
         break
     }
 
+    collections.forEach((coll) => this.claimImportedCollectionToken(coll))
+
     return collections
   }
 
@@ -1052,7 +1099,7 @@ export class TeamCollectionsService extends Service<void> {
           id: el.id,
           collectionID: collection.id,
           title: el.title,
-          request: normalizeTeamRequestBody(el.request),
+          request: normalizeAndHydrateTeamRequest(el.id, el.request),
         }))
       )
 
@@ -1198,6 +1245,14 @@ export class TeamCollectionsService extends Service<void> {
         }
         auth.parentID = path.slice(0, i + 1).join("/")
         auth.parentName = parentFolder.title
+      }
+
+      if (parentFolder.id && data.auth) {
+        data.auth = hydrateCollectionAuth(
+          parentFolder.id,
+          data.auth,
+          data._ref_id
+        )
       }
 
       if (!data.headers) data.headers = []

@@ -424,6 +424,20 @@ const HoppTestDataSchema = z.lazy(() =>
     .strict()
 )
 
+const TEAM_OAUTH_TOKEN_RECORD_SCHEMA = z
+  .object({
+    token: z.string(),
+    refreshToken: z.string().optional(),
+  })
+  .strict()
+
+// Member id -> resource key -> token. The flat record is the pre-scoping
+// shape; callers must drop it instead of assigning it to whoever signs in.
+export const TEAM_OAUTH_TOKENS_SCHEMA = z.union([
+  z.record(z.string(), z.record(z.string(), TEAM_OAUTH_TOKEN_RECORD_SCHEMA)),
+  z.record(z.string(), TEAM_OAUTH_TOKEN_RECORD_SCHEMA),
+])
+
 export const SECRET_ENVIRONMENT_VARIABLE_SCHEMA = z.union([
   z.object({}).strict(),
 

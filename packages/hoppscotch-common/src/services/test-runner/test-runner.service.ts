@@ -10,7 +10,7 @@ import { Service } from "dioc"
 import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
 import * as E from "fp-ts/Either"
 import { cloneDeep } from "lodash-es"
-import { nextTick, Ref } from "vue"
+import { nextTick, Ref, watch } from "vue"
 import {
   captureInitialEnvironmentState,
   runTestRunnerRequest,
@@ -93,13 +93,30 @@ type TestRunnerResultFields = {
 export type TestRunnerRequest = (HoppRESTRequest | HoppGQLRequest) &
   TestRunnerResultFields
 
-function delay(timeMS: number) {
+/**
+ * Waits `timeMS` between requests. Rejects with the stop signal as soon as
+ * `stopRef` flips, so a Stop pressed mid-delay ends the run immediately.
+ */
+function delay(timeMS: number, stopRef: Ref<boolean>): Promise<void> {
   return new Promise((resolve, reject) => {
-    const timeout = setTimeout(resolve, timeMS)
-    return () => {
-      clearTimeout(timeout)
-      reject(new Error("Operation cancelled"))
+    if (stopRef.value) {
+      reject(new Error(STOP_SIGNAL_PREFIX))
+      return
     }
+    const stopWatching = watch(
+      stopRef,
+      (stopped) => {
+        if (!stopped) return
+        clearTimeout(timeout)
+        stopWatching()
+        reject(new Error(STOP_SIGNAL_PREFIX))
+      },
+      { flush: "sync" }
+    )
+    const timeout = setTimeout(() => {
+      stopWatching()
+      resolve()
+    }, timeMS)
   })
 }
 
@@ -545,12 +562,10 @@ export class TestRunnerService extends Service {
 
         if (options.delay && options.delay > 0) {
           try {
-            await delay(options.delay)
-          } catch (_error) {
-            if (options.stopRef?.value) {
-              tab.value.document.status = "stopped"
-              throw new Error("Test execution stopped")
-            }
+            await delay(options.delay, options.stopRef)
+          } catch (error) {
+            tab.value.document.status = "stopped"
+            throw error
           }
         }
       }

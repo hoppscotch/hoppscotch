@@ -63,7 +63,7 @@
           :auto-complete-env="true"
           :inspection-results="tabResults"
           @paste="onPasteUrl($event)"
-          @enter="newSendRequest"
+          @enter="sendOrCancelRequest"
         />
       </div>
     </div>
@@ -76,7 +76,7 @@
           !isTabResponseLoading ? t('action.send') : t('action.cancel')
         }`"
         class="min-w-[5rem] flex-1 rounded-r-none"
-        @click="!isTabResponseLoading ? newSendRequest() : cancelRequest()"
+        @click="sendOrCancelRequest"
       />
       <span class="flex">
         <tippy
@@ -509,6 +509,14 @@ const cancelRequest = () => {
   }
 }
 
+// Shared by the Send button, Enter in the URL field and the send/cancel shortcut.
+// A second run would race the first for the response pane, and Cancel would
+// only reach the latest.
+const sendOrCancelRequest = () => {
+  if (!isTabResponseLoading.value) newSendRequest()
+  else cancelRequest()
+}
+
 const updateMethod = (method: string) => {
   tab.value.document.request.method = method
 }
@@ -645,10 +653,7 @@ const saveRequest = async () => {
 
 const request = ref<HoppRESTRequest | null>(null)
 
-defineActionHandler("request.send-cancel", () => {
-  if (!loading.value) newSendRequest()
-  else cancelRequest()
-})
+defineActionHandler("request.send-cancel", sendOrCancelRequest)
 defineActionHandler("request.reset", clearContent)
 defineActionHandler("request.share-request", shareRequest)
 defineActionHandler("request.method.next", cycleDownMethod)

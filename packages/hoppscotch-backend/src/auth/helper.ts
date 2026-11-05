@@ -58,7 +58,7 @@ export const authCookieHandler = (
     httpOnly: true,
     secure: configService.get('INFRA.ALLOW_SECURE_COOKIES') === 'true',
     sameSite: 'lax',
-    maxAge: accessTokenValidityInMs,
+    maxAge: Math.max(accessTokenValidityInMs, refreshTokenValidityInMs),
   });
   res.cookie(AuthTokenType.REFRESH_TOKEN, authTokens.refresh_token, {
     httpOnly: true,

@@ -79,9 +79,15 @@ const extractToken = (request: Request): E.Either<Error, string> =>
   pipe(
     extractFromCookie(request),
     O.alt(() => extractFromAuthHeaders(request)),
-    // Neither `Authorization` header nor `Cookie` were found with the request,
-    // `COOKIES_NOT_FOUND` for backwards compatibility.
+    // If neither an access token cookie nor an Authorization header was present,
+    // check if a valid refresh_token cookie exists. If present, return 401 Unauthorized
+    // so client interceptors can initiate a token refresh instead of receiving a terminal 403 Forbidden.
+    // Otherwise fallback to 403 COOKIES_NOT_FOUND for backwards compatibility.
     E.fromOption(() => {
+      const refreshToken = request.cookies?.['refresh_token'];
+      if (typeof refreshToken === 'string' && refreshToken.trim().length > 0) {
+        return new UnauthorizedException();
+      }
       return new ForbiddenException(COOKIES_NOT_FOUND);
     }),
   );

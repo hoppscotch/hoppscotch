@@ -13,13 +13,15 @@ Please note we have a code of conduct, please follow it in all your interactions
    variables, exposed ports, useful file locations and container parameters.
 3. Make sure you do not expose environment variables or other sensitive information in your PR.
 
-=== Prerequisites ===
+### Prerequisites
 
-- Node.js 20+ (check with `node -倩
+- Node.js 20+ (check with `node -v`)
 - pnpm 9+ (check with `pnpm -v`)
-- Gmt
+- Git
 - Docker (optional, for self-hosted setup)
 
-> Development Setup 
+### Development Setup
 
-1. Clone and install dependencies: `pnpm install`2. Start development server: `pnpm dev`3. Run tests including CLI tests (see [#4136](https://github.com/hoppscotch/hoppscotch/issues/4136)): `pnpm test`
+1. Clone and install dependencies: `pnpm install`
+2. Start development server: `pnpm dev`
+3. Run tests including CLI tests (see [#4136](https://github.com/hoppscotch/hoppscotch/issues/4136)): `pnpm test`

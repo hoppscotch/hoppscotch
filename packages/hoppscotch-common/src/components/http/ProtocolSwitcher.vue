@@ -101,13 +101,10 @@ import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
 import { ScrollService } from "~/services/scroll.service"
 import {
-  convertRESTToGQL,
-  convertGQLToREST,
-} from "~/helpers/tab/type-converter"
-import {
-  HoppRequestDocument,
-  HoppGQLRequestDocument,
-} from "~/helpers/tab/document"
+  switchActiveTabToGQL,
+  switchActiveTabToREST,
+} from "~/helpers/tab/protocol-switch"
+import { defineActionHandler } from "~/helpers/actions"
 import { restCollections$ } from "~/newstore/collections"
 import IconChevronRight from "~icons/lucide/chevron-right"
 import IconChevronDown from "~icons/lucide/chevron-down"
@@ -213,66 +210,23 @@ const displayFolderPath = computed<{ name: string; tooltip: string }[]>(() => {
   ]
 })
 
+// The switch flow (draft snapshots, teardown ordering) is shared with the AI
+// chat's `switch_protocol` tool — see `~/helpers/tab/protocol-switch`.
 const switchToGQL = () => {
-  if (!isREST.value) return
-  const tab = tabs.currentActiveTab.value
-  if (!tab || tab.document.type !== "request") return
-
-  // Snapshot the current REST request as the REST draft so a later switch back
-  // restores edits the user made before this protocol switch.
-  tabs.setProtocolDraft(
-    tab.id,
-    "rest",
-    tab.document.request,
-    tab.document.isDirty
-  )
-
-  // If the user previously had GQL data on this tab, restore it verbatim.
-  // Otherwise let the converter seed a fresh GQL request from the REST one.
-  const gqlDraft = tabs.getProtocolDraft(tab.id)?.gql
-
-  // Cancel the in-flight REST run before the document type flips — the runner
-  // writes into `tab.document` from a subscription, not a component, so a late
-  // response would land a HoppRESTResponse in a field typed GQLResponseEvent[].
-  tab.document.cancelFunction?.()
-
-  // The REST document's scroll offsets don't map onto the GQL panes
-  scrollService.cleanupScrollForTab(tab.id)
-
-  const gqlDoc = convertRESTToGQL(tab.document as HoppRequestDocument, gqlDraft)
-  tab.document = gqlDoc
-  tabs.updateTab(tab)
+  switchActiveTabToGQL({ tabs, gqlTabConn, scrollService })
 }
 
 const switchToREST = () => {
-  if (!isGQL.value) return
-  const tab = tabs.currentActiveTab.value
-  if (!tab || tab.document.type !== "gql-request") return
-
-  // Snapshot the current GQL request as the GQL draft for round-trip preservation.
-  tabs.setProtocolDraft(
-    tab.id,
-    "gql",
-    tab.document.request,
-    tab.document.isDirty
-  )
-
-  // Restore the previously-snapshotted REST request if any; else seed from GQL.
-  const restDraft = tabs.getProtocolDraft(tab.id)?.rest
-
-  const restDoc = convertGQLToREST(
-    tab.document as HoppGQLRequestDocument,
-    restDraft
-  )
-
-  // Tear down the GQL connection (poll timer, subscription socket, context
-  // maps) before the document type flips to "request" — the close paths in
-  // index.vue skip a tab that is no longer `gql-request`, so the context and
-  // its 7s poll loop would leak for the page's lifetime.
-  gqlTabConn.cleanupTab(tab.id)
-  scrollService.cleanupScrollForTab(tab.id)
-
-  tab.document = restDoc
-  tabs.updateTab(tab)
+  switchActiveTabToREST({ tabs, gqlTabConn, scrollService })
 }
+
+// Keyboard shortcut (Alt/⌥ T) and Spotlight route through this action —
+// without a payload it toggles, with one it targets that protocol.
+defineActionHandler("tab.switch-protocol", (payload) => {
+  const target = payload?.protocol
+  if (target === "rest") switchToREST()
+  else if (target === "graphql") switchToGQL()
+  else if (isGQL.value) switchToREST()
+  else switchToGQL()
+})
 </script>

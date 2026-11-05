@@ -1,7 +1,22 @@
 import { Field, ID, ArgsType } from '@nestjs/graphql';
 import { TeamAccessRole } from '../team/team.model';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { OffsetPaginationArgs } from 'src/types/input-types.args';
+import {
+  OffsetPaginationArgs,
+  PaginationArgs,
+} from 'src/types/input-types.args';
+
+@ArgsType()
+export class FetchAllShortcodesArgs extends PaginationArgs {
+  @Field({
+    name: 'userEmail',
+    nullable: true,
+    description: "User's email to filter shortcodes by",
+  })
+  @IsString()
+  @IsOptional()
+  userEmail: string;
+}
 
 @ArgsType()
 export class FetchAllUsersV2Args extends OffsetPaginationArgs {

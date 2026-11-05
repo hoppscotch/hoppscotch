@@ -133,7 +133,7 @@ services:
 
   # The preset DB service, you can delete/comment the below lines if
   # you are using an external postgres instance
-  # This will be exposed at port 5432
+  # This will be exposed at port 5432 on localhost only
   hoppscotch-db:
     profiles:
       [
@@ -147,7 +147,7 @@ services:
       ]
     image: postgres:15
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     user: postgres
     environment:
       # The default user defined by the docker image

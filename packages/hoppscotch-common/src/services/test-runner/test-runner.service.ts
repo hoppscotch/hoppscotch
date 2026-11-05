@@ -106,6 +106,16 @@ function delay(timeMS: number) {
 export class TestRunnerService extends Service {
   public static readonly ID = "TEST_RUNNER_SERVICE"
 
+  private readonly activeRunStops = new Map<string, Ref<boolean>>()
+
+  /** Signals the active run in a tab to stop after its current request settles. */
+  public stopRun(tabID: string): boolean {
+    const stopRef = this.activeRunStops.get(tabID)
+    if (!stopRef) return false
+    stopRef.value = true
+    return true
+  }
+
   private createEmptyMeta(): TestRunnerMeta {
     return {
       totalRequests: 0,
@@ -182,6 +192,7 @@ export class TestRunnerService extends Service {
     // variables stay raw on `collection.variables` for the plan walk.
     ancestorVariables: HoppCollectionVariable[] = []
   ) {
+    const tabID = tab.value.id
     // `undefined` runs the full collection; an array runs that subset.
     const selection = tab.value.document.selectedRequestRefIds
     const selectionActive = Array.isArray(selection)
@@ -202,6 +213,8 @@ export class TestRunnerService extends Service {
       )
       return
     }
+
+    this.activeRunStops.set(tabID, options.stopRef)
 
     // Reset the result collection
     tab.value.document.status = "running"
@@ -246,6 +259,9 @@ export class TestRunnerService extends Service {
         }
       })
       .finally(() => {
+        if (this.activeRunStops.get(tabID) === options.stopRef) {
+          this.activeRunStops.delete(tabID)
+        }
         if (tab.value.document.status !== "error") {
           tab.value.document.status = "stopped"
         }

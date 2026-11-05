@@ -12,3 +12,14 @@ Please note we have a code of conduct, please follow it in all your interactions
 2. Update the README.md with details of changes to the interface, this includes new environment
    variables, exposed ports, useful file locations and container parameters.
 3. Make sure you do not expose environment variables or other sensitive information in your PR.
+
+=== Prerequisites ===
+
+- Node.js 20+ (check with `node -倩
+- pnpm 9+ (check with `pnpm -v`)
+- Gmt
+- Docker (optional, for self-hosted setup)
+
+> Development Setup 
+
+1. Clone and install dependencies: `pnpm install`2. Start development server: `pnpm dev`3. Run tests including CLI tests (see [#4136](https://github.com/hoppscotch/hoppscotch/issues/4136)): `pnpm test`

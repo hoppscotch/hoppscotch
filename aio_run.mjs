@@ -94,7 +94,17 @@ function runChildProcessWithPrefix(command, args, prefix) {
   return childProcess
 }
 
-const envFileContent = Object.entries(process.env)
+// Make the backend proxy URL available to the runtime-injected frontend config.
+const runtimeEnv = { ...process.env }
+if (
+  runtimeEnv.PROXY_APP_URL &&
+  (runtimeEnv.VITE_PROXY_APP_URL === undefined ||
+    runtimeEnv.VITE_PROXY_APP_URL === "")
+) {
+  runtimeEnv.VITE_PROXY_APP_URL = runtimeEnv.PROXY_APP_URL
+}
+
+const envFileContent = Object.entries(runtimeEnv)
   .filter(([env]) => env.startsWith("VITE_"))
   .sort(([envA], [envB]) => envA.localeCompare(envB))
   .map(([env, val]) => `${env}=${

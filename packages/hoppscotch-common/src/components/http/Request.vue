@@ -63,7 +63,7 @@
           :auto-complete-env="true"
           :inspection-results="tabResults"
           @paste="onPasteUrl($event)"
-          @enter="sendOrCancelRequest"
+          @enter="onUrlEnter"
         />
       </div>
     </div>
@@ -246,7 +246,10 @@ import { computed, ref, onUnmounted, watch } from "vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
-import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
+import {
+  getPlatformSpecialKey as getSpecialKey,
+  isAppleDevice,
+} from "~/helpers/platformutils"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { editRESTRequest } from "~/newstore/collections"
@@ -515,6 +518,13 @@ const cancelRequest = () => {
 const sendOrCancelRequest = () => {
   if (!isTabResponseLoading.value) newSendRequest()
   else cancelRequest()
+}
+
+// Ctrl/Cmd+Enter is the send/cancel shortcut, which runs first in the capture
+// phase. Acting on it here too would cancel the run it just started.
+const onUrlEnter = (ev: KeyboardEvent) => {
+  if (isAppleDevice() ? ev.metaKey : ev.ctrlKey) return
+  sendOrCancelRequest()
 }
 
 const updateMethod = (method: string) => {

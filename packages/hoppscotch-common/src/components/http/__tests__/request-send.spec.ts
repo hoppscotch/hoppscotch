@@ -69,13 +69,14 @@ const emptyTestResults = () => ({
 
 describe("http request send and cancel", () => {
   let app: App | null = null
-  let pressEnterInUrl: () => void
+  let pressEnterInUrl: (init?: KeyboardEventInit) => void
   let cancelRun: ReturnType<typeof vi.fn>
 
   const EnvInput = defineComponent({
     emits: ["enter"],
     setup(_, { emit }) {
-      pressEnterInUrl = () => emit("enter", new KeyboardEvent("keydown"))
+      pressEnterInUrl = (init) =>
+        emit("enter", new KeyboardEvent("keydown", init))
       return () => h("div")
     },
   })
@@ -173,6 +174,27 @@ describe("http request send and cancel", () => {
     await tick()
     expect(runner.runRESTRequest$).toHaveBeenCalledTimes(2)
     expect(cancelRun).not.toHaveBeenCalled()
+  })
+
+  it("leaves Ctrl/Cmd+Enter in the URL field to the shortcut", async () => {
+    mountRequest()
+
+    // One press with the field focused and the modifier held since an earlier
+    // press: the shortcut in the capture phase, then the field's own `enter`
+    const shortcutPress = async () => {
+      invokeAction("request.send-cancel")
+      await tick()
+      pressEnterInUrl({ ctrlKey: true, metaKey: true })
+      await tick()
+    }
+
+    await shortcutPress()
+    expect(runner.runRESTRequest$).toHaveBeenCalledTimes(1)
+    expect(cancelRun).not.toHaveBeenCalled()
+
+    await shortcutPress()
+    expect(runner.runRESTRequest$).toHaveBeenCalledTimes(1)
+    expect(cancelRun).toHaveBeenCalledTimes(1)
   })
 
   it("cancels on the shortcut when the tab came back to a run still in flight", async () => {

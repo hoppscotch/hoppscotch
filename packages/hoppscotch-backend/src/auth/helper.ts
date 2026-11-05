@@ -149,10 +149,17 @@ export const extractCookieAsKeyValuesFromHeaders = (
   const kv = cookieStr
     .split(';')
     .map((cookie) => cookie.trim())
+    .filter((cookie) => cookie.length > 0)
     .reduce(
       (acc, curr) => {
-        const [key, value] = curr.split('=');
-        acc[key] = value;
+        // Split only on the FIRST '=' — cookie values (JWTs, base64 payloads)
+        // routinely contain '=' padding, and destructuring `curr.split('=')`
+        // into two slots silently drops everything after the first '='.
+        // RFC 6265 §5.2 treats everything after the first '=' as the value.
+        const eqIdx = curr.indexOf('=');
+        const key = eqIdx !== -1 ? curr.slice(0, eqIdx) : curr;
+        const value = eqIdx !== -1 ? curr.slice(eqIdx + 1) : '';
+        if (key) acc[key] = value;
         return acc;
       },
       {} as Record<string, string>,

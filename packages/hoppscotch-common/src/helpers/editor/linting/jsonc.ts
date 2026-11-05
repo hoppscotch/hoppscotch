@@ -1,13 +1,25 @@
 import { Node, parseTree, stripComments as stripComments_ } from "jsonc-parser"
 import jsoncParse from "~/helpers/jsoncParse"
+import { isValidJSONC } from "./jsoncPretty"
 import { convertIndexToLineCh } from "../utils"
 import { LinterDefinition, LinterResult } from "./linter"
+
+// `jsoncParse` only accepts objects and arrays at the root, but scalars such as `42`, `null` and `"hello"` are valid JSON bodies
+function isValidScalarRoot(text: string): boolean {
+  if (!isValidJSONC(text)) return false
+  const root = parseTree(text, undefined, { allowTrailingComma: true })
+  return !!root && root.type !== "object" && root.type !== "array"
+}
 
 const linter: LinterDefinition = (text) => {
   try {
     jsoncParse(text)
     return Promise.resolve([])
   } catch (e: any) {
+    if (isValidScalarRoot(text)) {
+      return Promise.resolve([])
+    }
+
     return Promise.resolve([
       <LinterResult>{
         from: convertIndexToLineCh(text, e.start),

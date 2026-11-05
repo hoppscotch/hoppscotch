@@ -131,6 +131,9 @@ _Customized themes are synced with your cloud/local session._
 - Download the response as a file
 - View response headers
 - View raw and preview HTML, image, JSON, and XML responses
+- Annotate saved REST and GraphQL JSON example bodies with `//` line comments or
+  `/* ... */` block comments. Prettifying, saving, copying, and downloading examples
+  preserves these annotations; live API responses remain read-only.
 
 ⏰ **History:** Request entries are synced with your cloud/local session storage.
 

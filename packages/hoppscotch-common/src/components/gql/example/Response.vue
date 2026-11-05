@@ -88,7 +88,8 @@ import {
   getStatusAndCode,
   isValidStatusCode,
 } from "~/helpers/utils/statusCodes"
-import jsonLinter from "~/helpers/editor/linting/json"
+import jsoncLinter from "~/helpers/editor/linting/jsonc"
+import { prettifyJSONCWithValidation } from "~/helpers/editor/linting/jsoncPretty"
 import { HoppSavedGQLExampleDocument } from "~/helpers/tab/document"
 
 const t = useI18n()
@@ -120,7 +121,7 @@ useCodemirror(
       mode: "application/ld+json",
       lineWrapping: WRAP_LINES,
     },
-    linter: computed(() => (bodyString.value.length > 0 ? jsonLinter : null)),
+    linter: computed(() => (bodyString.value.length > 0 ? jsoncLinter : null)),
     completer: null,
     environmentHighlights: false,
   })
@@ -147,7 +148,7 @@ const prettifyIcon = refAutoReset<
 
 const prettifyBody = () => {
   try {
-    bodyString.value = JSON.stringify(JSON.parse(bodyString.value), null, 2)
+    bodyString.value = prettifyJSONCWithValidation(bodyString.value)
     prettifyIcon.value = IconCheck
   } catch {
     prettifyIcon.value = IconInfo

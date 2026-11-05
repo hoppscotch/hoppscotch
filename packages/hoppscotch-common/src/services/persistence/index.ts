@@ -69,6 +69,7 @@ import { SIORequest$, setSIORequest } from "../../newstore/SocketIOSession"
 import { WSRequest$, setWSRequest } from "../../newstore/WebSocketSession"
 
 import {
+  COLLECTION_UPDATE_SOURCES_SCHEMA,
   CURRENT_ENVIRONMENT_VALUE_SCHEMA,
   CURRENT_SORT_VALUES_SCHEMA,
   ENVIRONMENTS_SCHEMA,
@@ -104,6 +105,10 @@ import {
   CurrentSortOption,
   CurrentSortValuesService,
 } from "../current-sort.service"
+import {
+  CollectionUpdateSource,
+  CollectionUpdateSourceService,
+} from "../collection-update-source.service"
 
 export const STORE_NAMESPACE = "persistence.v1"
 
@@ -127,6 +132,7 @@ export const STORE_KEYS = {
   SECRET_ENVIRONMENTS: "secretEnvironments",
   CURRENT_ENVIRONMENT_VALUE: "currentEnvironmentValue",
   CURRENT_SORT_VALUES: "currentSortValues",
+  COLLECTION_UPDATE_SOURCES: "collectionUpdateSources",
   SCHEMA_VERSION: "schema_version",
   LOGIN_STATE: "login_state",
   EMAIL_FOR_SIGN_IN: "emailForSignIn",
@@ -266,6 +272,10 @@ export class PersistenceService extends Service {
 
   private readonly currentSortValuesService = this.bind(
     CurrentSortValuesService
+  )
+
+  private readonly collectionUpdateSourceService = this.bind(
+    CollectionUpdateSourceService
   )
 
   private showErrorToast(key: string) {
@@ -901,6 +911,55 @@ export class PersistenceService extends Service {
     )
   }
 
+  private async setupCollectionUpdateSourcePersistence() {
+    const loadResult = await Store.get<any>(
+      STORE_NAMESPACE,
+      STORE_KEYS.COLLECTION_UPDATE_SOURCES
+    )
+
+    try {
+      if (E.isRight(loadResult) && loadResult.right) {
+        const result = COLLECTION_UPDATE_SOURCES_SCHEMA.safeParse(
+          loadResult.right
+        )
+
+        if (result.success) {
+          this.collectionUpdateSourceService.loadUpdateSourcesFromPersistedState(
+            result.data
+          )
+        } else {
+          this.showErrorToast(STORE_KEYS.COLLECTION_UPDATE_SOURCES)
+          await Store.set(
+            STORE_NAMESPACE,
+            `${STORE_KEYS.COLLECTION_UPDATE_SOURCES}-backup`,
+            loadResult.right
+          )
+          console.error(
+            `Failed parsing persisted COLLECTION_UPDATE_SOURCES:`,
+            JSON.stringify(loadResult.right)
+          )
+        }
+      }
+    } catch (_e) {
+      console.error(
+        `Failed parsing persisted COLLECTION_UPDATE_SOURCES:`,
+        loadResult
+      )
+    }
+
+    watchDebounced(
+      this.collectionUpdateSourceService.persistableUpdateSources,
+      async (newData: Record<string, CollectionUpdateSource>) => {
+        await Store.set(
+          STORE_NAMESPACE,
+          STORE_KEYS.COLLECTION_UPDATE_SOURCES,
+          newData
+        )
+      },
+      { debounce: 500 }
+    )
+  }
+
   private async setupWebsocketPersistence() {
     const loadResult = await Store.get<any>(
       STORE_NAMESPACE,
@@ -1208,6 +1267,7 @@ export class PersistenceService extends Service {
       this.setupCurrentEnvironmentValuePersistence(),
 
       this.setupCurrentSortValuesPersistence(),
+      this.setupCollectionUpdateSourcePersistence(),
     ])
   }
 

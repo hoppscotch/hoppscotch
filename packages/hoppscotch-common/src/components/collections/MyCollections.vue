@@ -125,6 +125,10 @@
               node.data.type === 'collections' &&
               emit('export-data', node.data.data.data)
             "
+            @update-collection="
+              node.data.type === 'collections' &&
+              onUpdateCollectionClick(node.data.data.data, parseInt(node.id))
+            "
             @remove-collection="emit('remove-collection', node.id)"
             @sort-collections="emit('sort-collections', $event)"
             @drop-event="dropEvent($event, node.id)"
@@ -490,6 +494,7 @@ import { useService } from "dioc/vue"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { useDebounceFn } from "@vueuse/core"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
+import { restCollectionStore } from "~/newstore/collections"
 
 export type Collection = {
   type: "collections"
@@ -659,6 +664,13 @@ const emit = defineEmits<{
   ): void
   (event: "duplicate-response", payload: ResponsePayload): void
   (event: "export-data", payload: HoppCollection): void
+  (
+    event: "update-collection",
+    payload: {
+      collectionIndex: number
+      collection: HoppCollection
+    }
+  ): void
   (event: "remove-collection", payload: string): void
   (event: "remove-folder", payload: string): void
   (
@@ -923,6 +935,28 @@ const debouncedSorting = useDebounceFn(() => {
     collectionRefID: "personal",
   })
 }, 250)
+
+const onUpdateCollectionClick = (
+  collection: HoppCollection,
+  fallbackIndex: number
+) => {
+  const refId = collection._ref_id
+  const syncId = collection.id
+  const storeIndex = restCollectionStore.value.state.findIndex(
+    (c) => (refId && c._ref_id === refId) || (syncId && c.id === syncId)
+  )
+  if (storeIndex !== -1) {
+    emit("update-collection", {
+      collectionIndex: storeIndex,
+      collection: restCollectionStore.value.state[storeIndex],
+    })
+  } else {
+    emit("update-collection", {
+      collectionIndex: fallbackIndex,
+      collection,
+    })
+  }
+}
 
 type MyCollectionNode = Collection | Folder | Requests
 

@@ -659,7 +659,8 @@ const {
   workingTokenRequestParams,
   workingRefreshRequestParams,
   pkceTippyActions,
-  clientAuthenticationTippyActions
+  clientAuthenticationTippyActions,
+  () => (props.isCollectionProperty ? props.envs : undefined)
 )
 
 const passBy = computed(() => {

@@ -6,30 +6,41 @@ import {
   getEffectiveVariablesForRequest,
   filterNonEmptyEnvironmentVariables,
 } from "../utils/environments"
-import { getAggregateEnvsWithCurrentValue } from "~/newstore/environments"
+import {
+  AggregateEnvironment,
+  getAggregateEnvsWithCurrentValue,
+} from "~/newstore/environments"
 
 export const replaceTemplateStringsInObjectValues = <
   T extends Record<string, unknown>,
 >(
   obj: T,
-  source: "REST" | "GQL" = "REST"
+  source: "REST" | "GQL" = "REST",
+  // A precedence-ordered variable list supplied by the caller, used instead of
+  // the active tab's variables (e.g. while editing collection properties,
+  // where the active tab is unrelated to the collection being edited).
+  variables?: AggregateEnvironment[]
 ) => {
-  const document =
-    getService(WorkspaceTabsService).currentActiveTab.value.document
+  let effectiveVars = variables
 
-  // Only a REST request tab has request/collection variables.
-  const isRESTRequest = source === "REST" && document.type === "request"
+  if (!effectiveVars) {
+    const document =
+      getService(WorkspaceTabsService).currentActiveTab.value.document
 
-  // Resolve like a sent request: request > collection > environment precedence,
-  // active request vars only. The current→initial fallback happens in
-  // `parseTemplateStringE`.
-  const envVars = filterNonEmptyEnvironmentVariables(
-    getEffectiveVariablesForRequest(
+    // Only a REST request tab has request/collection variables.
+    const isRESTRequest = source === "REST" && document.type === "request"
+
+    // Resolve like a sent request: request > collection > environment
+    // precedence, active request vars only. The current→initial fallback
+    // happens in `parseTemplateStringE`.
+    effectiveVars = getEffectiveVariablesForRequest(
       isRESTRequest ? document.request.requestVariables : [],
       isRESTRequest ? document.inheritedProperties?.variables : [],
       getAggregateEnvsWithCurrentValue()
     )
-  )
+  }
+
+  const envVars = filterNonEmptyEnvironmentVariables(effectiveVars)
 
   const newObj: Partial<T> = {}
 
@@ -50,6 +61,10 @@ export const replaceTemplateStringsInObjectValues = <
   return newObj as T
 }
 
-export const replaceTemplateString = (str: string): string => {
-  return replaceTemplateStringsInObjectValues({ value: str }).value
+export const replaceTemplateString = (
+  str: string,
+  variables?: AggregateEnvironment[]
+): string => {
+  return replaceTemplateStringsInObjectValues({ value: str }, "REST", variables)
+    .value
 }

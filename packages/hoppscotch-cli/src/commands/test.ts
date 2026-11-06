@@ -26,6 +26,7 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
       iterationCount,
       iterationData,
       reporterJunit,
+      reporterJson,
       legacySandbox,
     } = options;
 
@@ -102,7 +103,12 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
       iterationCount,
       legacySandbox: resolvedLegacySandbox,
     });
-    const hasSucceeded = collectionsRunnerResult(report, reporterJunit);
+    const hasSucceeded = collectionsRunnerResult(
+      report.requests,
+      reporterJunit,
+      report.iterations,
+      reporterJson
+    );
 
     collectionsRunnerExit(hasSucceeded);
   } catch (e) {

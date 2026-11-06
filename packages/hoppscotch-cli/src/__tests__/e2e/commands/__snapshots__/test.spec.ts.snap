@@ -1,5 +1,120 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`hopp test [options] <file_path_or_id> > Test \`hopp test <file_path_or_id> --reporter-json [path]\` command: > Generates a JSON report at the default path 1`] = `
+"{
+  "iterations": [
+    {
+      "iteration": 1,
+      "requests": [
+        {
+          "path": "test-junit-report-export/assertions/error",
+          "result": false,
+          "duration": "duration",
+          "tests": {
+            "passed": 0,
+            "failed": 0,
+            "errored": 22
+          },
+          "errors": []
+        },
+        {
+          "path": "test-junit-report-export/assertions/success",
+          "result": true,
+          "duration": "duration",
+          "tests": {
+            "passed": 5,
+            "failed": 0,
+            "errored": 0
+          },
+          "errors": []
+        },
+        {
+          "path": "test-junit-report-export/assertions/failure",
+          "result": false,
+          "duration": "duration",
+          "tests": {
+            "passed": 3,
+            "failed": 2,
+            "errored": 0
+          },
+          "errors": []
+        },
+        {
+          "path": "test-junit-report-export/request-level-errors/invalid-url",
+          "result": false,
+          "duration": "duration",
+          "tests": {
+            "passed": 0,
+            "failed": 0,
+            "errored": 22
+          },
+          "errors": [
+            {
+              "code": "REQUEST_ERROR",
+              "data": {
+                "code": "ERR_INVALID_URL",
+                "input": "invalid-url"
+              }
+            }
+          ]
+        },
+        {
+          "path": "test-junit-report-export/request-level-errors/test-script-reference-error",
+          "result": false,
+          "duration": "duration",
+          "tests": {
+            "passed": 0,
+            "failed": 0,
+            "errored": 0
+          },
+          "errors": [
+            {
+              "code": "REQUEST_ERROR",
+              "data": {
+                "code": "ERR_INVALID_URL",
+                "input": "invalid-url"
+              }
+            },
+            {
+              "code": "TEST_SCRIPT_ERROR",
+              "data": "Script execution failed: ReferenceError: 'status' is not defined"
+            }
+          ]
+        },
+        {
+          "path": "test-junit-report-export/request-level-errors/non-existent-env-var",
+          "result": false,
+          "duration": "duration",
+          "tests": {
+            "passed": 0,
+            "failed": 0,
+            "errored": 22
+          },
+          "errors": [
+            {
+              "code": "PARSING_ERROR",
+              "data": "{\\n  \\"key\\": \\"<<key>>\\"\\n} (ENV_EXPAND_LOOP)"
+            }
+          ]
+        }
+      ],
+      "passed": 1,
+      "failed": 2,
+      "errored": 3,
+      "duration": "duration"
+    }
+  ],
+  "summary": {
+    "iterations": 1,
+    "totalRequests": 6,
+    "passed": 1,
+    "failed": 2,
+    "errored": 3,
+    "duration": "duration"
+  }
+}"
+`;
+
 exports[`hopp test [options] <file_path_or_id> > Test\`hopp test <file_path_or_id> --env <file_path_or_id> --reporter-junit [path] > Generates a JUnit report at the default path 1`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <testsuites tests="76" failures="2" errors="66" time="time">

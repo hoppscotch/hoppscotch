@@ -32,6 +32,12 @@ let keybindingsEnabled = true
 let unlistenTauriEvent: (() => void) | null = null
 
 /**
+ * Keydown events the listener has acted on. Handlers on the focused element
+ * get the same event after it (see `isHandledByKeybinding`)
+ */
+const handledKeyEvents = new WeakSet<KeyboardEvent>()
+
+/**
  * Alt is also regarded as macOS OPTION (⌥) key
  * Ctrl is also regarded as macOS COMMAND (⌘) key (NOTE: this differs from HTML Keyboard spec where COMMAND is Meta key!)
  */
@@ -212,6 +218,7 @@ function handleKeyDown(ev: KeyboardEvent) {
     ev.stopImmediatePropagation()
 
     if (boundAction) {
+      handledKeyEvents.add(ev)
       invokeAction(boundAction, undefined, "keypress")
     }
     return
@@ -245,6 +252,7 @@ function handleKeyDown(ev: KeyboardEvent) {
       isInShortcutsFlyout(target) || !isTypableElement(target)
 
     if (shouldToggle) {
+      handledKeyEvents.add(ev)
       invokeAction("flyouts.keybinds.toggle", undefined, "keypress")
       ev.preventDefault()
       return
@@ -277,7 +285,17 @@ function handleKeyDown(ev: KeyboardEvent) {
     return
 
   ev.preventDefault()
+  handledKeyEvents.add(ev)
   invokeAction(boundAction, undefined, "keypress")
+}
+
+/**
+ * Whether the keybinding listener has already acted on this keydown. It
+ * listens in the capture phase, so a handler on the focused element gets the
+ * event after it and can leave such a press to the shortcut.
+ */
+export function isHandledByKeybinding(ev: KeyboardEvent): boolean {
+  return handledKeyEvents.has(ev)
 }
 
 function handleTauriShortcut(shortcut: string) {

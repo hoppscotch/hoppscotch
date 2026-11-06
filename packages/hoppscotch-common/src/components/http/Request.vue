@@ -63,7 +63,7 @@
           :auto-complete-env="true"
           :inspection-results="tabResults"
           @paste="onPasteUrl($event)"
-          @enter="newSendRequest"
+          @enter="onUrlEnter"
         />
       </div>
     </div>
@@ -76,7 +76,7 @@
           !isTabResponseLoading ? t('action.send') : t('action.cancel')
         }`"
         class="min-w-[5rem] flex-1 rounded-r-none"
-        @click="!isTabResponseLoading ? newSendRequest() : cancelRequest()"
+        @click="sendOrCancelRequest"
       />
       <span class="flex">
         <tippy
@@ -246,6 +246,7 @@ import { computed, ref, onUnmounted, watch } from "vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
+import { isHandledByKeybinding } from "~/helpers/keybindings"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
@@ -509,6 +510,22 @@ const cancelRequest = () => {
   }
 }
 
+// Shared by the Send button, Enter in the URL field and the send/cancel shortcut.
+// A second run would race the first for the response pane, and Cancel would
+// only reach the latest.
+const sendOrCancelRequest = () => {
+  if (!isTabResponseLoading.value) newSendRequest()
+  else cancelRequest()
+}
+
+// Ctrl/Cmd+Enter is the send/cancel shortcut, which acts first in the capture
+// phase. Acting on the same press here would cancel the run it just started.
+// Presses it leaves alone, such as Ctrl/Cmd+Shift+Enter, act here as before.
+const onUrlEnter = (ev: KeyboardEvent) => {
+  if (isHandledByKeybinding(ev)) return
+  sendOrCancelRequest()
+}
+
 const updateMethod = (method: string) => {
   tab.value.document.request.method = method
 }
@@ -645,10 +662,7 @@ const saveRequest = async () => {
 
 const request = ref<HoppRESTRequest | null>(null)
 
-defineActionHandler("request.send-cancel", () => {
-  if (!loading.value) newSendRequest()
-  else cancelRequest()
-})
+defineActionHandler("request.send-cancel", sendOrCancelRequest)
 defineActionHandler("request.reset", clearContent)
 defineActionHandler("request.share-request", shareRequest)
 defineActionHandler("request.method.next", cycleDownMethod)

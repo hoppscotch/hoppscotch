@@ -826,6 +826,15 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
+    if (
+      !request._ref_id ||
+      (!request.id &&
+        targetLocation.requests.some(
+          (existing) => existing._ref_id === request._ref_id
+        ))
+    ) {
+      request._ref_id = generateUniqueRefId("req")
+    }
     targetLocation.requests.push(request)
 
     return {
@@ -1545,6 +1554,15 @@ const gqlCollectionDispatchers = defineDispatchers({
       return {}
     }
 
+    if (
+      !request._ref_id ||
+      (!request.id &&
+        targetLocation.requests.some(
+          (existing) => existing._ref_id === request._ref_id
+        ))
+    ) {
+      request._ref_id = generateUniqueRefId("req")
+    }
     targetLocation.requests.push(request)
 
     return {

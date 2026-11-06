@@ -1,3 +1,4 @@
+import { findRequestByIdentity } from "./requestIdentity"
 import { CollectionsPlatformDef } from "~/platform/collections"
 
 import {
@@ -998,7 +999,7 @@ const setupUserChildCollectionSortedSubscription = () => {
   return userChildCollectionSortedSub
 }
 
-function setupUserRequestCreatedSubscription() {
+export function setupUserRequestCreatedSubscription() {
   const [userRequestCreated$, userRequestCreatedSub] =
     runUserRequestCreatedSubscription()
 
@@ -1029,6 +1030,20 @@ function setupUserRequestCreatedSubscription() {
       )
 
       if (collectionID && collectionPath) {
+        const target = navigateToFolderWithIndexPath(
+          collectionStore.value.state,
+          collectionPath.split("/").map(Number)
+        )
+        const existingRequest =
+          target &&
+          findRequestByIdentity(target.requests, { ...request, id: requestID })
+
+        if (existingRequest) {
+          // Preserve local edits made while the create mutation was pending.
+          existingRequest.id = requestID
+          return
+        }
+
         runDispatchWithOutSyncing(() => {
           requestType == "REST"
             ? saveRESTRequestAs(collectionPath, request)

@@ -1,3 +1,4 @@
+import { findRequestByIdentity } from "./requestIdentity"
 import {
   generateUniqueRefId,
   HoppCollection,
@@ -715,52 +716,31 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async saveRequestAs({ path, request }) {
+    // Establish identity before any asynchronous work or serialization.
+    request._ref_id ??= generateUniqueRefId("req")
     const isSynced = await ensureRESTPathSynced(path)
     if (!isSynced) return
 
     const folder = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,
-      path.split("/").map((index) => parseInt(index))
+      path.split("/").map(Number)
+    )
+    if (!folder?.id) return
+
+    const pendingRequest = findRequestByIdentity(folder.requests, request)
+    if (!pendingRequest || pendingRequest.id) return
+
+    const res = await createRESTUserRequest(
+      request.name,
+      JSON.stringify(request),
+      folder.id
     )
 
-    if (folder) {
-      const requestsLength = folder.requests.length
-      if (requestsLength > 0 && folder.requests[requestsLength - 1].id) {
-        return
-      }
-    }
-
-    const parentCollectionBackendID = folder?.id
-
-    if (parentCollectionBackendID) {
-      // See `editRequest` above — REST mutation handles both kinds.
-      const typed = request as HoppRESTRequest | HoppGQLRequest
-      const res = await createRESTUserRequest(
-        typed.name,
-        JSON.stringify(typed),
-        parentCollectionBackendID
-      )
-
-      if (E.isRight(res)) {
-        const { id } = res.right.createRESTUserRequest
-
-        // Find the last request that doesn't have an ID (the newly added one)
-        const requestsLength = folder.requests.length
-        if (requestsLength > 0) {
-          const lastRequestIndex = requestsLength - 1
-          const lastRequest = folder.requests[lastRequestIndex]
-
-          // Only assign ID if the request doesn't already have one
-          if (!lastRequest.id) {
-            lastRequest.id = id
-            removeDuplicateRESTCollectionOrFolder(
-              id,
-              `${path}/${lastRequestIndex}`,
-              "request"
-            )
-          }
-        }
-      }
+    if (E.isRight(res)) {
+      // The subscription may arrive first, or another save may append a row.
+      // Always reconcile the request that initiated this mutation.
+      const savedRequest = findRequestByIdentity(folder.requests, request)
+      if (savedRequest) savedRequest.id = res.right.createRESTUserRequest.id
     }
   },
   async removeRequest({ requestID }) {

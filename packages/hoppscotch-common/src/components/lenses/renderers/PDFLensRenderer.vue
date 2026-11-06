@@ -48,7 +48,7 @@
     </div>
     <vue-pdf-embed
       :source="pdfsrc"
-      class="flex flex-1 overflow-auto border-b border-dividerLight"
+      class="flex flex-1 flex-col overflow-auto border-b border-dividerLight"
       type="application/pdf"
     />
   </div>

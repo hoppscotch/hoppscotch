@@ -16,12 +16,79 @@ const replaceables: { [key: string]: string } = {
   "--get": "-G",
 }
 
+/**
+ * Subset of ANSI-C escape sequence mappings inspired by Bash's ANSI-C quoting.
+ * See: https://www.gnu.org/software/bash/manual/bash.html#ANSI_002dC-Quoting
+ *
+ * Note: This does not implement all escape forms supported by Bash (e.g. \cX, \UHHHHHHHH).
+ * We use a single-pass regex to handle all escapes correctly.
+ */
+const ansiCEscapeMap: Record<string, string> = {
+  n: "\n",
+  t: "\t",
+  r: "\r",
+  "\\": "\\",
+  "'": "'",
+  '"': '"',
+  a: "\x07", // alert (bell)
+  b: "\b", // backspace
+  e: "\x1b", // escape
+  f: "\f", // form feed
+  v: "\v", // vertical tab
+}
+
+/**
+ * Process ANSI-C escape sequences inside a $'...' quoted string.
+ * Converts escape sequences like \n, \t, \\, etc. to their actual characters.
+ * Uses a single-pass regex to correctly handle sequences like \\n (literal \n).
+ */
+const processAnsiCEscapes = (content: string): string => {
+  // Single-pass regex that matches all escape sequences
+  // This correctly handles \\n as backslash + n (not newline)
+  return content.replace(
+    /\\(?:([ntrabe"'fv\\])|([0-7]{1,3})|x([0-9A-Fa-f]{1,2})|u([0-9A-Fa-f]{1,4}))/g,
+    (match, char, octal, hex, unicode) => {
+      if (char !== undefined) {
+        return ansiCEscapeMap[char] ?? match
+      }
+      if (octal !== undefined) {
+        return String.fromCharCode(parseInt(octal, 8))
+      }
+      if (hex !== undefined) {
+        return String.fromCharCode(parseInt(hex, 16))
+      }
+      if (unicode !== undefined) {
+        return String.fromCharCode(parseInt(unicode, 16))
+      }
+      return match
+    }
+  )
+}
+
+/**
+ * Convert ANSI-C quoted strings ($'...') to regular double-quoted strings
+ * with properly processed escape sequences.
+ */
+const processAnsiCQuotedStrings = (curlCmd: string): string => {
+  // Match $'...' patterns, handling escaped single quotes inside
+  // The pattern handles: $'content' where content can include \' for escaped quotes
+  const ansiCPattern = /\$'((?:[^'\\]|\\.)*)'/g
+
+  return curlCmd.replace(ansiCPattern, (_, content: string) => {
+    const processed = processAnsiCEscapes(content)
+    // Escape any double quotes and backslashes for the double-quoted output
+    const escaped = processed.replace(/\\/g, "\\\\").replace(/"/g, '\\"')
+    return `"${escaped}"`
+  })
+}
+
 const paperCuts = flow(
-  // remove '\' and newlines
+  // remove '\' and newlines (line continuations)
   S.replace(/ ?\\ ?$/gm, " "),
   S.replace(/\n/g, " "),
-  // remove all $ symbols from start of argument values
-  S.replace(/\$'/g, "'"),
+  // Process ANSI-C quoted strings ($'...') with proper escape handling
+  processAnsiCQuotedStrings,
+  // Handle $"..." (which in bash is a locale-translated string) by normalizing to a regular double-quoted string
   S.replace(/\$"/g, '"'),
   S.trim
 )

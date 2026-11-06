@@ -1,0 +1,22 @@
+{
+  "name": "Captured cookies cannot write across unrelated domains",
+  "instruction": "Cookie capture accepts Set-Cookie Domain attributes only when the response host is allowed to set that domain, preserving host-only and IP-literal semantics.",
+  "relevant_when": "TypeScript code that parses Set-Cookie response data, normalizes cookie domains, sets hostOnly flags, or decides whether a cookie domain matches a request host.",
+  "context": "Recent cookie-jar PR feedback focused on host-only cookies, response-domain capture guards, and IP-literal exact matching so one host cannot store cookies for an unrelated host.",
+  "scope": "file",
+  "scope_reason": "The cookie service or kernel helper file contains the domain normalization and matching logic needed to judge the invariant.",
+  "checklist": [
+    {
+      "name": "domain-attribute-validated-against-host",
+      "rule": "When a response cookie includes a Domain attribute, the code verifies that the request or response host domain-matches that attribute before storing the cookie."
+    },
+    {
+      "name": "host-only-cookies-stay-host-only",
+      "rule": "Cookies without a Domain attribute are marked or handled as host-only so they do not apply to sibling or child domains."
+    },
+    {
+      "name": "ip-literals-require-exact-domain",
+      "rule": "For IP-literal hosts, Domain attributes are accepted only on exact host equality rather than suffix or parent-domain matching."
+    }
+  ]
+}

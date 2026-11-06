@@ -1,0 +1,18 @@
+{
+  "name": "Native git dependencies are pinned by revision",
+  "instruction": "Native desktop and agent git dependencies are pinned to immutable revisions rather than floating branches or unqualified repository URLs.",
+  "relevant_when": "package.json, Cargo.toml, or lockfile content under Hoppscotch desktop, agent, common, selfhost-web, or desktop plugin workspace that declares a dependency sourced from git, GitHub, or a repository URL.",
+  "context": "Recent dependency review for native Tauri plugins emphasized pinning git-based plugin dependencies by explicit revisions so desktop, agent, and self-hosted builds remain reproducible.",
+  "scope": "file",
+  "scope_reason": "Each manifest or lockfile contains the dependency source string needed to determine whether the git dependency is pinned.",
+  "checklist": [
+    {
+      "name": "git-source-has-immutable-revision",
+      "rule": "Every git or GitHub dependency source in the file includes an immutable commit revision, rev parameter, or exact commit hash rather than only a branch name, tag-like channel, or bare repository URL."
+    },
+    {
+      "name": "lockfile-preserves-pin",
+      "rule": "When the file is a lockfile, git dependency entries preserve the same pinned revision information instead of resolving to an unpinned source."
+    }
+  ]
+}

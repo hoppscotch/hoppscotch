@@ -87,7 +87,7 @@ export type StatusCode =
   | 511 // Network Auth Required
 
 export type FormDataValue =
-  | { kind: "text"; value: string }
+  | { kind: "text"; value: string; contentType?: string }
   | { kind: "file"; filename: string; contentType: string; data: Uint8Array }
 
 export enum MediaType {
@@ -713,7 +713,28 @@ const makeFormDataSerializable = async (
   // @ts-expect-error: `formData.entries` does exist but isn't visible,
   // see `"lib": ["ESNext", "DOM"],` in `tsconfig.json`
   for (const [key, value] of formData.entries()) {
-    if (value instanceof File || value instanceof Blob) {
+    // A `Blob` without a real filename comes from a text field with a
+    // manually set content type (see `toFormData`): `FormData` stores
+    // such blobs as a `File` named "blob", so that placeholder name is
+    // treated as unnamed here. The part stays a text part carrying the
+    // content type instead of becoming a file part. Named files keep
+    // their filename and binary data.
+    if (
+      value instanceof Blob &&
+      !(value instanceof File && value.name && value.name !== "blob")
+    ) {
+      const textEntry: FormDataValue = {
+        kind: "text",
+        value: await value.text(),
+        contentType: value.type || undefined,
+      }
+
+      if (m.has(key)) {
+        m.get(key)!.push(textEntry)
+      } else {
+        m.set(key, [textEntry])
+      }
+    } else if (value instanceof File || value instanceof Blob) {
       const buffer = await value.arrayBuffer()
       const fileEntry: FormDataValue = {
         kind: "file",

@@ -104,14 +104,10 @@ export function usePreview(
       previewFrame.value &&
       shouldUpdatePreviewFrame.value
     ) {
-      // Use DOMParser to parse document HTML.
-      const previewDocument = new DOMParser().parseFromString(
+      const previewDocument = createPreviewDocument(
         responseBodyText.value,
-        "text/html"
+        url.value
       )
-      // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
-      previewDocument.head.innerHTML =
-        `<base href="${url.value}">` + previewDocument.head.innerHTML
 
       // Finally, set the iframe source to the resulting HTML.
       previewFrame.value.srcdoc = previewDocument.documentElement.outerHTML
@@ -155,6 +151,27 @@ export function usePreview(
     previewEnabled,
     togglePreview,
   }
+}
+
+export function createPreviewDocument(
+  responseBodyText: string,
+  url: string
+): Document {
+  // Use DOMParser to parse document HTML.
+  const previewDocument = new DOMParser().parseFromString(
+    responseBodyText,
+    "text/html"
+  )
+
+  const colorSchemeStyle = previewDocument.createElement("style")
+  colorSchemeStyle.textContent = ":root { color-scheme: only light; }"
+  previewDocument.head.appendChild(colorSchemeStyle)
+
+  // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
+  previewDocument.head.innerHTML =
+    `<base href="${url}">` + previewDocument.head.innerHTML
+
+  return previewDocument
 }
 
 export function useResponseBody(

@@ -6,7 +6,7 @@ import { Ref } from "vue"
 
 export function UrlSource(metadata: {
   caption: string
-  onImportFromURL: (content: string) => any | Promise<any>
+  onImportFromURL: (content: string, url: string) => any | Promise<any>
   fetchLogic?: (url: string) => Promise<any>
   isLoading?: Ref<boolean>
   description: string
@@ -15,9 +15,9 @@ export function UrlSource(metadata: {
 
   return defineStep(stepID, UrlImport, () => ({
     caption: metadata.caption,
-    onImportFromURL: (content: unknown) => {
+    onImportFromURL: (content: unknown, url: string) => {
       if (typeof content === "string") {
-        metadata.onImportFromURL(content)
+        metadata.onImportFromURL(content, url)
       }
     },
     loading: metadata.isLoading?.value,

@@ -48,6 +48,7 @@ export type CollectionDataProps = {
   // (personal) or to migrate from `_ref_id` to backend `id` (team
   // collection import).
   _ref_id?: string
+  source?: HoppCollection["source"]
 }
 
 export const BACKEND_PAGE_SIZE = 10

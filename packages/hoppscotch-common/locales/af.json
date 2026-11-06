@@ -1102,6 +1102,26 @@
     "not_found": "Shortcode not found",
     "short_code": "Short code",
     "url": "URL"
-  }
+  },
+  "activity_logs": "Aktiwiteitslogs",
+  "agent": "Agent",
+  "ai_experiments": "KI-eksperimente",
+  "app_console": "Toepassingskonsole",
+  "billing": "Fakturering",
+  "configs": "Konfigurasies",
+  "data_sharing": "Datadeling",
+  "file_upload": "Lêeroplaai",
+  "filename": "Lêernaam",
+  "infra_tokens": "Infrastruktuurtekens",
+  "instances": "Instansies",
+  "interceptor": "Onderskepper",
+  "metrics": "Metrieke",
+  "mock_server": "Skynbediener",
+  "mockServer": "Skynbediener",
+  "newsletter": "Nuusbrief",
+  "organization": "Organisasie",
+  "organization_sidebar": "Organisasiesybalk",
+  "script": "Skrip",
+  "teams": "Span",
+  "users": "Gebruikers"
 }
-

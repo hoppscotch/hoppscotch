@@ -55,6 +55,14 @@
       />
     </HoppSmartTab>
     <HoppSmartTab
+      v-if="doc.response?.req"
+      id="actual-request"
+      label="Actual Request"
+      class="flex flex-1 flex-col"
+    >
+      <LensesActualRequestRenderer :response="doc.response" />
+    </HoppSmartTab>
+    <HoppSmartTab
       v-if="showConsoleTab"
       id="console"
       label="Console"

@@ -266,6 +266,8 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 
 Follow our [self-hosting documentation](https://docs.hoppscotch.io/documentation/self-host/getting-started) to get started with the development environment.
 
+For self-hosted deployments, set `VITE_DEFAULT_INTERCEPTOR` to `browser`, `proxy`, `agent`, or `extension` to choose the initial request interceptor. It defaults to `browser` when unset or invalid.
+
 ## Contributing
 
 Please contribute using [GitHub Flow](https://guides.github.com/introduction/flow). Create a branch, add commits, and [open a pull request](https://github.com/hoppscotch/hoppscotch/compare).

@@ -3,6 +3,7 @@ import { copyToClipboard } from "@helpers/utils/clipboard"
 import { refAutoReset } from "@vueuse/core"
 import { computed, ComputedRef, ref, Ref, watch } from "vue"
 
+import { buildHtmlPreviewSrcdoc } from "~/helpers/lenses/htmlPreview"
 import jsonToLanguage from "~/helpers/utils/json-to-language"
 import { platform } from "~/platform"
 import IconCheck from "~icons/lucide/check"
@@ -104,17 +105,10 @@ export function usePreview(
       previewFrame.value &&
       shouldUpdatePreviewFrame.value
     ) {
-      // Use DOMParser to parse document HTML.
-      const previewDocument = new DOMParser().parseFromString(
+      previewFrame.value.srcdoc = buildHtmlPreviewSrcdoc(
         responseBodyText.value,
-        "text/html"
+        url.value
       )
-      // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
-      previewDocument.head.innerHTML =
-        `<base href="${url.value}">` + previewDocument.head.innerHTML
-
-      // Finally, set the iframe source to the resulting HTML.
-      previewFrame.value.srcdoc = previewDocument.documentElement.outerHTML
       previewFrame.value.setAttribute("data-previewing-url", url.value)
 
       // Enable sandboxing for the iframe but this can have security implications

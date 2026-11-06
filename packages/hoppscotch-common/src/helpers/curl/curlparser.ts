@@ -29,7 +29,7 @@ import {
 } from "./sub_helpers/preproc"
 import { getQueries } from "./sub_helpers/queries"
 import { concatParams, getURLObject } from "./sub_helpers/url"
-import { HOPP_ENVIRONMENT_REGEX } from "../environment-regex"
+import { HOPP_ENVIRONMENT_TEST_REGEX } from "../environment-regex"
 
 const defaultRESTReq = getDefaultRESTRequest()
 
@@ -38,7 +38,8 @@ const defaultRESTReq = getDefaultRESTRequest()
  * @param str The string to test for environment variables.
  * @returns A boolean indicating whether the string contains environment variables.
  */
-const containsEnvVariables = (str: string) => HOPP_ENVIRONMENT_REGEX.test(str)
+const containsEnvVariables = (str: string) =>
+  HOPP_ENVIRONMENT_TEST_REGEX.test(str)
 
 export const parseCurlCommand = (curlCommand: string) => {
   // const isDataBinary = curlCommand.includes(" --data-binary")

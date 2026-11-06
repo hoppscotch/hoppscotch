@@ -39,6 +39,7 @@ import {
 import {
   ENV_VAR_NAME_REGEX,
   HOPP_ENVIRONMENT_REGEX,
+  HOPP_ENVIRONMENT_TEST_REGEX,
 } from "~/helpers/environment-regex"
 import {
   stabilizeTooltipHover,
@@ -89,7 +90,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       if (
         (start === pos && side < 0) ||
         (end === pos && side > 0) ||
-        !HOPP_ENVIRONMENT_REGEX.test(
+        !HOPP_ENVIRONMENT_TEST_REGEX.test(
           text.slice(start - from - 2, end - from + 2)
         )
       )

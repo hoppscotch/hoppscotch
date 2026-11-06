@@ -246,10 +246,8 @@ import { computed, ref, onUnmounted, watch } from "vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
-import {
-  getPlatformSpecialKey as getSpecialKey,
-  isAppleDevice,
-} from "~/helpers/platformutils"
+import { isHandledByKeybinding } from "~/helpers/keybindings"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { editRESTRequest } from "~/newstore/collections"
@@ -520,10 +518,11 @@ const sendOrCancelRequest = () => {
   else cancelRequest()
 }
 
-// Ctrl/Cmd+Enter is the send/cancel shortcut, which runs first in the capture
-// phase. Acting on it here too would cancel the run it just started.
+// Ctrl/Cmd+Enter is the send/cancel shortcut, which acts first in the capture
+// phase. Acting on the same press here would cancel the run it just started.
+// Presses it leaves alone, such as Ctrl/Cmd+Shift+Enter, act here as before.
 const onUrlEnter = (ev: KeyboardEvent) => {
-  if (isAppleDevice() ? ev.metaKey : ev.ctrlKey) return
+  if (isHandledByKeybinding(ev)) return
   sendOrCancelRequest()
 }
 

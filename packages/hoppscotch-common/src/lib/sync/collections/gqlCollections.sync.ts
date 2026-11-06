@@ -1,3 +1,4 @@
+import { findRequestByIdentity } from "./requestIdentity"
 import {
   generateUniqueRefId,
   HoppCollection,
@@ -392,41 +393,29 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async saveRequestAs({ path, request }) {
-    const folder = navigateToFolderWithIndexPath(
-      graphqlCollectionStore.value.state,
-      path.split("/").map((index) => parseInt(index))
-    )
-
-    if (!folder) return
-
     const isSynced = await ensureGQLPathSynced(path)
     if (!isSynced) return
 
-    const requestsLength = folder.requests.length
-    if (requestsLength > 0 && folder.requests[requestsLength - 1].id) {
-      return
-    }
+    const folder = navigateToFolderWithIndexPath(
+      graphqlCollectionStore.value.state,
+      path.split("/").map(Number)
+    )
+    if (!folder?.id) return
 
-    const parentCollectionBackendID = folder.id
-    if (!parentCollectionBackendID) return
-
-    const newRequest = folder.requests[folder.requests.length - 1]
+    const pendingRequest = findRequestByIdentity(folder.requests, request)
+    if (!pendingRequest || pendingRequest.id) return
 
     const res = await createGQLUserRequest(
-      (request as HoppRESTRequest).name,
+      request.name,
       JSON.stringify(request),
-      parentCollectionBackendID
+      folder.id
     )
 
     if (E.isRight(res)) {
-      const { id } = res.right.createGQLUserRequest
-
-      newRequest.id = id
-      removeDuplicateGraphqlCollectionOrFolder(
-        id,
-        `${path}/${folder.requests.length - 1}`,
-        "request"
-      )
+      // The subscription may arrive first, or another save may append a row.
+      // Always reconcile the request that initiated this mutation.
+      const savedRequest = findRequestByIdentity(folder.requests, request)
+      if (savedRequest) savedRequest.id = res.right.createGQLUserRequest.id
     }
   },
   async removeRequest({ requestID }) {

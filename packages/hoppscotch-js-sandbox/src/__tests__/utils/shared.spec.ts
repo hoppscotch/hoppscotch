@@ -2,6 +2,7 @@ import {
   getSharedCookieMethods,
   getSharedEnvMethods,
   getSharedRequestProps,
+  getTestRunnerScriptMethods,
   preventCyclicObjects,
 } from "~/utils/shared"
 
@@ -27,6 +28,45 @@ describe("preventCyclicObjects", () => {
     testObj.b = testObj
 
     expect(preventCyclicObjects(testObj)).toBeLeft()
+  })
+})
+
+describe("getTestRunnerScriptMethods", () => {
+  test("keeps tests after a caught exception at the root level", () => {
+    const { pw, testRunStack } = getTestRunnerScriptMethods({
+      global: [],
+      selected: [],
+    })
+
+    try {
+      pw.test("Throws", () => {
+        throw new Error("caught test error")
+      })
+    } catch {
+      // The script may catch errors raised by a test callback.
+    }
+
+    pw.test("After error", () => {
+      pw.expect("ok").toBe("ok")
+    })
+
+    expect(testRunStack[0].children).toEqual([
+      {
+        descriptor: "Throws",
+        expectResults: [],
+        children: [],
+      },
+      {
+        descriptor: "After error",
+        expectResults: [
+          {
+            status: "pass",
+            message: "Expected 'ok' to be 'ok'",
+          },
+        ],
+        children: [],
+      },
+    ])
   })
 })
 

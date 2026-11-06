@@ -999,7 +999,7 @@ const setupUserChildCollectionSortedSubscription = () => {
   return userChildCollectionSortedSub
 }
 
-function setupUserRequestCreatedSubscription() {
+export function setupUserRequestCreatedSubscription() {
   const [userRequestCreated$, userRequestCreatedSub] =
     runUserRequestCreatedSubscription()
 

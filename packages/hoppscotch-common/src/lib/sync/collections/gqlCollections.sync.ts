@@ -393,6 +393,8 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async saveRequestAs({ path, request }) {
+    // Establish identity before any asynchronous work or serialization.
+    request._ref_id ??= generateUniqueRefId("req")
     const isSynced = await ensureGQLPathSynced(path)
     if (!isSynced) return
 

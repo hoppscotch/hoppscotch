@@ -391,6 +391,15 @@ describe("team OAuth mutation token timing", () => {
       token: "created-token",
       refreshToken: "created-token-refresh",
     })
+
+    const variables = runMutation.mock.calls[0][1] as {
+      data: { request: string }
+    }
+    expect(variables.data.request).not.toContain("created-token")
+    expect(JSON.parse(variables.data.request).auth.grantTypeInfo.token).toBe("")
+    expect(
+      JSON.parse(variables.data.request).auth.grantTypeInfo.refreshToken
+    ).toBe("")
   })
 
   it("clears a cached request token after the request is deleted", async () => {

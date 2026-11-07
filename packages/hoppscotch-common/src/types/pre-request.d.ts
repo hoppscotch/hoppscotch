@@ -33,6 +33,7 @@ interface FormDataKeyValue {
   active: boolean
   isFile: boolean
   value: string | Blob[] | null
+  description: string
 }
 
 interface HoppRESTReqBody {

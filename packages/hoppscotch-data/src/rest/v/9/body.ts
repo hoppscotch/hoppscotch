@@ -5,6 +5,7 @@ export const FormDataKeyValue = z
     key: z.string(),
     active: z.boolean(),
     contentType: z.string().optional().catch(undefined),
+    description: z.string().catch(""),
   })
   .and(
     z.union([

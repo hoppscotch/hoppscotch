@@ -273,6 +273,7 @@ export const resolvesEnvsInBody = (
               ? entry.value
               : parseTemplateString(entry.value, env.variables, false, true),
             contentType: entry.contentType,
+            description: entry.description,
           }
       ),
     }

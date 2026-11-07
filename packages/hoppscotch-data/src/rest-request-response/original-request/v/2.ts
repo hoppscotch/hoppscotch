@@ -12,9 +12,21 @@ export default defineVersion({
   initial: false,
   schema: V2_SCHEMA,
   up(old: z.infer<typeof V1_SCHEMA>) {
+    const body = old.body
+    let migratedBody = body
+    if (body && body.contentType === "multipart/form-data") {
+      migratedBody = {
+        ...body,
+        body: body.body.map((entry: any) => ({
+          ...entry,
+          description: "",
+        })),
+      } as any
+    }
     return {
       ...old,
       v: "2" as const,
+      body: migratedBody as any,
     }
   },
 })

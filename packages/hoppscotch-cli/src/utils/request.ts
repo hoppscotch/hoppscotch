@@ -38,17 +38,37 @@ import { getTestScriptParams, hasAllTestsPassed, testRunner } from "./test";
  * @param variable Variable to be processed
  * @returns Updated variable with value from system environment
  */
-const processVariables = (variable: Environment["variables"][number]) => {
-  if (variable.secret) {
-    return {
-      ...variable,
-      currentValue:
-        "currentValue" in variable && variable.currentValue !== ""
-          ? variable.currentValue
-          : process.env[variable.key] || variable.initialValue,
-    };
+export const processVariables = (
+  variable: Environment["variables"][number]
+) => {
+  if (!variable.secret) {
+    return variable;
   }
-  return variable;
+
+  const isNonEmptyString = (value: unknown): value is string =>
+    typeof value === "string" && value.trim().length > 0;
+
+  const current =
+    "currentValue" in variable ? variable.currentValue : undefined;
+  const envValue = process.env[variable.key];
+  const initial = variable.initialValue;
+
+  let resolvedValue: string;
+
+  if (isNonEmptyString(current)) {
+    resolvedValue = current;
+  } else if (isNonEmptyString(envValue)) {
+    resolvedValue = envValue;
+  } else if (isNonEmptyString(initial)) {
+    resolvedValue = initial;
+  } else {
+    resolvedValue = "";
+  }
+
+  return {
+    ...variable,
+    currentValue: resolvedValue,
+  };
 };
 
 /**

@@ -200,6 +200,8 @@ export class EnvironmentInspectorService extends Service implements Inspector {
 
         // Check each variable for missing values
         environmentVariables.forEach((env) => {
+          if (env.key !== formattedExEnv) return
+
           const sourceEnvID =
             env.sourceEnv === "Global"
               ? "Global"
@@ -223,8 +225,6 @@ export class EnvironmentInspectorService extends Service implements Inspector {
             ) ||
             env.currentValue !== "" ||
             env.initialValue !== ""
-
-          if (env.key !== formattedExEnv) return
 
           // Flag variables that are empty
           if (env.secret ? !hasSecretEnv : !hasValue) {

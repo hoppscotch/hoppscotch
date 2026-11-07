@@ -11,6 +11,7 @@ import {
   GetCollectionRequestsDocument,
   GetSingleRequestDocument,
 } from "../backend/graphql"
+import { hydrateTeamRequest } from "../teamOAuthTokens"
 
 /**
  * Defines how a Teams request is represented in the team-collection service.
@@ -52,6 +53,17 @@ export function normalizeTeamRequestBody(
     return translateToGQLRequest(parsed)
   }
   return translateToNewRequest(parsed)
+}
+
+/**
+ * Normalize a team request and replace any OAuth token that arrived from the
+ * shared backend with this user's locally stored token.
+ */
+export function normalizeAndHydrateTeamRequest(
+  requestId: string,
+  raw: string
+): HoppRESTRequest | HoppGQLRequest {
+  return hydrateTeamRequest(requestId, normalizeTeamRequestBody(raw))
 }
 
 export const getCollectionChildRequests = (collectionID: string) =>

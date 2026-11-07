@@ -1,3 +1,6 @@
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
+
 import { runMutation } from "../GQLClient"
 import {
   CreateChildCollectionDocument,
@@ -32,7 +35,15 @@ import {
   UpdateTeamCollectionMutation,
   UpdateTeamCollectionMutationVariables,
 } from "../graphql"
+import { getService } from "~/modules/dioc"
+import { TeamOAuthTokenService } from "~/services/team-oauth-token.service"
+
 import { CollectionDataProps } from "../helpers"
+import {
+  commitTokenSyncPlan,
+  prepareTeamImportJson,
+  separateCollectionForTeamUpdate,
+} from "../../teamOAuthTokens"
 
 type CreateNewRootCollectionError = "team_coll/short_title"
 
@@ -126,29 +137,65 @@ export const updateOrderRESTTeamCollection = (
     destCollID,
   })
 
-export const importJSONToTeam = (collectionJSON: string, teamID: string) =>
-  runMutation<ImportFromJsonMutation, ImportFromJsonMutationVariables, "">(
-    ImportFromJsonDocument,
-    {
-      jsonString: collectionJSON,
-      teamID,
-    }
+export const importJSONToTeam = (collectionJSON: string, teamID: string) => {
+  const { wireJson, pending } = prepareTeamImportJson(collectionJSON)
+  const service = getService(TeamOAuthTokenService)
+  const previous = pending.map((item) => ({
+    key: item.key,
+    record: item.record,
+    previous: service.recall(item.key),
+  }))
+
+  // Store before the request so a collection-added event can claim the token
+  // as soon as the backend id exists. Roll back if the import is rejected.
+  for (const item of pending) {
+    service.remember(item.key, item.record)
+  }
+
+  return pipe(
+    runMutation<ImportFromJsonMutation, ImportFromJsonMutationVariables, "">(
+      ImportFromJsonDocument,
+      {
+        jsonString: wireJson,
+        teamID,
+      }
+    ),
+    TE.mapLeft((error) => {
+      for (const item of previous) {
+        if (item.previous) service.remember(item.key, item.previous)
+        else service.forget(item.key)
+      }
+      return error
+    })
   )
+}
 
 export const updateTeamCollection = (
   collectionID: string,
   data?: CollectionDataProps,
   newTitle?: string
-) =>
-  runMutation<
-    UpdateTeamCollectionMutation,
-    UpdateTeamCollectionMutationVariables,
-    ""
-  >(UpdateTeamCollectionDocument, {
-    collectionID,
-    data: JSON.stringify(data),
-    newTitle,
-  })
+) => {
+  const separated =
+    data === undefined
+      ? null
+      : separateCollectionForTeamUpdate(collectionID, data)
+
+  return pipe(
+    runMutation<
+      UpdateTeamCollectionMutation,
+      UpdateTeamCollectionMutationVariables,
+      ""
+    >(UpdateTeamCollectionDocument, {
+      collectionID,
+      data: JSON.stringify(separated ? separated.wire : data),
+      newTitle,
+    }),
+    TE.map((result) => {
+      if (separated) commitTokenSyncPlan(separated.plan)
+      return result
+    })
+  )
+}
 
 export const duplicateTeamCollection = (collectionID: string) =>
   runMutation<

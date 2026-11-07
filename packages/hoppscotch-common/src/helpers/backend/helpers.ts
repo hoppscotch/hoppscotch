@@ -15,9 +15,17 @@ import { z } from "zod"
 
 import { getI18n } from "~/modules/i18n"
 import { TeamCollection } from "../teams/TeamCollection"
-import { TeamRequest, normalizeTeamRequestBody } from "../teams/TeamRequest"
+import {
+  TeamRequest,
+  normalizeAndHydrateTeamRequest,
+} from "../teams/TeamRequest"
 import { GQLError, runGQLQuery } from "./GQLClient"
 import { stripCollectionTreeForStore } from "~/helpers/clientLocalVariables"
+import {
+  hydrateCollectionAuth,
+  hydrateTeamRequest,
+  stripOAuthTokensDeep,
+} from "~/helpers/teamOAuthTokens"
 import {
   ExportAsJsonDocument,
   ExportCollectionToJsonDocument,
@@ -101,7 +109,7 @@ const getCollectionRequests = async (collID: string) => {
         (x) =>
           <TeamRequest>{
             id: x.id,
-            request: normalizeTeamRequestBody(x.request),
+            request: normalizeAndHydrateTeamRequest(x.id, x.request),
             collectionID: collID,
             title: x.title,
           }
@@ -179,6 +187,13 @@ const parseCollectionData = (
       ? parsedData.testScript
       : defaultDataProps.testScript
 
+  const refId =
+    parsedData &&
+    typeof parsedData === "object" &&
+    typeof (parsedData as { _ref_id?: unknown })._ref_id === "string"
+      ? (parsedData as { _ref_id: string })._ref_id
+      : undefined
+
   return {
     auth,
     headers,
@@ -186,6 +201,7 @@ const parseCollectionData = (
     description,
     preRequestScript,
     testScript,
+    _ref_id: refId,
   }
 }
 
@@ -206,8 +222,11 @@ export const teamCollectionJSONToHoppRESTColl = (
     id: coll.id,
     name: coll.name,
     folders: coll.folders?.map(teamCollectionJSONToHoppRESTColl),
-    requests: coll.requests,
-    auth,
+    // Shared exports must not carry anyone's OAuth token.
+    requests: (coll.requests ?? []).map((request) =>
+      stripOAuthTokensDeep(request)
+    ),
+    auth: stripOAuthTokensDeep(auth),
     headers,
     variables,
     description,
@@ -285,14 +304,20 @@ export const teamCollToHoppRESTColl = (
     description,
     preRequestScript,
     testScript,
+    _ref_id,
   } = parseCollectionData(data)
 
   return makeCollection({
     id: coll.id,
     name: coll.title,
     folders: coll.children?.map(teamCollToHoppRESTColl) ?? [],
-    requests: coll.requests?.map((x) => x.request) ?? [],
-    auth: auth ?? { authType: "inherit", authActive: true },
+    requests:
+      coll.requests?.map((x) => hydrateTeamRequest(x.id, x.request)) ?? [],
+    auth: hydrateCollectionAuth(
+      coll.id,
+      auth ?? { authType: "inherit", authActive: true },
+      _ref_id
+    ),
     headers: headers ?? [],
     variables: variables ?? [],
     description: description ?? null,

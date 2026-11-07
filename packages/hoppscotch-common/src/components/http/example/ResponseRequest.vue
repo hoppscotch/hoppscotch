@@ -105,9 +105,9 @@ import { useToast } from "@composables/toast"
 import { cloneDeep } from "lodash-es"
 import { defineActionHandler } from "~/helpers/actions"
 import * as E from "fp-ts/Either"
-import { runMutation } from "~/helpers/backend/GQLClient"
-import { UpdateRequestDocument } from "~/helpers/backend/graphql"
+import { updateTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 import { getSingleRequest } from "~/helpers/teams/TeamRequest"
+import { hydrateTeamRequest } from "~/helpers/teamOAuthTokens"
 
 const t = useI18n()
 
@@ -205,7 +205,10 @@ const saveExample = async () => {
       const req = request.right.request
 
       if (req) {
-        const parsedRequest: HoppRESTRequest = JSON.parse(req.request)
+        const parsedRequest: HoppRESTRequest = hydrateTeamRequest(
+          saveCtx.requestID,
+          JSON.parse(req.request)
+        )
 
         if (!parsedRequest) return
 
@@ -214,12 +217,9 @@ const saveExample = async () => {
         parsedRequest.responses[responseName] = response
 
         try {
-          runMutation(UpdateRequestDocument, {
-            requestID: saveCtx.requestID,
-            data: {
-              title: parsedRequest.name,
-              request: JSON.stringify(parsedRequest),
-            },
+          updateTeamRequest(saveCtx.requestID, {
+            title: parsedRequest.name,
+            request: JSON.stringify(parsedRequest),
           })().then((result) => {
             if (E.isLeft(result)) {
               toast.error(`${t("profile.no_permission")}`)

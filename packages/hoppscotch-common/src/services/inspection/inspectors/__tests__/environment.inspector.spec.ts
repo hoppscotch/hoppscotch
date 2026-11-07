@@ -374,6 +374,24 @@ describe("EnvironmentInspectorService", () => {
       expect(result.value).toHaveLength(0)
     })
 
+    it("should only look up the values of the variables the request references", () => {
+      const container = new TestContainer()
+      const hasValue = vi.fn(() => true)
+      container.bindMock(CurrentValueService, { hasValue })
+      const envInspector = container.bind(EnvironmentInspectorService)
+
+      const req = ref({
+        ...getDefaultRESTRequest(),
+        endpoint: "<<EXISTING_ENV_VAR>>",
+      })
+
+      const result = envInspector.getInspections(req)
+
+      expect(result.value).toHaveLength(0)
+      expect(hasValue).toHaveBeenCalledOnce()
+      expect(hasValue).toHaveBeenCalledWith("1", "EXISTING_ENV_VAR")
+    })
+
     it("should not flag a secret variable whose current value is empty but has an initial value", () => {
       const container = new TestContainer()
       container.bindMock(SecretEnvironmentService, {

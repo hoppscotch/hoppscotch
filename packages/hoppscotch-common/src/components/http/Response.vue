@@ -4,6 +4,7 @@
       :response="doc.response"
       :is-embed="isEmbed"
       :is-loading="loading"
+      @compare="showCompareModal = true"
     />
     <LensesResponseBodyRenderer
       v-if="!loading && hasResponse"
@@ -20,11 +21,18 @@
     @submit="onSaveAsExample"
     @hide-modal="showSaveResponseName = false"
   />
+  <HttpResponseCompareModal
+    :show="showCompareModal"
+    :response="doc.response"
+    :tab-id="tabId"
+    @hide-modal="showCompareModal = false"
+  />
 </template>
 
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core"
 import { computed, ref } from "vue"
+import HttpResponseCompareModal from "./ResponseCompareModal.vue"
 import { HoppRequestDocument } from "~/helpers/tab/document"
 import { useResponseBody } from "@composables/lens-actions"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
@@ -63,6 +71,7 @@ const hasResponse = computed(
 
 const responseName = ref("")
 const showSaveResponseName = ref(false)
+const showCompareModal = ref(false)
 
 const hasSameNameResponse = computed(() => {
   return responseName.value

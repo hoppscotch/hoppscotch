@@ -66,7 +66,31 @@ export const parseCurlCommand = (curlCommand: string) => {
         ? args.dataUrlencode
         : [args.dataUrlencode]
 
-      const data = A.map(decodeURIComponent)(urlEncodedData)
+      // `--data-urlencode name=content` takes the content literally and
+      // asks curl to encode it, so the content must not be decoded here.
+      // Only the name is already URL encoded: decode it once, with `+`
+      // read as a space. The pairs are encoded again below because
+      // stringToPair decodes each pair once before splitting it, and the
+      // literal content has to survive that step unchanged.
+      const data = urlEncodedData.map((arg) => {
+        const eqIndex = arg.indexOf("=")
+
+        if (eqIndex === -1) {
+          return encodeURIComponent(arg)
+        }
+
+        const rawName = arg.slice(0, eqIndex)
+        const content = arg.slice(eqIndex + 1)
+
+        let name = rawName
+        try {
+          name = decodeURIComponent(rawName.replace(/\+/g, " "))
+        } catch {
+          name = rawName
+        }
+
+        return `${encodeURIComponent(name)}=${encodeURIComponent(content)}`
+      })
 
       return { ...args, d: data }
     }),

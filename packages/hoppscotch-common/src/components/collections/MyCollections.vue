@@ -37,7 +37,61 @@
           :title="t('modal.import_export')"
           @click="emit('display-modal-import-export')"
         />
+        <HoppButtonSecondary
+          v-if="!saveRequest && localSyncService.isSupported.value"
+          v-tippy="{ theme: 'tooltip' }"
+          :icon="
+            localSyncService.isConnected.value ? IconFolderGit2 : IconGitBranch
+          "
+          :class="{ '!text-accent': localSyncService.isConnected.value }"
+          :title="
+            localSyncService.isConnected.value
+              ? `${t('collection.git_sync')}: ${localSyncService.directoryName.value}`
+              : t('collection.git_sync')
+          "
+          @click="
+            localSyncService.isConnected.value
+              ? handleSyncNow()
+              : handleConnectGitFolder()
+          "
+        />
       </span>
+    </div>
+    <div
+      v-if="localSyncService.isConnected.value && !saveRequest"
+      class="flex items-center justify-between px-3 py-1 bg-primaryLight border-b border-dividerLight text-tiny text-secondaryLight"
+    >
+      <div class="flex items-center gap-1.5 truncate">
+        <component
+          :is="IconFolderGit2"
+          class="w-3.5 h-3.5 text-accent flex-shrink-0"
+        />
+        <span class="truncate font-semibold text-secondaryDark">
+          {{ localSyncService.directoryName.value }}
+        </span>
+        <span
+          v-if="localSyncService.isSyncing.value"
+          class="text-accent animate-pulse"
+        >
+          (Syncing...)
+        </span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          class="hover:text-secondary font-medium transition-colors"
+          :disabled="localSyncService.isSyncing.value"
+          @click="handleSyncNow"
+        >
+          {{ t("action.sync") || "Sync" }}
+        </button>
+        <span class="text-divider">•</span>
+        <button
+          class="hover:text-secondary font-medium transition-colors"
+          @click="handleDisconnect"
+        >
+          {{ t("action.disconnect") || "Disconnect" }}
+        </button>
+      </div>
     </div>
     <div class="flex flex-1 flex-col">
       <HoppSmartTree :adapter="myAdapter">
@@ -473,6 +527,10 @@ import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconImport from "~icons/lucide/folder-down"
 import IconArrowUpDown from "~icons/lucide/arrow-up-down"
+import IconFolderGit2 from "~icons/lucide/folder-git-2"
+import IconGitBranch from "~icons/lucide/git-branch"
+import { useToast } from "~/composables/toast"
+import { LocalSyncService } from "~/services/local-sync.service"
 import {
   HoppCollection,
   HoppRESTRequest,
@@ -790,6 +848,33 @@ const isSelected = ({
 }
 
 const tabs = useService(WorkspaceTabsService)
+const localSyncService = useService(LocalSyncService)
+const toast = useToast()
+
+const handleConnectGitFolder = async () => {
+  const success = await localSyncService.connect()
+  if (success) {
+    toast.success(
+      `${t("collection.git_sync_connected")}: ${localSyncService.directoryName.value}`
+    )
+  } else if (localSyncService.syncError.value) {
+    toast.error(localSyncService.syncError.value)
+  }
+}
+
+const handleSyncNow = async () => {
+  const success = await localSyncService.exportToDirectory()
+  if (success) {
+    toast.success(t("collection.git_sync_success"))
+  } else if (localSyncService.syncError.value) {
+    toast.error(localSyncService.syncError.value)
+  }
+}
+
+const handleDisconnect = async () => {
+  await localSyncService.disconnect()
+  toast.success(t("collection.git_sync_disconnected"))
+}
 const active = computed(
   () =>
     tabs.currentActiveTab.value.document.type !== "test-runner" &&

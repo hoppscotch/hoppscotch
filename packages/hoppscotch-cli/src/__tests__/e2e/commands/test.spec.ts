@@ -263,6 +263,55 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       expect(stdout).not.toContain("Encoded");
     });
 
+    describe("--bail flag", () => {
+      test("Stops after the first failing request and does not run subsequent requests", async () => {
+        const args = `test ${getTestJsonFilePath("bail-coll.json", "collection")} --bail`;
+        const result = await runCLIWithNetworkRetry(args);
+        if (result === null) return;
+
+        // Should exit with error because a test failed
+        expect(result.error).not.toBeNull();
+        expect(result.error).toMatchObject(<ExecException>{ code: 1 });
+
+        // Request 2 (the failing one) should have run
+        expect(result.stdout).toContain("Request 2 - fails");
+
+        // Request 3 should NOT have run at all
+        expect(result.stdout).not.toContain("Request 3 - should not run with bail");
+      });
+
+      test("Runs all requests when --bail is not supplied, even after a failure", async () => {
+        const args = `test ${getTestJsonFilePath("bail-coll.json", "collection")}`;
+        const result = await runCLIWithNetworkRetry(args);
+        if (result === null) return;
+
+        // Should exit with error because a test failed
+        expect(result.error).not.toBeNull();
+        expect(result.error).toMatchObject(<ExecException>{ code: 1 });
+
+        // All three requests should have run
+        expect(result.stdout).toContain("Request 1 - passes");
+        expect(result.stdout).toContain("Request 2 - fails");
+        expect(result.stdout).toContain("Request 3 - should not run with bail");
+      });
+
+      test("Stops across collections — does not enter Collection B when Collection A fails", async () => {
+        const args = `test ${getTestJsonFilePath("bail-multi-coll.json", "collection")} --bail`;
+        const result = await runCLIWithNetworkRetry(args);
+        if (result === null) return;
+
+        // Should exit with error because a test failed
+        expect(result.error).not.toBeNull();
+        expect(result.error).toMatchObject(<ExecException>{ code: 1 });
+
+        // The failing request in Collection A should have run
+        expect(result.stdout).toContain("A-Request 2 - fails");
+
+        // Collection B should NOT have been entered at all
+        expect(result.stdout).not.toContain("B-Request 1 - should not run with bail");
+      });
+    });
+
     test("Ensures tests run in sequence order based on request path", async () => {
       // Expected order of collection runs
       const expectedOrder = [

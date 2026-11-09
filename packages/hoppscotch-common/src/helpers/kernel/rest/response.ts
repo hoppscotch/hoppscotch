@@ -2,6 +2,7 @@ import { RelayResponse } from "@hoppscotch/kernel"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import {
   HoppRESTResponseHeader,
+  HoppRESTResponseTimingPhases,
   HoppRESTSuccessResponse,
 } from "~/helpers/types/HoppRESTResponse"
 
@@ -17,6 +18,10 @@ const extractTiming = (response: RelayResponse): number =>
   response.meta?.timing
     ? response.meta.timing.end - response.meta.timing.start
     : 0
+
+const extractTimingPhases = (
+  response: RelayResponse
+): HoppRESTResponseTimingPhases | undefined => response.meta?.timing?.phases
 
 const extractSize = (response: RelayResponse): number =>
   response.meta?.size?.total ?? 0
@@ -93,6 +98,7 @@ export const RESTResponse = {
       meta: {
         responseSize: extractSize(response),
         responseDuration: extractTiming(response),
+        responseTimings: extractTimingPhases(response),
       },
       req: originalRequest,
     }

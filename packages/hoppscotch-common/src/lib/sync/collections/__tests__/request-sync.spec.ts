@@ -3,7 +3,7 @@ import { Subject } from "rxjs"
 import * as E from "fp-ts/Either"
 import { getDefaultGQLRequest, getDefaultRESTRequest } from "@hoppscotch/data"
 
-vi.mock("./api")
+vi.mock("../api")
 vi.mock("~/platform", () => ({ platform: {} }))
 vi.mock("~/services/tab/rest", () => ({
   RESTTabService: class {
@@ -12,17 +12,17 @@ vi.mock("~/services/tab/rest", () => ({
 }))
 vi.mock("~/modules/i18n", () => ({ getI18n: () => (key: string) => key }))
 
-import * as api from "./api"
+import * as api from "../api"
 import {
   restCollectionStore,
   graphqlCollectionStore,
   saveRESTRequestAs,
   saveGraphqlRequestAs,
 } from "~/newstore/collections"
-import { storeSyncDefinition as restSync } from "./sync"
-import { storeSyncDefinition as gqlSync } from "./gqlCollections.sync"
-import { setupUserRequestCreatedSubscription } from "./index"
-import { findRequestByIdentity } from "./requestIdentity"
+import { storeSyncDefinition as restSync } from "../sync"
+import { storeSyncDefinition as gqlSync } from "../gqlCollections.sync"
+import { setupUserRequestCreatedSubscription } from "../index"
+import { findRequestByIdentity } from "../requestIdentity"
 
 describe.each(["REST", "GQL"] as const)(
   "%s request synchronization",

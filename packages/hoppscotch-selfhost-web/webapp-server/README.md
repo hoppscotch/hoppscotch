@@ -20,7 +20,7 @@ docker build -t hoppscotch-webapp-server .
 |----------------------------------|------------------------------------------------------------|------------------------------------------------|
 | `WEBAPP_SERVER_PORT`             | Server port                                                | `3200`                                         |
 | `WEBAPP_SERVER_READ_TIMEOUT`     | HTTP read timeout (Go duration, e.g. `30s`; `0` disables)  | `15s`                                          |
-| `WEBAPP_SERVER_WRITE_TIMEOUT`    | HTTP write timeout (Go duration, e.g. `30s`; `0` disables) | `15s`                                          |
+| `WEBAPP_SERVER_WRITE_TIMEOUT`    | HTTP write timeout (Go duration, e.g. `30s`; `0` disables) | `5m`                                           |
 | `WEBAPP_SERVER_IDLE_TIMEOUT`     | HTTP idle timeout (Go duration, e.g. `2m`; `0` disables)   | `60s`                                          |
 | `FRONTEND_PATH`                  | Path to frontend assets                                    | `/site/selfhost-web` (prod) or `../dist` (dev) |
 | `WEBAPP_SERVER_SIGNING_SECRET`   | Secret string for key derivation                           | None                                           |

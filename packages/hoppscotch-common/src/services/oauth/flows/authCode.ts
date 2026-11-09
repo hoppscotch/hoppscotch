@@ -10,7 +10,7 @@ import { z } from "zod"
 import { getService } from "~/modules/dioc"
 import * as E from "fp-ts/Either"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
-import { content } from "@hoppscotch/kernel"
+import { getPayloadForAuthCodeTokenRequest } from "../clientAuthentication"
 import { refreshToken, OAuth2ParamSchema } from "../utils"
 import {
   AuthCodeGrantTypeParams,
@@ -26,6 +26,9 @@ const AuthCodeOauthFlowParamsSchema = AuthCodeGrantTypeParams.omit({
   token: true,
 })
   .extend({
+    clientAuthentication: z
+      .enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"])
+      .catch("IN_BODY"),
     // Override optional arrays to be required for the service layer
     authRequestParams: z.array(OAuth2AuthRequestParam),
     tokenRequestParams: z.array(OAuth2ParamSchema),
@@ -59,6 +62,8 @@ export type AuthCodeOauthRefreshParams = {
   clientID: string
   clientSecret?: string
   refreshToken: string
+  clientAuthentication?: AuthCodeOauthFlowParams["clientAuthentication"]
+  refreshRequestParams?: AuthCodeOauthFlowParams["refreshRequestParams"]
 }
 
 export const getDefaultAuthCodeOauthFlowParams =
@@ -67,6 +72,7 @@ export const getDefaultAuthCodeOauthFlowParams =
     tokenEndpoint: "",
     clientID: "",
     clientSecret: "",
+    clientAuthentication: "IN_BODY",
     scopes: undefined,
     isPKCE: false,
     codeVerifierMethod: "S256",
@@ -84,6 +90,7 @@ const initAuthCodeOauthFlow = async ({
   authEndpoint,
   isPKCE,
   codeVerifierMethod,
+  clientAuthentication,
   authRequestParams,
   refreshRequestParams,
   tokenRequestParams,
@@ -117,6 +124,7 @@ const initAuthCodeOauthFlow = async ({
     tokenEndpoint: string
     clientSecret?: string
     clientID: string
+    clientAuthentication: "AS_BASIC_AUTH_HEADERS" | "IN_BODY"
     isPKCE: boolean
     codeVerifier?: string
     codeVerifierMethod?: string
@@ -148,6 +156,7 @@ const initAuthCodeOauthFlow = async ({
     tokenEndpoint,
     clientSecret,
     clientID,
+    clientAuthentication,
     isPKCE,
     // Persist the normalized method so subsequent redirect handling has a value
     codeVerifierMethod: codeVerifierMethodNormalized,
@@ -240,8 +249,12 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
     source: z.optional(z.string()),
     state: z.string(),
     tokenEndpoint: z.string(),
-    clientSecret: z.string(),
+    clientSecret: z.string().optional(),
     clientID: z.string(),
+    clientAuthentication: z
+      .enum(["AS_BASIC_AUTH_HEADERS", "IN_BODY"])
+      .catch("IN_BODY"),
+    tokenRequestParams: z.array(OAuth2ParamSchema).optional().default([]),
     codeVerifier: z.string().optional(),
     codeChallenge: z.string().optional(),
     tokenType: z.enum(["access_token", "id_token"]).optional(),
@@ -261,26 +274,23 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
   }
 
   // exchange the code for a token
-  const { response } = interceptorService.execute({
-    id: Date.now(),
-    url: decodedLocalConfig.data.tokenEndpoint,
-    method: "POST",
-    version: "HTTP/1.1",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-    },
-    content: content.urlencoded({
+  let tokenRequest: ReturnType<typeof getPayloadForAuthCodeTokenRequest>
+  try {
+    tokenRequest = getPayloadForAuthCodeTokenRequest({
+      tokenEndpoint: decodedLocalConfig.data.tokenEndpoint,
+      redirectURI: OauthAuthService.redirectURI,
+      clientID: decodedLocalConfig.data.clientID,
+      clientSecret: decodedLocalConfig.data.clientSecret,
+      clientAuthentication: decodedLocalConfig.data.clientAuthentication,
       code,
-      grant_type: "authorization_code",
-      client_id: decodedLocalConfig.data.clientID,
-      client_secret: decodedLocalConfig.data.clientSecret,
-      redirect_uri: OauthAuthService.redirectURI,
-      ...(decodedLocalConfig.data.codeVerifier && {
-        code_verifier: decodedLocalConfig.data.codeVerifier,
-      }),
-    }),
-  })
+      codeVerifier: decodedLocalConfig.data.codeVerifier,
+      tokenRequestParams: decodedLocalConfig.data.tokenRequestParams,
+    })
+  } catch (_error) {
+    return E.left("AUTH_TOKEN_REQUEST_FAILED" as const)
+  }
+
+  const { response } = interceptorService.execute(tokenRequest)
 
   const res = await response
 

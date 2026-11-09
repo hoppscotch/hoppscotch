@@ -124,6 +124,7 @@
         :selected="isEnvironmentSelected(env.id)"
         @edit-environment="editEnvironment(env)"
         @select-environment="selectEnvironment(env)"
+        @open-environment="openEnvironment(env)"
         @show-environment-properties="
           showEnvironmentProperties(env.environment.id)
         "
@@ -187,6 +188,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "select-environment", data: HandleEnvChangeProp): void
+  (e: "open-environment", data: { type: "team-environment"; id: string }): void
 }>()
 
 const filterText = ref("")
@@ -264,6 +266,9 @@ const selectEnvironment = (environment: TeamEnvironment) => {
     },
   })
 }
+
+const openEnvironment = (environment: TeamEnvironment) =>
+  emit("open-environment", { type: "team-environment", id: environment.id })
 
 const selectedEnvironmentIndex = useReadonlyStream(selectedEnvironmentIndex$, {
   type: "NO_ENV_SELECTED",

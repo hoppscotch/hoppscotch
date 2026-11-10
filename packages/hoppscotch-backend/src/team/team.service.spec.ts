@@ -120,10 +120,10 @@ describe('getCountOfUsersWithRoleInTeam', () => {
 });
 
 describe('addMemberToTeam', () => {
-  test('resolves when proper team id is given', () => {
+  test('resolves when proper team id is given', async () => {
     mockPrisma.teamMember.create.mockResolvedValue(dbTeamMember);
 
-    expect(
+    await expect(
       teamService.addMemberToTeam(
         dbTeamMember.teamID,
         dbTeamMember.userUid,

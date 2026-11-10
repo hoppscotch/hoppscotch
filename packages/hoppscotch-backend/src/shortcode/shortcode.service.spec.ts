@@ -330,21 +330,21 @@ describe('ShortcodeService', () => {
 
     test('should return SHORTCODE_NOT_FOUND error when Shortcode is invalid and user uid is valid', async () => {
       mockPrisma.shortcode.delete.mockRejectedValue('RecordNotFound');
-      expect(
+      await expect(
         shortcodeService.revokeShortCode('invalid', 'testuser'),
       ).resolves.toEqualLeft(SHORTCODE_NOT_FOUND);
     });
 
     test('should return SHORTCODE_NOT_FOUND error when Shortcode is valid and user uid is invalid', async () => {
       mockPrisma.shortcode.delete.mockRejectedValue('RecordNotFound');
-      expect(
+      await expect(
         shortcodeService.revokeShortCode('blablablabla', 'invalidUser'),
       ).resolves.toEqualLeft(SHORTCODE_NOT_FOUND);
     });
 
     test('should return SHORTCODE_NOT_FOUND error when both Shortcode and user uid are invalid', async () => {
       mockPrisma.shortcode.delete.mockRejectedValue('RecordNotFound');
-      expect(
+      await expect(
         shortcodeService.revokeShortCode('invalid', 'invalid'),
       ).resolves.toEqualLeft(SHORTCODE_NOT_FOUND);
     });
@@ -472,7 +472,7 @@ describe('ShortcodeService', () => {
     test('should return SHORTCODE_NOT_FOUND error when Shortcode is invalid', async () => {
       mockPrisma.shortcode.delete.mockRejectedValue('RecordNotFound');
 
-      expect(shortcodeService.deleteShortcode('invalid')).resolves.toEqualLeft(
+      await expect(shortcodeService.deleteShortcode('invalid')).resolves.toEqualLeft(
         SHORTCODE_NOT_FOUND,
       );
     });

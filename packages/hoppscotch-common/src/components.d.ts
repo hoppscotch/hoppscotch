@@ -15,6 +15,8 @@ declare module 'vue' {
     AccessTokensGenerateModal: typeof import('./components/accessTokens/GenerateModal.vue')['default']
     AccessTokensList: typeof import('./components/accessTokens/List.vue')['default']
     AccessTokensOverview: typeof import('./components/accessTokens/Overview.vue')['default']
+    AichatAssistant: typeof import('./components/aichat/Assistant.vue')['default']
+    AichatMessage: typeof import('./components/aichat/Message.vue')['default']
     AiexperimentsMergeView: typeof import('./components/aiexperiments/MergeView.vue')['default']
     AiexperimentsModifyBodyModal: typeof import('./components/aiexperiments/ModifyBodyModal.vue')['default']
     AiexperimentsModifyPreRequestModal: typeof import('./components/aiexperiments/ModifyPreRequestModal.vue')['default']

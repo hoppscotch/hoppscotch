@@ -212,7 +212,7 @@ describe('deleteTeamRequest', () => {
 
     const response = teamRequestService.deleteTeamRequest('invalidrequest');
 
-    expect(response).resolves.toEqualLeft(TEAM_REQ_NOT_FOUND);
+    await expect(response).resolves.toEqualLeft(TEAM_REQ_NOT_FOUND);
     expect(mockPrisma.teamRequest.delete).not.toHaveBeenCalled();
   });
 
@@ -405,7 +405,7 @@ describe('getRequest', () => {
   test('resolves with the correct request info for valid request id', async () => {
     mockPrisma.teamRequest.findUnique.mockResolvedValue(dbTeamRequests[0]);
 
-    expect(teamRequestService.getRequest('testrequest')).resolves.toEqualSome(
+    await expect(teamRequestService.getRequest('testrequest')).resolves.toEqualSome(
       expect.objectContaining(teamRequests[0]),
     );
   });
@@ -423,7 +423,7 @@ describe('getTeamOfRequest', () => {
   test('rejects for invalid team id', async () => {
     mockTeamService.getTeamWithID.mockResolvedValue(null as any);
 
-    expect(
+    await expect(
       teamRequestService.getTeamOfRequest(teamRequests[0]),
     ).resolves.toEqualLeft(TEAM_INVALID_ID);
   });
@@ -431,7 +431,7 @@ describe('getTeamOfRequest', () => {
   test('resolves for valid team id', async () => {
     mockTeamService.getTeamWithID.mockResolvedValue(team);
 
-    expect(
+    await expect(
       teamRequestService.getTeamOfRequest(teamRequests[0]),
     ).resolves.toEqualRight(expect.objectContaining(team));
   });
@@ -443,7 +443,7 @@ describe('getCollectionOfRequest', () => {
       E.left(TEAM_COLL_NOT_FOUND),
     );
 
-    expect(
+    await expect(
       teamRequestService.getCollectionOfRequest(teamRequests[0]),
     ).resolves.toEqualLeft(TEAM_INVALID_COLL_ID);
   });
@@ -453,7 +453,7 @@ describe('getCollectionOfRequest', () => {
       E.right(teamCollection),
     );
 
-    expect(
+    await expect(
       teamRequestService.getCollectionOfRequest(teamRequests[0]),
     ).resolves.toEqualRight(expect.objectContaining(teamCollection));
   });
@@ -463,7 +463,7 @@ describe('getTeamOfRequestFromID', () => {
   test('rejects for invalid request id', async () => {
     mockPrisma.teamRequest.findUnique.mockResolvedValue(null as any);
 
-    expect(
+    await expect(
       teamRequestService.getTeamOfRequestFromID('invalidrequest'),
     ).resolves.toBeNone();
   });
@@ -471,7 +471,7 @@ describe('getTeamOfRequestFromID', () => {
   test('resolves for valid request id', async () => {
     mockPrisma.teamRequest.findUnique.mockResolvedValue(dbTeamRequests[0]);
 
-    expect(
+    await expect(
       teamRequestService.getTeamOfRequestFromID('testrequest'),
     ).resolves.toBeDefined();
   });
@@ -658,7 +658,7 @@ describe('findRequestAndNextRequest', () => {
     expect(result).toEqualLeft(TEAM_REQ_INVALID_TARGET_COLL_ID);
     expect(mockPrisma.teamRequest.findFirst).toHaveBeenCalledTimes(1);
   });
-  test('Should resolve left if the request is not found', () => {
+  test('Should resolve left if the request is not found', async () => {
     const args: MoveTeamRequestArgs = {
       srcCollID: teamRequests[0].collectionID,
       destCollID: teamRequests[4].collectionID,
@@ -675,9 +675,9 @@ describe('findRequestAndNextRequest', () => {
       args.nextRequestID,
     );
 
-    expect(result).resolves.toEqualLeft(TEAM_REQ_NOT_FOUND);
+    await expect(result).resolves.toEqualLeft(TEAM_REQ_NOT_FOUND);
   });
-  test('Should resolve left if the nextRequest is not found', () => {
+  test('Should resolve left if the nextRequest is not found', async () => {
     const args: MoveTeamRequestArgs = {
       srcCollID: teamRequests[0].collectionID,
       destCollID: teamRequests[1].collectionID,
@@ -697,12 +697,12 @@ describe('findRequestAndNextRequest', () => {
       args.nextRequestID,
     );
 
-    expect(result).resolves.toEqualLeft(TEAM_REQ_NOT_FOUND);
+    await expect(result).resolves.toEqualLeft(TEAM_REQ_NOT_FOUND);
   });
 });
 
 describe('moveRequest', () => {
-  test('Should resolve right and the request', () => {
+  test('Should resolve right and the request', async () => {
     const args: MoveTeamRequestArgs = {
       srcCollID: teamRequests[0].collectionID,
       destCollID: teamRequests[0].collectionID,
@@ -727,7 +727,7 @@ describe('moveRequest', () => {
       'moveRequest',
     );
 
-    expect(result).resolves.toEqualRight(teamRequests[0]);
+    await expect(result).resolves.toEqualRight(teamRequests[0]);
   });
 
   test('Should resolve right and publish message to pubnub if callerFunction is moveRequest', async () => {
@@ -792,7 +792,7 @@ describe('moveRequest', () => {
     );
   });
 
-  test('Should resolve left if finding the requests fails', () => {
+  test('Should resolve left if finding the requests fails', async () => {
     const args: MoveTeamRequestArgs = {
       srcCollID: teamRequests[0].collectionID,
       destCollID: teamRequests[0].collectionID,
@@ -804,7 +804,7 @@ describe('moveRequest', () => {
       .spyOn(teamRequestService as any, 'findRequestAndNextRequest')
       .mockResolvedValue(E.left(TEAM_REQ_NOT_FOUND));
 
-    expect(
+    await expect(
       teamRequestService.moveRequest(
         args.srcCollID,
         args.requestID,
@@ -815,7 +815,7 @@ describe('moveRequest', () => {
     ).resolves.toEqualLeft(TEAM_REQ_NOT_FOUND);
   });
 
-  test('Should resolve left if mismatch team/collection of requests fails', () => {
+  test('Should resolve left if mismatch team/collection of requests fails', async () => {
     const args: MoveTeamRequestArgs = {
       srcCollID: teamRequests[0].collectionID,
       destCollID: teamRequests[0].collectionID,
@@ -827,7 +827,7 @@ describe('moveRequest', () => {
       .spyOn(teamRequestService as any, 'findRequestAndNextRequest')
       .mockResolvedValue(E.left(TEAM_REQ_INVALID_TARGET_COLL_ID));
 
-    expect(
+    await expect(
       teamRequestService.moveRequest(
         args.srcCollID,
         args.requestID,
@@ -838,7 +838,7 @@ describe('moveRequest', () => {
     ).resolves.toEqualLeft(TEAM_REQ_INVALID_TARGET_COLL_ID);
   });
 
-  test('Should resolve left if reorder fails', () => {
+  test('Should resolve left if reorder fails', async () => {
     const args: MoveTeamRequestArgs = {
       srcCollID: teamRequests[0].collectionID,
       destCollID: teamRequests[0].collectionID,
@@ -856,7 +856,7 @@ describe('moveRequest', () => {
       .spyOn(teamRequestService as any, 'reorderRequests')
       .mockResolvedValue(E.left(TEAM_REQ_REORDERING_FAILED));
 
-    expect(
+    await expect(
       teamRequestService.moveRequest(
         args.srcCollID,
         args.requestID,

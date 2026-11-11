@@ -157,7 +157,7 @@ beforeEach(() => {
 
 describe('UserRequestService', () => {
   describe('fetchUserRequests', () => {
-    test('Should resolve right and fetch user requests (with collection ID)', () => {
+    test('Should resolve right and fetch user requests (with collection ID)', async () => {
       const args: GetUserRequestArgs = {
         collectionID: 'collection-id-1',
         cursor: undefined,
@@ -179,10 +179,10 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualRight(expectedUserRequests);
+      await expect(result).resolves.toEqualRight(expectedUserRequests);
     });
 
-    test('Should resolve right and fetch user requests (with collection ID and take)', () => {
+    test('Should resolve right and fetch user requests (with collection ID and take)', async () => {
       const args: GetUserRequestArgs = {
         collectionID: 'collection-id-1',
         cursor: undefined,
@@ -204,9 +204,9 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualRight(expectedUserRequests);
+      await expect(result).resolves.toEqualRight(expectedUserRequests);
     });
-    test('Should resolve right and fetch user requests (with all params)', () => {
+    test('Should resolve right and fetch user requests (with all params)', async () => {
       const args: GetUserRequestArgs = {
         collectionID: 'collection-id-1',
         cursor: 'user-request-id-12',
@@ -228,12 +228,12 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualRight(expectedUserRequests);
+      await expect(result).resolves.toEqualRight(expectedUserRequests);
     });
   });
 
   describe('fetchUserRequest', () => {
-    test('Should resolve right and fetch user request', () => {
+    test('Should resolve right and fetch user request', async () => {
       const expectedDbUserRequest = dbUserRequests[0];
       const expectedUserRequest = userRequests[0];
 
@@ -245,20 +245,20 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualRight(expectedUserRequest);
+      await expect(result).resolves.toEqualRight(expectedUserRequest);
     });
 
-    test('Should resolve left if user request not exist', () => {
+    test('Should resolve left if user request not exist', async () => {
       mockPrisma.userRequest.findUnique.mockResolvedValue(null);
       const result = userRequestService.fetchUserRequest(
         userRequests[0].id,
         user,
       );
 
-      expect(result).resolves.toEqualLeft(USER_REQUEST_NOT_FOUND);
+      await expect(result).resolves.toEqualLeft(USER_REQUEST_NOT_FOUND);
     });
 
-    test('Should resolve left if another users user-request asked', () => {
+    test('Should resolve left if another users user-request asked', async () => {
       mockPrisma.userRequest.findUnique.mockResolvedValue({
         ...dbUserRequests[0],
         userUid: 'another-user',
@@ -268,12 +268,12 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualLeft(USER_REQUEST_NOT_FOUND);
+      await expect(result).resolves.toEqualLeft(USER_REQUEST_NOT_FOUND);
     });
   });
 
   describe('createRequest', () => {
-    test('Should resolve right and create user request', () => {
+    test('Should resolve right and create user request', async () => {
       const args: CreateUserRequestArgs = {
         collectionID: userRequests[0].collectionID,
         title: userRequests[0].title,
@@ -295,7 +295,7 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualRight(userRequests[0]);
+      await expect(result).resolves.toEqualRight(userRequests[0]);
     });
     test('Should execute prisma.create() with correct params', async () => {
       const args: CreateUserRequestArgs = {
@@ -352,7 +352,7 @@ describe('UserRequestService', () => {
         userRequests[0],
       );
     });
-    test('Should resolve left for json-invalid request', () => {
+    test('Should resolve left for json-invalid request', async () => {
       const args: CreateUserRequestArgs = {
         collectionID: userRequests[0].collectionID,
         title: userRequests[0].title,
@@ -370,12 +370,12 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualLeft(JSON_INVALID);
+      await expect(result).resolves.toEqualLeft(JSON_INVALID);
     });
   });
 
   describe('updateRequest', () => {
-    test('Should resolve right and update user request', () => {
+    test('Should resolve right and update user request', async () => {
       const id = userRequests[0].id;
       const type = userRequests[0].type;
       const args: UpdateUserRequestArgs = {
@@ -396,7 +396,7 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualRight(userRequests[0]);
+      await expect(result).resolves.toEqualRight(userRequests[0]);
     });
     test('Should resolve right and perform prisma.update with correct param', async () => {
       const id = userRequests[0].id;
@@ -453,7 +453,7 @@ describe('UserRequestService', () => {
         userRequests[0],
       );
     });
-    test('Should resolve left if user request not found', () => {
+    test('Should resolve left if user request not found', async () => {
       const id = userRequests[0].id;
       const type = userRequests[0].type;
       const args: UpdateUserRequestArgs = {
@@ -472,9 +472,9 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualLeft(USER_REQUEST_NOT_FOUND);
+      await expect(result).resolves.toEqualLeft(USER_REQUEST_NOT_FOUND);
     });
-    test('Should resolve left if stringToJson returns error', () => {
+    test('Should resolve left if stringToJson returns error', async () => {
       const id = userRequests[0].id;
       const type = userRequests[0].type;
       const args: UpdateUserRequestArgs = {
@@ -494,12 +494,12 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualLeft(JSON_INVALID);
+      await expect(result).resolves.toEqualLeft(JSON_INVALID);
     });
   });
 
   describe('deleteRequest', () => {
-    test('Should resolve right and delete user request', () => {
+    test('Should resolve right and delete user request', async () => {
       const id = userRequests[0].id;
 
       mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
@@ -509,7 +509,7 @@ describe('UserRequestService', () => {
 
       const result = userRequestService.deleteRequest(id, user);
 
-      expect(result).resolves.toEqualRight(true);
+      await expect(result).resolves.toEqualRight(true);
     });
     test('Should resolve right and perform prisma.delete with correct param', async () => {
       const id = userRequests[0].id;
@@ -558,13 +558,13 @@ describe('UserRequestService', () => {
         userRequests[0],
       );
     });
-    test('Should resolve error if the user request is not found', () => {
+    test('Should resolve error if the user request is not found', async () => {
       const id = userRequests[0].id;
       mockPrisma.userRequest.findFirst.mockResolvedValue(null);
 
       const result = userRequestService.deleteRequest(id, user);
 
-      expect(result).resolves.toEqualLeft(USER_REQUEST_NOT_FOUND);
+      await expect(result).resolves.toEqualLeft(USER_REQUEST_NOT_FOUND);
       expect(mockPrisma.userRequest.findFirst).toHaveBeenCalledWith({
         where: { id, userUid: dbUserRequests[0].userUid },
       });
@@ -644,7 +644,7 @@ describe('UserRequestService', () => {
         nextRequest: dbUserRequests[4],
       });
     });
-    test('Should resolve right if the request and next request null', () => {
+    test('Should resolve right if the request and next request null', async () => {
       const args: MoveUserRequestArgs = {
         sourceCollectionID: userRequests[0].collectionID,
         destinationCollectionID: userRequests[1].collectionID,
@@ -664,12 +664,12 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualRight({
+      await expect(result).resolves.toEqualRight({
         request: dbUserRequests[0],
         nextRequest: null,
       });
     });
-    test('Should resolve left if the request is not found', () => {
+    test('Should resolve left if the request is not found', async () => {
       const args: MoveUserRequestArgs = {
         sourceCollectionID: userRequests[0].collectionID,
         destinationCollectionID: userRequests[1].collectionID,
@@ -687,9 +687,9 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualLeft(USER_REQUEST_NOT_FOUND);
+      await expect(result).resolves.toEqualLeft(USER_REQUEST_NOT_FOUND);
     });
-    test('Should resolve left if the nextRequest is not found', () => {
+    test('Should resolve left if the nextRequest is not found', async () => {
       const args: MoveUserRequestArgs = {
         sourceCollectionID: userRequests[0].collectionID,
         destinationCollectionID: userRequests[1].collectionID,
@@ -709,12 +709,12 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualLeft(USER_REQUEST_NOT_FOUND);
+      await expect(result).resolves.toEqualLeft(USER_REQUEST_NOT_FOUND);
     });
   });
 
   describe('moveRequest', () => {
-    test('Should resolve right and the request', () => {
+    test('Should resolve right and the request', async () => {
       const args: MoveUserRequestArgs = {
         sourceCollectionID: userRequests[0].collectionID,
         destinationCollectionID: userRequests[0].collectionID,
@@ -742,7 +742,7 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualRight(userRequests[0]);
+      await expect(result).resolves.toEqualRight(userRequests[0]);
     });
     test('Should resolve right and publish message to pubnub', async () => {
       const args: MoveUserRequestArgs = {
@@ -777,7 +777,7 @@ describe('UserRequestService', () => {
         { request: userRequests[0], nextRequest: null },
       );
     });
-    test('Should resolve left if finding the requests fails', () => {
+    test('Should resolve left if finding the requests fails', async () => {
       const args: MoveUserRequestArgs = {
         sourceCollectionID: userRequests[0].collectionID,
         destinationCollectionID: userRequests[0].collectionID,
@@ -800,7 +800,7 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualLeft(USER_REQUEST_NOT_FOUND);
+      await expect(result).resolves.toEqualLeft(USER_REQUEST_NOT_FOUND);
     });
     test('Should resolve left if reordering the request fails', async () => {
       const args: MoveUserRequestArgs = {
@@ -838,7 +838,7 @@ describe('UserRequestService', () => {
   });
 
   describe('validateTypeEqualityForMoveRequest', () => {
-    test('Should resolve right if the types are equal', () => {
+    test('Should resolve right if the types are equal', async () => {
       const srcCollID = 'srcCollID';
       const destCollID = 'destCollID';
 
@@ -857,7 +857,7 @@ describe('UserRequestService', () => {
         user,
       );
 
-      expect(result).resolves.toEqualRight(true);
+      await expect(result).resolves.toEqualRight(true);
     });
   });
 });

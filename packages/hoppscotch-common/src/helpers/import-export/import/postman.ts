@@ -263,16 +263,44 @@ const getHoppResponses = (
   )
 }
 
-type PMRequestAuthDef<
-  AuthType extends RequestAuthDefinition["type"] =
-    RequestAuthDefinition["type"],
-> = AuthType extends RequestAuthDefinition["type"] & string
-  ? // eslint-disable-next-line no-unused-vars
-    { type: AuthType } & { [x in AuthType]: VariableDefinition[] }
-  : { type: AuthType }
+const JWT_ALGORITHMS = [
+  "HS256",
+  "HS384",
+  "HS512",
+  "RS256",
+  "RS384",
+  "RS512",
+  "PS256",
+  "PS384",
+  "PS512",
+  "ES256",
+  "ES384",
+  "ES512",
+] as const
+
+const isJWTAlgorithm = (
+  value: unknown
+): value is (typeof JWT_ALGORITHMS)[number] =>
+  JWT_ALGORITHMS.some((algorithm) => algorithm === value)
+
+// Postman exports `jwt` auth, which is missing from the `postman-collection` types
+type PMAuthType = RequestAuthDefinition["type"] | "jwt"
+
+type PMRequestAuthDef<AuthType extends PMAuthType = PMAuthType> =
+  AuthType extends PMAuthType & string
+    ? // eslint-disable-next-line no-unused-vars
+      { type: AuthType } & { [x in AuthType]: VariableDefinition[] }
+    : { type: AuthType }
 
 const getVariableValue = (defs: VariableDefinition[], key: string) =>
   defs.find((param) => param.key === key)?.value as string | undefined
+
+// Postman exports boolean auth options either as booleans or as strings
+const getBooleanVariableValue = (defs: VariableDefinition[], key: string) => {
+  const value: unknown = defs.find((param) => param.key === key)?.value
+
+  return value === true || value === "true"
+}
 
 const getHoppReqAuth = (
   hoppAuth: Item["request"]["auth"] | null
@@ -377,6 +405,137 @@ const getHoppReqAuth = (
         refreshRequestParams: [],
       },
       addTo: "HEADERS",
+    }
+  } else if (auth.type === "awsv4") {
+    const sessionToken = replacePMVarTemplating(
+      getVariableValue(auth.awsv4, "sessionToken") ?? ""
+    )
+
+    return {
+      authType: "aws-signature",
+      authActive: true,
+      accessKey: replacePMVarTemplating(
+        getVariableValue(auth.awsv4, "accessKey") ?? ""
+      ),
+      secretKey: replacePMVarTemplating(
+        getVariableValue(auth.awsv4, "secretKey") ?? ""
+      ),
+      region: replacePMVarTemplating(
+        getVariableValue(auth.awsv4, "region") ?? ""
+      ),
+      serviceName: replacePMVarTemplating(
+        getVariableValue(auth.awsv4, "service") ?? ""
+      ),
+      ...(sessionToken ? { serviceToken: sessionToken } : {}),
+      addTo: getBooleanVariableValue(auth.awsv4, "addAuthDataToQuery")
+        ? "QUERY_PARAMS"
+        : "HEADERS",
+    }
+  } else if (auth.type === "digest") {
+    // Hoppscotch only supports the `MD5` and `MD5-sess` digest algorithms
+    const algorithm = getVariableValue(auth.digest, "algorithm")
+
+    return {
+      authType: "digest",
+      authActive: true,
+      username: replacePMVarTemplating(
+        getVariableValue(auth.digest, "username") ?? ""
+      ),
+      password: replacePMVarTemplating(
+        getVariableValue(auth.digest, "password") ?? ""
+      ),
+      realm: replacePMVarTemplating(
+        getVariableValue(auth.digest, "realm") ?? ""
+      ),
+      nonce: replacePMVarTemplating(
+        getVariableValue(auth.digest, "nonce") ?? ""
+      ),
+      algorithm: algorithm === "MD5-sess" ? "MD5-sess" : "MD5",
+      qop:
+        getVariableValue(auth.digest, "qop") === "auth-int"
+          ? "auth-int"
+          : "auth",
+      nc: replacePMVarTemplating(
+        getVariableValue(auth.digest, "nonceCount") ?? ""
+      ),
+      cnonce: replacePMVarTemplating(
+        getVariableValue(auth.digest, "clientNonce") ?? ""
+      ),
+      opaque: replacePMVarTemplating(
+        getVariableValue(auth.digest, "opaque") ?? ""
+      ),
+      disableRetry: getBooleanVariableValue(auth.digest, "disableRetryRequest"),
+    }
+  } else if (auth.type === "hawk") {
+    const optionalHawkField = (key: string) => {
+      const value = replacePMVarTemplating(
+        getVariableValue(auth.hawk, key) ?? ""
+      )
+
+      return value || undefined
+    }
+
+    return {
+      authType: "hawk",
+      authActive: true,
+      authId: replacePMVarTemplating(
+        getVariableValue(auth.hawk, "authId") ?? ""
+      ),
+      authKey: replacePMVarTemplating(
+        getVariableValue(auth.hawk, "authKey") ?? ""
+      ),
+      algorithm:
+        getVariableValue(auth.hawk, "algorithm") === "sha1" ? "sha1" : "sha256",
+      includePayloadHash: getBooleanVariableValue(
+        auth.hawk,
+        "includePayloadHash"
+      ),
+      user: optionalHawkField("user"),
+      nonce: optionalHawkField("nonce"),
+      ext: optionalHawkField("extraData"),
+      app: optionalHawkField("app"),
+      dlg: optionalHawkField("delegation"),
+      timestamp: optionalHawkField("timestamp"),
+    }
+  } else if (auth.type === "jwt") {
+    const algorithm = getVariableValue(auth.jwt, "algorithm")
+    // A missing prefix defaults to `Bearer`, while an empty one disables it
+    const rawHeaderPrefix = getVariableValue(auth.jwt, "headerPrefix")
+    const headerPrefix =
+      rawHeaderPrefix === undefined || rawHeaderPrefix === null
+        ? "Bearer"
+        : replacePMVarTemplating(rawHeaderPrefix)
+
+    return {
+      authType: "jwt",
+      authActive: true,
+      secret: replacePMVarTemplating(
+        getVariableValue(auth.jwt, "secret") ?? ""
+      ),
+      privateKey: replacePMVarTemplating(
+        getVariableValue(auth.jwt, "privateKey") ?? ""
+      ),
+      algorithm: isJWTAlgorithm(algorithm) ? algorithm : "HS256",
+      payload: replacePMVarTemplating(
+        getVariableValue(auth.jwt, "payload") || "{}"
+      ),
+      addTo:
+        getVariableValue(auth.jwt, "addTokenTo") === "queryParam"
+          ? "QUERY_PARAMS"
+          : "HEADERS",
+      isSecretBase64Encoded: getBooleanVariableValue(
+        auth.jwt,
+        "isSecretBase64Encoded"
+      ),
+      // Postman appends the separating space to the prefix itself, whereas
+      // Hoppscotch uses the prefix verbatim
+      headerPrefix: headerPrefix ? `${headerPrefix} ` : "",
+      paramName: replacePMVarTemplating(
+        getVariableValue(auth.jwt, "queryParamKey") || "token"
+      ),
+      jwtHeaders: replacePMVarTemplating(
+        getVariableValue(auth.jwt, "header") || "{}"
+      ),
     }
   }
 

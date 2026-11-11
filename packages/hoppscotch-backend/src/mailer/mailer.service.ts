@@ -12,7 +12,8 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class MailerService {
   constructor(
-    @Optional() private readonly nestMailerService: NestMailerService,
+    @Optional()
+    private readonly nestMailerService: NestMailerService | undefined,
     private readonly configService: ConfigService,
   ) {}
 
@@ -48,6 +49,13 @@ export class MailerService {
   ) {
     if (this.configService.get('INFRA.MAILER_SMTP_ENABLE') !== 'true') return;
 
+    if (!this.nestMailerService) {
+      console.error(
+        'MailerService: NestMailerService is not initialized. Please verify your SMTP mailer configuration.',
+      );
+      return throwErr(EMAIL_FAILED);
+    }
+
     try {
       await this.nestMailerService.sendMail({
         to,
@@ -72,6 +80,13 @@ export class MailerService {
     mailDesc: AdminUserInvitationMailDescription,
   ) {
     if (this.configService.get('INFRA.MAILER_SMTP_ENABLE') !== 'true') return;
+
+    if (!this.nestMailerService) {
+      console.error(
+        'MailerService: NestMailerService is not initialized. Please verify your SMTP mailer configuration.',
+      );
+      return throwErr(EMAIL_FAILED);
+    }
 
     try {
       const res = await this.nestMailerService.sendMail({

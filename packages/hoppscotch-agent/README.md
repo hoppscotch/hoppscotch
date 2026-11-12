@@ -3,7 +3,7 @@
    <h1 align="center"><b>Hoppscotch Agent</b></h1>
    <h2 align="center">
       <a href="https://github.com/hoppscotch/agent-releases">Download</a> |
-      <a href="https://docs.hoppscotch.io/documentation/clients/agent">Official Docs</a>
+      <a href="https://docs.hoppscotch.io/documentation/features/interceptor#hoppscotch-agent">Official Docs</a>
    </h2>
 </div>
 

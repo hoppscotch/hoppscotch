@@ -2363,18 +2363,52 @@ describe('searchByTitle', () => {
     expect(result).toBeRight();
   });
 
-  test('should not fall back to typo matching after the first page', async () => {
-    mockPrisma.$queryRaw.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
+  test('should keep plain matching on later pages when the query has plain matches', async () => {
+    // empty page of plain matches, then the first plain match exists
+    mockPrisma.$queryRaw
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([requestHit]);
 
     const result = await teamCollectionService.searchByTitle(
       'image',
       team.id,
       10,
-      2,
+      20,
     );
 
-    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(2);
+    // the page, then the plain-match check; no typo search
+    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(4);
+    expect(sqlText(2).text).not.toContain('strict_word_similarity');
+    expect(sqlText(3).text).not.toContain('strict_word_similarity');
     expect(result).toEqualRight({ data: [] });
+  });
+
+  test('should keep typo matching on later pages when the query has no plain match', async () => {
+    // empty page of plain matches, no plain match at all, then a page of typo matches
+    mockPrisma.$queryRaw
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([requestHit]);
+    mockPrisma.$queryRaw.mockResolvedValueOnce(searchTeamCollections);
+
+    const result = await teamCollectionService.searchByTitle(
+      'imgae',
+      team.id,
+      10,
+      20,
+    );
+
+    // the page, the plain-match check, the typo page, then the parent lookup
+    expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(7);
+    expect(sqlText(4).text).toContain('strict_word_similarity');
+    // page 20 of 10 items, in typo mode
+    expect(sqlText(4).values).toEqual(expect.arrayContaining([10, 190]));
+    expect(result).toBeRight();
   });
 
   test('should return an error when the search query fails', async () => {

@@ -2405,9 +2405,12 @@ describe('searchByTitle', () => {
 
     // the page, the plain-match check, the typo page, then the parent lookup
     expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(7);
+    // both the collection and the request query of the page are in typo mode
     expect(sqlText(4).text).toContain('strict_word_similarity');
-    // page 20 of 10 items, in typo mode
+    expect(sqlText(5).text).toContain('strict_word_similarity');
+    // page 20 of 10 items
     expect(sqlText(4).values).toEqual(expect.arrayContaining([10, 190]));
+    expect(sqlText(5).values).toEqual(expect.arrayContaining([10, 190]));
     expect(result).toBeRight();
   });
 

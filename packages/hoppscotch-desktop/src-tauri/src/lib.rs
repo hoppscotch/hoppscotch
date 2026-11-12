@@ -274,3 +274,93 @@ pub fn run() {
         tracing::error!(error = %e, "Error while running Hoppscotch Desktop");
     }
 }
+
+// WebView2 serves a bundle loaded at `app://<bundle>/` from
+// `http://app.<bundle>/`, and Tauri treats that as a remote origin, so on
+// Windows every call a bundle makes is checked against the remote URLs and
+// the app command permissions in `capabilities/default.json`.
+#[cfg(test)]
+mod capability_tests {
+    use std::collections::BTreeSet;
+
+    use tauri::utils::acl::RemoteUrlPattern;
+    use tauri::Url;
+
+    const DEFAULT_CAPABILITY: &str = include_str!("../capabilities/default.json");
+    const BUILD_SCRIPT: &str = include_str!("../build.rs");
+    const LIB: &str = include_str!("lib.rs");
+
+    fn remote_patterns() -> Vec<RemoteUrlPattern> {
+        let capability: serde_json::Value = serde_json::from_str(DEFAULT_CAPABILITY).unwrap();
+        capability["remote"]["urls"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|url| url.as_str().unwrap().parse().unwrap())
+            .collect()
+    }
+
+    fn is_granted(url: &str) -> bool {
+        let url = Url::parse(url).unwrap();
+        remote_patterns().iter().any(|pattern| pattern.test(&url))
+    }
+
+    fn quoted_names(block: &str) -> BTreeSet<String> {
+        block
+            .split('"')
+            .skip(1)
+            .step_by(2)
+            .map(str::to_string)
+            .collect()
+    }
+
+    #[test]
+    fn test_bundle_origins_on_windows_are_granted() {
+        assert!(is_granted("http://app.hoppscotch/"));
+        assert!(is_granted("http://app.hoppscotch/?org=acme.hoppscotch.io"));
+        assert!(is_granted("http://app.my_instance_2/settings"));
+        assert!(is_granted("http://app.xn--hppscotch-n7a/"));
+        assert!(is_granted("app://hoppscotch/"));
+    }
+
+    #[test]
+    fn test_sites_outside_the_bundle_origins_are_refused() {
+        assert!(!is_granted("http://app.evil.com/"));
+        assert!(!is_granted("http://app.hoppscotch.evil.com/"));
+        assert!(!is_granted("https://app.hoppscotch/"));
+        assert!(!is_granted("http://app.hoppscotch:8080/"));
+        assert!(!is_granted("http://evil.com/?next=app.hoppscotch"));
+        assert!(!is_granted("http://hoppscotch/"));
+    }
+
+    #[test]
+    fn test_every_app_command_has_a_granted_permission() {
+        let handler = LIB
+            .split("generate_handler![")
+            .nth(1)
+            .and_then(|rest| rest.split(']').next())
+            .unwrap();
+        let registered: BTreeSet<String> = handler
+            .split(',')
+            .map(|path| path.trim().rsplit("::").next().unwrap().to_string())
+            .filter(|name| !name.is_empty())
+            .collect();
+
+        let manifest = BUILD_SCRIPT
+            .split("APP_COMMANDS: &[&str] = &[")
+            .nth(1)
+            .and_then(|rest| rest.split("];").next())
+            .unwrap();
+        assert_eq!(quoted_names(manifest), registered);
+
+        let capability: serde_json::Value = serde_json::from_str(DEFAULT_CAPABILITY).unwrap();
+        let granted: BTreeSet<String> = capability["permissions"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter_map(|permission| permission.as_str()?.strip_prefix("allow-"))
+            .map(|command| command.replace('-', "_"))
+            .collect();
+        assert_eq!(granted, registered);
+    }
+}

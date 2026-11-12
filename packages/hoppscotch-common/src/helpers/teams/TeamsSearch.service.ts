@@ -43,7 +43,12 @@ const parseCollectionData = (data: string): CollectionDataProps | null => {
 type CollectionSearchMeta = {
   isSearchResult?: boolean
   insertedWhileExpanding?: boolean
+  // the search response did not include the full request / collection data
+  needsDetails?: boolean
 }
+
+// Maximum number of collections and of requests returned for one search
+const SEARCH_RESULTS_LIMIT = 100
 
 type CollectionSearchNode =
   | {
@@ -51,6 +56,8 @@ type CollectionSearchNode =
       title: string
       method: string
       id: string
+      // full request, not sent by older backends
+      request?: unknown
       // parent collections
       path: CollectionSearchNode[]
     }
@@ -58,6 +65,8 @@ type CollectionSearchNode =
       type: "collection"
       title: string
       id: string
+      // collection data as a JSON string, not sent by older backends
+      data?: string | null
       // parent collections
       path: CollectionSearchNode[]
     }
@@ -93,12 +102,17 @@ function convertToTeamCollection(
       id: node.id,
       collectionID: node.path[0].id,
       title: node.title,
-      request: {
-        name: node.title,
-        method: node.method,
-      },
+      request: node.request
+        ? ((typeof node.request === "string"
+            ? JSON.parse(node.request)
+            : node.request) as TeamRequest["request"])
+        : {
+            name: node.title,
+            method: node.method,
+          },
       meta: {
         isSearchResult: node.meta?.isSearchResult || false,
+        needsDetails: !node.request,
       },
     }
 
@@ -116,10 +130,15 @@ function convertToTeamCollection(
       title: node.title,
       children: [],
       requests: [],
-      data: null,
+      data: node.data ?? null,
       parentID: node.path[0]?.id,
       meta: {
-        isSearchResult: node.meta?.isSearchResult || false,
+        // a matched collection can also be the parent of another match
+        isSearchResult:
+          node.meta?.isSearchResult ||
+          existingCollections[node.id]?.meta?.isSearchResult ||
+          false,
+        needsDetails: node.data === undefined,
       },
     }
 
@@ -228,84 +247,81 @@ export class TeamSearchService extends Service {
 
   // TODO: ideally this should return the search results / formatted results instead of directly manipulating the result set
   // eg: do the spotlight formatting in the spotlight searcher and not here
+  // Increases with every search, so results of older searches still in
+  // flight can be told apart and dropped
+  private latestSearchID = 0
+
   searchTeams = async (query: string, teamID: string) => {
+    const searchID = ++this.latestSearchID
+    const isStale = () => searchID !== this.latestSearchID
+
     if (!query.length) {
+      this.teamsSearchResultsLoading.value = false
+      this.expandingCollections.value = []
       return
     }
 
     this.teamsSearchResultsLoading.value = true
 
-    this.searchResultsCollections = {}
-    this.searchResultsRequests = {}
-    this.expandedCollections.value = []
+    const searchResultsCollections: Record<string, _SearchCollection> = {}
+    const searchResultsRequests: Record<string, _SearchRequest> = {}
 
     const getAxiosPlatformConfig = async () => {
       await platform.auth.waitProbableLoginToConfirm()
       return platform.auth.axiosPlatformConfig?.() ?? {}
     }
 
-    const axiosPlatformConfig = await getAxiosPlatformConfig()
-
     try {
+      const axiosPlatformConfig = await getAxiosPlatformConfig()
+
       const searchResponse = await axios.get(
         `${
           this.endpoint
         }/team-collection/search/${teamID}?searchQuery=${encodeURIComponent(
           query
-        )}`,
+        )}&take=${SEARCH_RESULTS_LIMIT}&skip=0`,
         axiosPlatformConfig
       )
 
+      if (isStale()) {
+        return
+      }
+
       if (searchResponse.status !== 200) {
+        this.clearSearchResults()
         return
       }
 
       const searchResults = searchResponse.data.data as CollectionSearchNode[]
 
-      searchResults
-        .map((node) => {
-          const { existingCollections, existingRequests } =
-            convertToTeamCollection(
-              {
-                ...node,
-                meta: {
-                  isSearchResult: true,
-                },
-              },
-              {},
-              {}
-            )
-
-          return {
-            collections: existingCollections,
-            requests: existingRequests,
-          }
-        })
-        .forEach(({ collections, requests }) => {
-          this.searchResultsCollections = {
-            ...this.searchResultsCollections,
-            ...collections,
-          }
-          this.searchResultsRequests = {
-            ...this.searchResultsRequests,
-            ...requests,
-          }
-        })
-
-      const collectionFetchingPromises = Object.values(
-        this.searchResultsCollections
-      ).map((col) => {
-        return getSingleCollection(col.id)
+      searchResults.forEach((node) => {
+        convertToTeamCollection(
+          {
+            ...node,
+            meta: {
+              isSearchResult: true,
+            },
+          },
+          searchResultsCollections,
+          searchResultsRequests
+        )
       })
 
-      const requestFetchingPromises = Object.values(
-        this.searchResultsRequests
-      ).map((req) => {
-        return getSingleRequest(req.id)
-      })
+      // Older backends only send titles, so fetch whatever is missing
+      const collectionFetchingPromises = Object.values(searchResultsCollections)
+        .filter((col) => col.meta?.needsDetails)
+        .map((col) => getSingleCollection(col.id))
+
+      const requestFetchingPromises = Object.values(searchResultsRequests)
+        .filter((req) => req.meta?.needsDetails)
+        .map((req) => getSingleRequest(req.id))
 
       const collectionResponses = await Promise.all(collectionFetchingPromises)
       const requestResponses = await Promise.all(requestFetchingPromises)
+
+      if (isStale()) {
+        return
+      }
 
       requestResponses.map((res) => {
         if (E.isLeft(res)) {
@@ -316,11 +332,12 @@ export class TeamSearchService extends Service {
 
         if (!request) return
 
-        this.searchResultsRequests[request.id] = {
+        searchResultsRequests[request.id] = {
           id: request.id,
           title: request.title,
           request: JSON.parse(request.request) as TeamRequest["request"],
           collectionID: request.collectionID,
+          meta: searchResultsRequests[request.id]?.meta,
         }
       })
 
@@ -333,9 +350,14 @@ export class TeamSearchService extends Service {
 
         if (!collection) return
 
-        this.searchResultsCollections[collection.id].data =
-          collection.data ?? null
+        searchResultsCollections[collection.id].data = collection.data ?? null
       })
+
+      this.searchResultsCollections = searchResultsCollections
+      this.searchResultsRequests = searchResultsRequests
+      this.expandedCollections.value = []
+      // folders still loading belong to the previous results
+      this.expandingCollections.value = []
 
       const collectionTree = convertToTeamTree(
         Object.values(this.searchResultsCollections),
@@ -362,9 +384,22 @@ export class TeamSearchService extends Service {
       })
     } catch (error) {
       console.error(error)
+      // don't keep showing the matches of the previous query
+      if (!isStale()) this.clearSearchResults()
+    } finally {
+      if (!isStale()) {
+        this.teamsSearchResultsLoading.value = false
+      }
     }
+  }
 
-    this.teamsSearchResultsLoading.value = false
+  private clearSearchResults() {
+    this.searchResultsCollections = {}
+    this.searchResultsRequests = {}
+    this.expandedCollections.value = []
+    this.expandingCollections.value = []
+    this.teamsSearchResults.value = []
+    this.teamsSearchResultsFormattedForSpotlight.value = []
   }
 
   cascadeParentCollectionForPropertiesForSearchResults = (
@@ -609,70 +644,85 @@ export class TeamSearchService extends Service {
 
     this.expandingCollections.value.push(collectionID)
 
-    const childCollectionsPromise = getCollectionChildCollections(collectionID)
-    const childRequestsPromise = getCollectionChildRequests(collectionID)
+    const searchID = this.latestSearchID
 
-    const [childCollections, childRequests] = await Promise.all([
-      childCollectionsPromise,
-      childRequestsPromise,
-    ])
+    try {
+      const childCollectionsPromise =
+        getCollectionChildCollections(collectionID)
+      const childRequestsPromise = getCollectionChildRequests(collectionID)
 
-    if (E.isLeft(childCollections)) {
-      return
+      const [childCollections, childRequests] = await Promise.all([
+        childCollectionsPromise,
+        childRequestsPromise,
+      ])
+
+      if (E.isLeft(childCollections)) {
+        return
+      }
+
+      if (E.isLeft(childRequests)) {
+        return
+      }
+
+      // a newer search replaced the results this collection belonged to
+      if (searchID !== this.latestSearchID) {
+        return
+      }
+
+      childCollections.right.collection?.children
+        .map((child) => ({
+          id: child.id,
+          title: child.title,
+          data: child.data ?? null,
+          children: [],
+          requests: [],
+        }))
+        .forEach((child) => {
+          this.searchResultsCollections[child.id] = {
+            ...child,
+            parentID: collectionID,
+            meta: {
+              isSearchResult: false,
+              insertedWhileExpanding: true,
+            },
+          }
+        })
+
+      childRequests.right.requestsInCollection
+        .map((request) => ({
+          id: request.id,
+          collectionID: collectionID,
+          title: request.title,
+          request: JSON.parse(request.request) as TeamRequest["request"],
+        }))
+        .forEach((request) => {
+          this.searchResultsRequests[request.id] = {
+            ...request,
+            meta: {
+              isSearchResult: false,
+              insertedWhileExpanding: true,
+            },
+          }
+        })
+
+      this.teamsSearchResults.value = convertToTeamTree(
+        Object.values(this.searchResultsCollections),
+        // asserting because we've already added the missing properties after fetching the full details
+        Object.values(this.searchResultsRequests) as TeamRequest[]
+      )
+
+      this.expandedCollections.value.push(collectionID)
+    } finally {
+      // Always clear the loading state, or the folder can never be opened
+      // again. A newer search already reset the list, and may be loading the
+      // same folder again, so leave its entry alone.
+      if (searchID === this.latestSearchID) {
+        this.expandingCollections.value =
+          this.expandingCollections.value.filter(
+            (colID) => colID !== collectionID
+          )
+      }
     }
-
-    if (E.isLeft(childRequests)) {
-      return
-    }
-
-    childCollections.right.collection?.children
-      .map((child) => ({
-        id: child.id,
-        title: child.title,
-        data: child.data ?? null,
-        children: [],
-        requests: [],
-      }))
-      .forEach((child) => {
-        this.searchResultsCollections[child.id] = {
-          ...child,
-          parentID: collectionID,
-          meta: {
-            isSearchResult: false,
-            insertedWhileExpanding: true,
-          },
-        }
-      })
-
-    childRequests.right.requestsInCollection
-      .map((request) => ({
-        id: request.id,
-        collectionID: collectionID,
-        title: request.title,
-        request: JSON.parse(request.request) as TeamRequest["request"],
-      }))
-      .forEach((request) => {
-        this.searchResultsRequests[request.id] = {
-          ...request,
-          meta: {
-            isSearchResult: false,
-            insertedWhileExpanding: true,
-          },
-        }
-      })
-
-    this.teamsSearchResults.value = convertToTeamTree(
-      Object.values(this.searchResultsCollections),
-      // asserting because we've already added the missing properties after fetching the full details
-      Object.values(this.searchResultsRequests) as TeamRequest[]
-    )
-
-    // remove the collection after expanding
-    this.expandingCollections.value = this.expandingCollections.value.filter(
-      (colID) => colID !== collectionID
-    )
-
-    this.expandedCollections.value.push(collectionID)
   }
 }
 

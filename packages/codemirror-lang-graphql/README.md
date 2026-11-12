@@ -1,1 +1,1 @@
-A [CodeMirror 6](https://codemirror.net/6) language plugin for GraphQL
+A [CodeMirror 6](https://codemirror.net/) language plugin for GraphQL

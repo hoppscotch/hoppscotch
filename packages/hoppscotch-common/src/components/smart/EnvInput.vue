@@ -64,7 +64,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick, computed, Ref } from "vue"
+import {
+  ref,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+  nextTick,
+  computed,
+  Ref,
+} from "vue"
 import {
   EditorView,
   placeholder as placeholderExt,
@@ -531,11 +539,21 @@ const debouncedTextSelection = (time: number) =>
     handleTextSelection()
   }, time)
 
+// Created once per instance: the element listeners must be the same function
+// references to be removable on unmount, and the scroll handler must reuse one
+// debounced function or every scroll event schedules its own call
+const onMouseUpTextSelection = debouncedTextSelection(140)
+const onKeyUpTextSelection = debouncedTextSelection(140)
+const onScrollTextSelection = debouncedTextSelection(30)
+
+let listenerEl: HTMLElement | null = null
+
 const initView = (el: any) => {
   // Only add event listeners if context menu is enabled in the component
   if (props.contextMenuEnabled) {
-    el.addEventListener("mouseup", debouncedTextSelection(140))
-    el.addEventListener("keyup", debouncedTextSelection(140))
+    el.addEventListener("mouseup", onMouseUpTextSelection)
+    el.addEventListener("keyup", onKeyUpTextSelection)
+    listenerEl = el
   }
 
   const extensions: Extension = getExtensions(props.readonly || isSecret.value)
@@ -592,7 +610,7 @@ const getExtensions = (readonly: boolean): Extension => {
       scroll(event) {
         if (event.target && props.contextMenuEnabled) {
           // Debounce to make the performance better
-          debouncedTextSelection(30)()
+          onScrollTextSelection()
         }
       },
     }),
@@ -692,14 +710,36 @@ onMounted(() => {
   }
 })
 
+/**
+ * Destroys the CodeMirror view and removes the element listeners.
+ * `EditorView.destroy()` is what releases the view's window/document
+ * listeners, observers, and the tooltip container it appends to
+ * `document.body`; skipping it leaks all of them.
+ */
+const destroyView = () => {
+  if (listenerEl) {
+    listenerEl.removeEventListener("mouseup", onMouseUpTextSelection)
+    listenerEl.removeEventListener("keyup", onKeyUpTextSelection)
+    listenerEl = null
+  }
+  view.value?.destroy()
+  view.value = undefined
+}
+
 watch(editor, () => {
   if (editor.value) {
     if (!view.value) initView(editor.value)
     if (props.selectTextOnMount) triggerTextSelection()
   } else {
-    view.value?.destroy()
-    view.value = undefined
+    destroyView()
   }
+})
+
+// The `editor` watcher above cannot handle unmount: Vue stops a component's
+// watchers before it clears template refs, so its destroy branch never runs
+// when the component is removed (e.g. on every request tab switch)
+onBeforeUnmount(() => {
+  destroyView()
 })
 
 /**

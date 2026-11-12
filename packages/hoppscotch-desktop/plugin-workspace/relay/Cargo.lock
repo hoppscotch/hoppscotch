@@ -98,9 +98,9 @@ dependencies = [
 
 [[package]]
 name = "bitflags"
-version = "2.6.0"
+version = "2.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b048fb63fd8b5923fc5aa7b340d8e156aec7ec02f0c78fa8a6ddc2613f6f71de"
+checksum = "3ded4057c258ba199e2d26386d3af3780957ecaee6c4ef4041c6b4b8b97c0b06"
 
 [[package]]
 name = "byteorder"
@@ -160,6 +160,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "core-foundation"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b2a6cd9ae233e7f62ba4e9353e81a88df7fc8a5987b8d445b4d90c879bd156f6"
+dependencies = [
+ "core-foundation-sys",
+ "libc",
+]
+
+[[package]]
+name = "core-foundation-sys"
+version = "0.8.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "773648b94d0e5d620f64f280777445740e61fe701025087ec8b57f45c791888b"
+
+[[package]]
 name = "crossbeam-utils"
 version = "0.8.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -168,7 +184,7 @@ checksum = "22ec99545bb0ed0ea7bb9b8e1e9122ea386ff8a48c0922e43f36d45ab09e0e80"
 [[package]]
 name = "curl"
 version = "0.4.47"
-source = "git+https://github.com/CuriousCorrelation/curl-rust.git?rev=1ec8079cf527b9cf47cc7a48c68b458affdae273#1ec8079cf527b9cf47cc7a48c68b458affdae273"
+source = "git+https://github.com/CuriousCorrelation/curl-rust.git?rev=025ff84f77e1fee37b4dca3cf39b724f4efcc87d#025ff84f77e1fee37b4dca3cf39b724f4efcc87d"
 dependencies = [
  "curl-sys",
  "libc",
@@ -180,7 +196,7 @@ dependencies = [
 [[package]]
 name = "curl-sys"
 version = "0.4.77+curl-8.10.1"
-source = "git+https://github.com/CuriousCorrelation/curl-rust.git?rev=1ec8079cf527b9cf47cc7a48c68b458affdae273#1ec8079cf527b9cf47cc7a48c68b458affdae273"
+source = "git+https://github.com/CuriousCorrelation/curl-rust.git?rev=025ff84f77e1fee37b4dca3cf39b724f4efcc87d#025ff84f77e1fee37b4dca3cf39b724f4efcc87d"
 dependencies = [
  "cc",
  "libc",
@@ -737,8 +753,10 @@ dependencies = [
  "bytes",
  "cookie",
  "curl",
+ "curl-sys",
  "dashmap",
  "env_logger",
+ "foreign-types",
  "http",
  "http-serde",
  "infer",
@@ -746,7 +764,9 @@ dependencies = [
  "log",
  "mime",
  "openssl",
+ "openssl-probe",
  "openssl-sys",
+ "security-framework",
  "serde",
  "serde_json",
  "strum",
@@ -757,6 +777,7 @@ dependencies = [
  "url",
  "url-escape",
  "urlencoding",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -782,6 +803,29 @@ name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
+
+[[package]]
+name = "security-framework"
+version = "3.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b7f4bc775c73d9a02cde8bf7b2ec4c9d12743edf609006c7facc23998404cd1d"
+dependencies = [
+ "bitflags",
+ "core-foundation",
+ "core-foundation-sys",
+ "libc",
+ "security-framework-sys",
+]
+
+[[package]]
+name = "security-framework-sys"
+version = "2.17.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ce2691df843ecc5d231c0b14ece2acc3efb62c0a398c7e1d875f3983ce020e3"
+dependencies = [
+ "core-foundation-sys",
+ "libc",
+]
 
 [[package]]
 name = "serde"

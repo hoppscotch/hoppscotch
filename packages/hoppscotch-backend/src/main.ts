@@ -39,6 +39,28 @@ function setupSwagger(
   });
 }
 
+function warnIfExampleSecrets(configService: ConfigService): void {
+  if (
+    configService.get('DATA_ENCRYPTION_KEY') ===
+    'data encryption key with 32 char'
+  ) {
+    console.warn(
+      '[SECURITY] DATA_ENCRYPTION_KEY is set to the example value from .env.example. Please change it.',
+    );
+  }
+
+  try {
+    const dbUrl = new URL(configService.get('DATABASE_URL') ?? '');
+    if (decodeURIComponent(dbUrl.password) === 'testpass') {
+      console.warn(
+        '[SECURITY] DATABASE_URL uses the example database password. Please change it.',
+      );
+    }
+  } catch {
+    // Invalid or missing DATABASE_URL, nothing to check
+  }
+}
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
@@ -47,6 +69,8 @@ async function bootstrap() {
 
   console.log(`Running in production: ${isProduction}`);
   console.log(`Port: ${configService.get('PORT')}`);
+
+  warnIfExampleSecrets(configService);
 
   // Increase file upload limit to 100MB
   app.use(

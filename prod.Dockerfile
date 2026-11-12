@@ -73,10 +73,15 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o webapp-server .
 # Shared Node.js base with optimized NPM installation
 FROM alpine:3.24.1 AS node_base
 # Install dependencies
-# Version floors for CVE-2026-11856 (curl) and the nodejs 24.18.1-r0 batch. The base
-# tag ships older builds and this layer is cached, so the bound forces a re-resolve.
+# Version floors for CVE-2026-11856 (curl) and the Node.js October 2026 security
+# release (nodejs 24.22.1-r0). Alpine's nodejs links the system brotli and c-ares
+# instead of the bundled copies, so their fixes are floored separately:
+# CVE-2026-111497 (HIGH - Brotli decoder OOB write) in brotli-libs 1.2.1-r0 and the
+# c-ares 1.34.9 update. The base tag ships older builds and this layer is cached, so
+# the bound forces a re-resolve.
 RUN apk upgrade --no-cache && \
-  apk add --no-cache "nodejs>=24.18.1-r0" "curl>=8.21.0-r0" bash tini ca-certificates
+  apk add --no-cache "nodejs>=24.22.1-r0" "brotli-libs>=1.2.1-r0" "c-ares>=1.34.9-r0" \
+    "curl>=8.21.0-r0" bash tini ca-certificates
 # Set working directory for NPM installation
 RUN mkdir -p /tmp/npm-install
 WORKDIR /tmp/npm-install
@@ -102,13 +107,13 @@ RUN mkdir -p /tmp/pnpm-install && cd /tmp/pnpm-install && \
   npm install -g ./pnpm.tgz ./cli.tgz && \
   cd / && rm -rf /tmp/pnpm-install
 
-# Fix the undici advisories that supersede CVE-2026-12151 (response desynchronization
-# via the retry interceptor, CRLF injection via a blob-like body `type`, and cookie
-# attribute injection). npm now bundles 6.27.0, which is still affected — all three
-# fixes first land in 6.28.0, so replace the bundled copy with that.
+# Fix the undici advisories bundled with npm: GHSA-rfgv-xxqx-mfg5 (HIGH - DoS via
+# unrequested WebSocket subprotocol, fixed in 6.28.1) and GHSA-xjj6-f33q-929c (HIGH -
+# DoS via unhandled error on excessive input, fixed in 6.29.1), on top of the earlier
+# CVE-2026-12151 family. npm bundles an affected 6.x, so replace it with 6.29.1.
 RUN mkdir -p /tmp/undici-fix && \
   cd /tmp/undici-fix && \
-  npm install undici@6.28.0 && \
+  npm install undici@6.29.1 && \
   rm -rf /usr/lib/node_modules/npm/node_modules/undici && \
   cp -r node_modules/undici /usr/lib/node_modules/npm/node_modules/ && \
   rm -rf /tmp/undici-fix
@@ -130,13 +135,14 @@ RUN mkdir -p /tmp/serialize-fix && \
   rm -rf /tmp/serialize-fix
 
 # Fix the brace-expansion DoS chain: CVE-2026-14257 (unbounded expansion length →
-# OOM crash) plus the follow-up HIGH advisory that 5.0.8 only partially mitigated —
-# unbounded intermediate arrays still crash every version <5.0.9. No per-line
-# backport exists, so replace all bundled/transitive copies (npm ships 5.0.7; the
-# @import-meta-env/cli tree pulls an older copy) with the fixed 5.0.9.
+# OOM crash), the unbounded intermediate arrays follow-up (<5.0.9), and the
+# uncontrolled-recursion advisories GHSA-6j4f-fj2g-mc7p (<5.0.10) and
+# GHSA-qhr7-859c-m2p7 (<5.0.11). No per-line backport exists, so replace all
+# bundled/transitive copies (npm ships 5.0.7; the @import-meta-env/cli tree pulls an
+# older copy) with the fixed 5.0.12.
 RUN mkdir -p /tmp/brace-fix && \
   cd /tmp/brace-fix && \
-  npm install brace-expansion@5.0.9 && \
+  npm install brace-expansion@5.0.12 && \
   find /usr/lib/node_modules -type d -name brace-expansion -not -path '*/brace-fix/*' | \
     while read -r dir; do \
       rm -rf "$dir" && \

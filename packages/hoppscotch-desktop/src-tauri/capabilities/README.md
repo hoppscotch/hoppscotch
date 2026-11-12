@@ -42,3 +42,28 @@ Before cloud-for-orgs support, the configuration used explicit window names:
 ```
 
 This was more restrictive but incompatible with dynamic organization subdomains.
+
+## Bundle origins on Windows
+
+WebView2 has no custom schemes, so on Windows a bundle that appload
+opens at `app://hoppscotch/` is served from `http://app.hoppscotch/`.
+Tauri counts a page as local on Windows only when its host is
+`<scheme>.localhost`, so it checks every call from a bundle window
+against the `remote` URLs and the permissions in `default.json`.
+
+The second remote URL, `http://app.:bundle([a-z0-9_-]+)`, matches those
+origins. appload replaces every character of a bundle name outside
+letters and digits with `_` and lowercases it, and a name with letters
+outside ASCII reaches the host as punycode, `xn--` and a hyphen, so a
+bundle host is one DNS label, and a site such as `app.example.com` with
+a dot in the rest of its host fails the pattern.
+
+A remote origin reaches the app's own commands, `append_log`,
+`get_store_dir` and the rest, only through permissions declared in an
+app manifest. `build.rs` lists every command registered in
+`generate_handler!` as `APP_COMMANDS`, `tauri-build` generates an
+`allow-<command>` permission for each, and `default.json` grants all of
+them. Declaring the manifest makes Tauri check app commands on every
+origin, so a command added to `generate_handler!` also goes into
+`APP_COMMANDS` and `default.json`, which `capability_tests` in
+`src/lib.rs` asserts.

@@ -2,10 +2,96 @@ import { afterAll, beforeAll, describe, expect, test, vi } from "vitest"
 import { createApp, defineComponent } from "vue"
 import { bindAction, unbindAction } from "../actions"
 import {
+  __getKeybindingLockCountForTest,
+  __resetKeybindingLocksForTest,
   bindings,
+  handleKeyDown,
   hookKeybindingsListener,
   resolvePressedKey,
+  useKeybindingDisabler,
 } from "../keybindings"
+
+describe("useKeybindingDisabler", () => {
+  test("keeps shortcuts disabled until matching enables complete", () => {
+    __resetKeybindingLocksForTest()
+    const handler = vi.fn()
+    bindAction("modals.search.toggle", handler)
+    const disabler = useKeybindingDisabler()
+    const shortcut = new KeyboardEvent("keydown", {
+      key: "k",
+      code: "KeyK",
+      ctrlKey: true,
+    })
+
+    try {
+      disabler.disableKeybindings()
+      disabler.disableKeybindings()
+      handleKeyDown(shortcut)
+      expect(handler).not.toHaveBeenCalled()
+
+      disabler.enableKeybindings()
+      handleKeyDown(shortcut)
+      expect(handler).not.toHaveBeenCalled()
+
+      disabler.enableKeybindings()
+      handleKeyDown(shortcut)
+      expect(handler).toHaveBeenCalledOnce()
+    } finally {
+      unbindAction("modals.search.toggle", handler)
+    }
+  })
+
+  test("keeps independent instances isolated", () => {
+    __resetKeybindingLocksForTest()
+    const first = useKeybindingDisabler()
+    const second = useKeybindingDisabler()
+
+    first.disableKeybindings()
+    second.disableKeybindings()
+    first.enableKeybindings()
+    expect(__getKeybindingLockCountForTest()).toBe(1)
+    second.enableKeybindings()
+    expect(__getKeybindingLockCountForTest()).toBe(0)
+  })
+
+  test("releases an unmounted component's locks without unlocking another owner", () => {
+    __resetKeybindingLocksForTest()
+    const handler = vi.fn()
+    bindAction("modals.search.toggle", handler)
+    const other = useKeybindingDisabler()
+    const app = createApp(
+      defineComponent({
+        setup() {
+          const disabler = useKeybindingDisabler()
+          disabler.disableKeybindings()
+          disabler.disableKeybindings()
+          return () => null
+        },
+      })
+    )
+    const shortcut = new KeyboardEvent("keydown", {
+      key: "k",
+      code: "KeyK",
+      ctrlKey: true,
+    })
+    app.mount(document.createElement("div"))
+
+    try {
+      other.disableKeybindings()
+      app.unmount()
+      handleKeyDown(shortcut)
+      expect(handler).not.toHaveBeenCalled()
+
+      other.enableKeybindings()
+      handleKeyDown(shortcut)
+      expect(handler).toHaveBeenCalledOnce()
+    } finally {
+      other.enableKeybindings()
+      unbindAction("modals.search.toggle", handler)
+      __resetKeybindingLocksForTest()
+    }
+  })
+})
 
 // Fixture builder to keep individual cases readable. Layout name in the
 // describe block is the conceptual layout; `key` and `code` are what the

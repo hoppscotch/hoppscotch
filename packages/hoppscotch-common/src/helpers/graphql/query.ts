@@ -1,3 +1,4 @@
+import { getUniqueOperationName } from "~/helpers/graphql/operation-name"
 import { useService } from "dioc/vue"
 import {
   ArgumentNode,
@@ -139,9 +140,17 @@ export function useQuery() {
     const requestedOperationType = getOperationTypeNode(navItems[1].name)
 
     // Handle new operations
+    const firstSelection = existingOperation?.selectionSet.selections[0]
+    const append =
+      requestedOperationType === OperationTypeNode.SUBSCRIPTION &&
+      existingOperation?.operation === requestedOperationType &&
+      (firstSelection?.kind !== Kind.FIELD ||
+        firstSelection.name.value !== queryPath[0].name)
+
     if (
       !existingOperation ||
-      existingOperation.operation !== requestedOperationType
+      existingOperation.operation !== requestedOperationType ||
+      append
     ) {
       // Build from bottom up starting with the last field
       let currentSelection = createFieldNode(
@@ -160,13 +169,20 @@ export function useQuery() {
       }
 
       return {
+        append,
         document: {
           kind: Kind.DOCUMENT,
           definitions: [
             {
               kind: Kind.OPERATION_DEFINITION,
               operation: requestedOperationType,
-              name: { kind: Kind.NAME, value: queryPath[0].name },
+              name: {
+                kind: Kind.NAME,
+                value: getUniqueOperationName(
+                  queryPath[0].name,
+                  operations.value
+                ),
+              },
               variableDefinitions: [],
               directives: [],
               selectionSet: {
@@ -182,25 +198,6 @@ export function useQuery() {
     // For existing operations
     let currentSelectionSet = existingOperation.selectionSet
     let fieldLocation: { start: number; end: number } | undefined
-    let append = false
-
-    if (
-      requestedOperationType === OperationTypeNode.SUBSCRIPTION &&
-      requestedOperationType === existingOperation?.operation
-    ) {
-      // Check if paths are different at the top level
-      const existingTopField = existingOperation.selectionSet
-        .selections[0] as FieldNode
-
-      if (
-        existingTopField.name.value !==
-        (queryPath && queryPath[0] && queryPath[0]?.name)
-      ) {
-        append = true
-        currentSelectionSet.selections = []
-      }
-    }
-
     for (let i = 0; i < queryPath.length; i++) {
       const item = queryPath[i]
       const isLastItem = i === queryPath.length - 1

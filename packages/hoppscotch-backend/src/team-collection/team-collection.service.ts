@@ -1147,20 +1147,25 @@ export class TeamCollectionService {
       false,
     );
 
-    const isFirstPage = !(skip > 1);
-    if (
-      E.isRight(searchResults) &&
-      searchResults.right.length === 0 &&
-      isFirstPage
-    ) {
-      searchResults = await this.searchTitles(
-        searchQuery,
-        words,
-        teamID,
-        take,
-        skip,
-        true,
-      );
+    // Typo matching only applies to queries without any plain match, so a
+    // later page keeps the mode of the first page: an empty page of plain
+    // matches switches to typo matches only when no plain match exists at all.
+    // `skip` is a page number; 0 and 1 are both the first page.
+    if (E.isRight(searchResults) && searchResults.right.length === 0) {
+      const hasPlainMatch =
+        skip > 1
+          ? await this.hasPlainMatch(searchQuery, words, teamID)
+          : E.right(false);
+      if (E.isLeft(hasPlainMatch)) searchResults = hasPlainMatch;
+      else if (!hasPlainMatch.right)
+        searchResults = await this.searchTitles(
+          searchQuery,
+          words,
+          teamID,
+          take,
+          skip,
+          true,
+        );
     }
 
     if (E.isLeft(searchResults))
@@ -1178,6 +1183,31 @@ export class TeamCollectionService {
         statusCode: HttpStatus.NOT_FOUND,
       });
     }
+  }
+
+  /**
+   * Check whether a search query has at least one plain (non-typo) match
+   *
+   * @param searchQuery The search query
+   * @param words The words to match against titles
+   * @param teamID The Team ID
+   * @returns An Either of whether a plain match exists
+   */
+  private async hasPlainMatch(
+    searchQuery: string,
+    words: string[],
+    teamID: string,
+  ) {
+    const firstMatch = await this.searchTitles(
+      searchQuery,
+      words,
+      teamID,
+      1,
+      0,
+      false,
+    );
+    if (E.isLeft(firstMatch)) return firstMatch;
+    return E.right(firstMatch.right.length > 0);
   }
 
   /**

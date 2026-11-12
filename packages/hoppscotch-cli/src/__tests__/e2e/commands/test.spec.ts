@@ -1,5 +1,8 @@
-import { ExecException } from "child_process";
+import { ExecException, execFileSync } from "child_process";
 import fs from "fs";
+import https from "https";
+import { AddressInfo } from "net";
+import os from "os";
 import path from "path";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
@@ -1512,6 +1515,139 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
       );
 
       expect(result.error).toBeNull();
+    });
+  });
+
+  describe("Test `hopp test <file_path_or_id> --insecure` command:", () => {
+    const COLL_PATH = getTestJsonFilePath(
+      "insecure-tls-coll.json",
+      "collection"
+    );
+
+    let tmpDir: string;
+    let server: https.Server | null = null;
+
+    // Populated only if the self-signed server could be started
+    let validTestArgs: string | null = null;
+
+    beforeAll(async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "hopp-cli-insecure-"));
+
+      const keyPath = path.join(tmpDir, "key.pem");
+      const certPath = path.join(tmpDir, "cert.pem");
+
+      // The certificate is generated on the fly so that no private key has to be checked in
+      try {
+        execFileSync(
+          "openssl",
+          [
+            "req",
+            "-x509",
+            "-newkey",
+            "rsa:2048",
+            "-nodes",
+            "-keyout",
+            keyPath,
+            "-out",
+            certPath,
+            "-days",
+            "1",
+            "-subj",
+            "/CN=localhost",
+          ],
+          { stdio: "ignore" }
+        );
+      } catch (_) {
+        return;
+      }
+
+      const selfSignedServer = https.createServer(
+        { key: fs.readFileSync(keyPath), cert: fs.readFileSync(certPath) },
+        (req, res) => {
+          // Mimics the challenge issued in the first leg of the digest auth flow
+          if (req.url === "/digest" && !req.headers.authorization) {
+            res.writeHead(401, {
+              "WWW-Authenticate":
+                'Digest realm="hopp", nonce="hopp", qop="auth"',
+            });
+            res.end();
+            return;
+          }
+
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: true }));
+        }
+      );
+
+      await new Promise<void>((resolve) =>
+        selfSignedServer.listen(0, "127.0.0.1", resolve)
+      );
+      server = selfSignedServer;
+
+      const { port } = selfSignedServer.address() as AddressInfo;
+
+      const envPath = path.join(tmpDir, "envs.json");
+      fs.writeFileSync(
+        envPath,
+        JSON.stringify({ baseURL: `https://127.0.0.1:${port}` })
+      );
+
+      validTestArgs = `test ${COLL_PATH} --env ${envPath}`;
+    });
+
+    afterAll(async () => {
+      if (server) {
+        await new Promise((resolve) => server?.close(resolve));
+      }
+
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    test("Fails with the code `REQUEST_ERROR` for a server with a self-signed certificate if the flag is not supplied", async ({
+      skip,
+    }) => {
+      skip(validTestArgs === null, "`openssl` is not available");
+
+      const { error, stdout, stderr } = await runCLI(`${validTestArgs}`);
+
+      expect(stderr).toContain("REQUEST_ERROR");
+      expect(stderr).toMatch(/self[- ]signed certificate/);
+      expect(stdout).not.toContain("200 : OK");
+
+      expect(error).not.toBeNull();
+      expect(error).toMatchObject(<ExecException>{
+        code: 1,
+      });
+    });
+
+    test("Skips certificate verification for requests sent from the collection, scripts and the digest auth flow if the flag is supplied", async ({
+      skip,
+    }) => {
+      skip(validTestArgs === null, "`openssl` is not available");
+
+      const { error, stdout, stderr } = await runCLI(
+        `${validTestArgs} --insecure`
+      );
+
+      expect(stderr).not.toContain("REQUEST_ERROR");
+
+      expect(stdout).toContain("Request reaches the self-signed server");
+      expect(stdout).toContain("hopp.fetch() reaches the self-signed server");
+      expect(stdout).toContain(
+        "Digest auth handshake reaches the self-signed server"
+      );
+      expect(stdout).toContain("Test Cases: 0 failed 3 passed");
+
+      expect(error).toBeNull();
+    });
+
+    test("Works with the short `-k` flag", async ({ skip }) => {
+      skip(validTestArgs === null, "`openssl` is not available");
+
+      const { error, stdout } = await runCLI(`${validTestArgs} -k`);
+
+      expect(stdout).toContain("Test Cases: 0 failed 3 passed");
+      expect(error).toBeNull();
     });
   });
 

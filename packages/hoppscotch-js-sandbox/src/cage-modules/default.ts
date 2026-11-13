@@ -2,13 +2,13 @@ import {
   blobPolyfill,
   ConsoleEntry,
   console as ConsoleModule,
-  encoding,
   esmModuleLoader,
   timers,
   urlPolyfill,
 } from "faraday-cage/modules"
 import type { HoppFetchHook } from "~/types"
 import { customCryptoModule } from "./crypto"
+import { customEncodingModule } from "./encoding"
 import { customFetchModule } from "./fetch"
 
 type DefaultModulesConfig = {
@@ -69,7 +69,7 @@ export const defaultModules = (config?: DefaultModulesConfig) => {
     customFetchModule({
       fetchImpl: config?.hoppFetchHook,
     }),
-    encoding(),
+    customEncodingModule(),
     timers(),
   ]
 }

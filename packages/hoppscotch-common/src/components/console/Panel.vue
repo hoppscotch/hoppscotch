@@ -16,8 +16,8 @@
 
     <div v-else class="px-4 py-3 space-y-2">
       <ConsoleItem
-        v-for="(entry, index) in renderedMessages"
-        :key="index"
+        v-for="entry in renderedMessages"
+        :key="entry.id"
         :entry="entry"
       />
     </div>
@@ -28,13 +28,32 @@
 import { computed } from "vue"
 import { useI18n } from "~/composables/i18n"
 import { useColorMode } from "~/composables/theming"
+import { renderConsoleEntries } from "./entries"
 
-export type ConsoleLogLevel = "log" | "warn" | "info" | "error" | "debug"
+export type ConsoleEntryType =
+  | "log"
+  | "warn"
+  | "info"
+  | "error"
+  | "debug"
+  | "trace"
+  | "count"
+  | "timeEnd"
+  | "timeLog"
+  | "group"
+  | "groupEnd"
+  | "clear"
+  | "assert"
+  | "dir"
+  | "table"
 
 export type ConsoleEntry = {
-  type: ConsoleLogLevel
+  type: ConsoleEntryType
+  id?: number
   args: unknown[]
   timestamp: number
+  collapsed?: boolean
+  children?: ConsoleEntry[]
 }
 
 const props = defineProps<{
@@ -44,12 +63,5 @@ const props = defineProps<{
 const colorMode = useColorMode()
 const t = useI18n()
 
-// Filter out "clear" and compute final list to show (simulate console.clear)
-const renderedMessages = computed(() => {
-  const output: ConsoleEntry[] = []
-  for (const entry of props.messages) {
-    output.push(entry)
-  }
-  return output
-})
+const renderedMessages = computed(() => renderConsoleEntries(props.messages))
 </script>

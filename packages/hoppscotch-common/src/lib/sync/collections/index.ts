@@ -1,3 +1,4 @@
+import { findRequestByIdentity } from "./requestIdentity"
 import { CollectionsPlatformDef } from "~/platform/collections"
 
 import {
@@ -15,7 +16,12 @@ import {
   runUserRequestUpdatedSubscription,
   runUserRootCollectionsSortedSubscription,
 } from "./api"
-import { collectionsSyncer, getStoreByCollectionType } from "./sync"
+import {
+  collectionsSyncer,
+  getStoreByCollectionType,
+  reconcileRequestID,
+  syncRequest as syncRESTRequest,
+} from "./sync"
 
 import {
   generateUniqueRefId,
@@ -73,7 +79,10 @@ import {
 } from "~/newstore/collections"
 import { platform } from "~/platform"
 import { runDispatchWithOutSyncing } from ".."
-import { gqlCollectionsSyncer } from "./gqlCollections.sync"
+import {
+  gqlCollectionsSyncer,
+  syncRequest as syncGQLRequest,
+} from "./gqlCollections.sync"
 import { importToPersonalWorkspace } from "./import"
 
 function initCollectionsSync() {
@@ -998,7 +1007,7 @@ const setupUserChildCollectionSortedSubscription = () => {
   return userChildCollectionSortedSub
 }
 
-function setupUserRequestCreatedSubscription() {
+export function setupUserRequestCreatedSubscription() {
   const [userRequestCreated$, userRequestCreatedSub] =
     runUserRequestCreatedSubscription()
 
@@ -1029,21 +1038,39 @@ function setupUserRequestCreatedSubscription() {
       )
 
       if (collectionID && collectionPath) {
+        const target = navigateToFolderWithIndexPath(
+          collectionStore.value.state,
+          collectionPath.split("/").map(Number)
+        )
+        const existingRequest =
+          target &&
+          findRequestByIdentity(target.requests, { ...request, id: requestID })
+
+        if (existingRequest) {
+          reconcileRequestID(
+            requestType,
+            collectionID,
+            existingRequest,
+            requestID
+          )
+          const syncRequest =
+            requestType === "REST" ? syncRESTRequest : syncGQLRequest
+          void syncRequest.onCreated(collectionID, existingRequest)
+          return
+        }
+
         runDispatchWithOutSyncing(() => {
+          if (
+            target?.requests.some(
+              (existing) => existing._ref_id === request._ref_id
+            )
+          ) {
+            request._ref_id = generateUniqueRefId("req")
+          }
+          request.id = requestID
           requestType == "REST"
             ? saveRESTRequestAs(collectionPath, request)
             : saveGraphqlRequestAs(collectionPath, request as HoppGQLRequest)
-
-          const target = navigateToFolderWithIndexPath(
-            collectionStore.value.state,
-            collectionPath.split("/").map((index) => parseInt(index))
-          )
-
-          const targetRequest = target?.requests[target?.requests.length - 1]
-
-          if (targetRequest) {
-            targetRequest.id = requestID
-          }
         })
       }
     }
@@ -1052,7 +1079,7 @@ function setupUserRequestCreatedSubscription() {
   return userRequestCreatedSub
 }
 
-function setupUserRequestUpdatedSubscription() {
+export function setupUserRequestUpdatedSubscription() {
   const [userRequestUpdated$, userRequestUpdatedSub] =
     runUserRequestUpdatedSubscription()
 

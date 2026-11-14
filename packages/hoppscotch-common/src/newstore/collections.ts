@@ -800,6 +800,16 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
+    const currentRequest = targetLocation.requests[requestIndex]
+    if (
+      !requestNew.id &&
+      currentRequest?.id &&
+      requestNew._ref_id &&
+      requestNew._ref_id === currentRequest._ref_id
+    ) {
+      requestNew.id = currentRequest.id
+    }
+
     targetLocation.requests = targetLocation.requests.map((req, index) =>
       index !== requestIndex ? req : requestNew
     )
@@ -826,6 +836,15 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
+    if (
+      !request._ref_id ||
+      (!request.id &&
+        targetLocation.requests.some(
+          (existing) => existing._ref_id === request._ref_id
+        ))
+    ) {
+      request._ref_id = generateUniqueRefId("req")
+    }
     targetLocation.requests.push(request)
 
     return {
@@ -1519,6 +1538,16 @@ const gqlCollectionDispatchers = defineDispatchers({
       return {}
     }
 
+    const currentRequest = targetLocation.requests[requestIndex]
+    if (
+      !requestNew.id &&
+      currentRequest?.id &&
+      requestNew._ref_id &&
+      requestNew._ref_id === currentRequest._ref_id
+    ) {
+      requestNew.id = currentRequest.id
+    }
+
     targetLocation.requests = targetLocation.requests.map((req, index) =>
       index !== requestIndex ? req : requestNew
     )
@@ -1545,6 +1574,15 @@ const gqlCollectionDispatchers = defineDispatchers({
       return {}
     }
 
+    if (
+      !request._ref_id ||
+      (!request.id &&
+        targetLocation.requests.some(
+          (existing) => existing._ref_id === request._ref_id
+        ))
+    ) {
+      request._ref_id = generateUniqueRefId("req")
+    }
     targetLocation.requests.push(request)
 
     return {

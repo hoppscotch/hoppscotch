@@ -763,8 +763,8 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     if (!pendingRequest || pendingRequest.id) return
 
     const res = await createRESTUserRequest(
-      request.name,
-      JSON.stringify(request),
+      pendingRequest.name,
+      JSON.stringify(pendingRequest),
       folder.id
     )
 

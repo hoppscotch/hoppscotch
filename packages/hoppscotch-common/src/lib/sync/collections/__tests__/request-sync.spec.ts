@@ -79,6 +79,41 @@ describe.each(["REST", "GQL"] as const)(
       setupUserRequestCreatedSubscription()
     })
 
+    it("creates the current stored request after the pending object is replaced", async () => {
+      const request = makeRequest()
+      save("0", request as any)
+      vi.mocked(create).mockResolvedValue(
+        E.right({
+          [type === "REST" ? "createRESTUserRequest" : "createGQLUserRequest"]:
+            { id: "server" },
+        }) as any
+      )
+      const pending = sync.saveRequestAs!({ path: "0", request })
+      const updated = {
+        ...request,
+        name: "Edited before creation",
+        ...(type === "REST"
+          ? { endpoint: "https://example.com/updated" }
+          : { url: "https://example.com/updated" }),
+      }
+      const edit = type === "REST" ? editRESTRequest : editGraphqlRequest
+      edit("0", 0, updated as any)
+      await pending
+
+      expect(create).toHaveBeenCalledTimes(1)
+      const [name, wire] = vi.mocked(create).mock.calls[0]
+      expect(name).toBe("Edited before creation")
+      expect(JSON.parse(wire)).toMatchObject({
+        name: "Edited before creation",
+        _ref_id: request._ref_id,
+        ...(type === "REST"
+          ? { endpoint: "https://example.com/updated" }
+          : { url: "https://example.com/updated" }),
+      })
+      expect(store.value.state[0].requests[0]).toBe(updated)
+      expect(updated.id).toBe("server")
+    })
+
     it.each([true, false])(
       "persists the server ID and reloads one request with subscription first=%s",
       async (subscriptionFirst) => {

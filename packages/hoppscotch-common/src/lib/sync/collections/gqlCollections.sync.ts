@@ -1,9 +1,6 @@
+import { createRequestSynchronizer } from "./requestCreation"
 import { findRequestByIdentity } from "./requestIdentity"
-import {
-  generateUniqueRefId,
-  HoppCollection,
-  HoppRESTRequest,
-} from "@hoppscotch/data"
+import { generateUniqueRefId, HoppCollection } from "@hoppscotch/data"
 
 import {
   createGQLChildUserCollection,
@@ -55,6 +52,16 @@ const transformCollectionForBackend = (collection: HoppCollection): any => {
     requests: collection.requests,
   }
 }
+
+const syncRequest = createRequestSynchronizer(
+  async (name, wire, collectionID) => {
+    const result = await createGQLUserRequest(name, wire, collectionID)
+    return E.isRight(result) ? result.right.createGQLUserRequest.id : undefined
+  },
+  editGQLUserRequest,
+  (collectionID, request, id) =>
+    reconcileRequestID("GQL", collectionID, request, id)
+)
 
 export const gqlCollectionsMapper = createMapper<string, string>()
 
@@ -362,36 +369,38 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       }
     }
   },
-  async editRequest({ path, requestIndex, requestNew }) {
+  async editRequest({ path, requestNew }) {
+    const localFolder = navigateToFolderWithIndexPath(
+      graphqlCollectionStore.value.state,
+      path.split("/").map(Number)
+    )
+    if (!localFolder) return
+
+    if (
+      !requestNew._ref_id ||
+      (!requestNew.id &&
+        localFolder.requests.some(
+          (request) =>
+            request !== requestNew && request._ref_id === requestNew._ref_id
+        ))
+    ) {
+      requestNew._ref_id = generateUniqueRefId("req")
+    }
+    const savedRequest = JSON.parse(JSON.stringify(requestNew))
     const isSynced = await ensureGQLPathSynced(path)
+    if (!isSynced) return
 
     const folder = navigateToFolderWithIndexPath(
       graphqlCollectionStore.value.state,
-      path.split("/").map((index) => parseInt(index))
+      path.split("/").map(Number)
     )
-    if (!folder) return
+    if (!folder?.id) return
 
-    const request = folder.requests[requestIndex]
+    const request = findRequestByIdentity(folder.requests, requestNew)
     if (!request) return
 
-    if (request.id) {
-      editGQLUserRequest(
-        request.id,
-        (requestNew as HoppRESTRequest).name,
-        JSON.stringify(requestNew)
-      )
-    } else {
-      if (isSynced && folder.id) {
-        const res = await createGQLUserRequest(
-          (requestNew as HoppRESTRequest).name,
-          JSON.stringify(requestNew),
-          folder.id
-        )
-        if (res && E.isRight(res)) {
-          request.id = res.right.createGQLUserRequest.id
-        }
-      }
-    }
+    savedRequest.id = request.id
+    await syncRequest(folder.id, savedRequest)
   },
   async saveRequestAs({ path, request }) {
     // Establish identity before any asynchronous work or serialization.
@@ -408,20 +417,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const pendingRequest = findRequestByIdentity(folder.requests, request)
     if (!pendingRequest || pendingRequest.id) return
 
-    const res = await createGQLUserRequest(
-      pendingRequest.name,
-      JSON.stringify(pendingRequest),
-      folder.id
-    )
-
-    if (E.isRight(res)) {
-      reconcileRequestID(
-        "GQL",
-        folder.id,
-        request,
-        res.right.createGQLUserRequest.id
-      )
-    }
+    await syncRequest(folder.id, pendingRequest)
   },
   async removeRequest({ requestID }) {
     if (requestID) {

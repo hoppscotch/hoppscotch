@@ -1,10 +1,6 @@
+import { createRequestSynchronizer } from "./requestCreation"
 import { findRequestByIdentity } from "./requestIdentity"
-import {
-  generateUniqueRefId,
-  HoppCollection,
-  HoppGQLRequest,
-  HoppRESTRequest,
-} from "@hoppscotch/data"
+import { generateUniqueRefId, HoppCollection } from "@hoppscotch/data"
 
 import {
   createRESTChildUserCollection,
@@ -67,6 +63,16 @@ const transformCollectionForBackend = (collection: HoppCollection): any => {
   }
 }
 
+const syncRequest = createRequestSynchronizer(
+  async (name, wire, collectionID) => {
+    const result = await createRESTUserRequest(name, wire, collectionID)
+    return E.isRight(result) ? result.right.createRESTUserRequest.id : undefined
+  },
+  editUserRequest,
+  (collectionID, request, id) =>
+    reconcileRequestID("REST", collectionID, request, id)
+)
+
 export const restCollectionsMapper = createMapper<string, string>()
 
 // restRequestsMapper uses the collectionPath/requestIndex as the local identifier
@@ -110,7 +116,7 @@ export function reconcileRequestID(
   collectionType: "REST" | "GQL",
   collectionID: string,
   request: { id?: string; _ref_id?: string },
-  requestID: string
+  requestID?: string
 ) {
   const { collectionStore } = getStoreByCollectionType(collectionType)
   const path = findCollectionPathByID(collectionStore.value.state, collectionID)
@@ -122,7 +128,8 @@ export function reconcileRequestID(
   if (!folder) return
 
   const currentRequest = findRequestByIdentity(folder.requests, request)
-  if (!currentRequest || currentRequest.id === requestID) return
+  if (!currentRequest) return
+  if (!requestID || currentRequest.id === requestID) return currentRequest.id
 
   // Notify persistence without echoing the server ID back as an edit.
   runDispatchWithOutSyncing(() => {
@@ -136,6 +143,7 @@ export function reconcileRequestID(
       },
     })
   })
+  return requestID
 }
 
 // Suffix stamped onto the optimistically-inserted duplicate in the
@@ -717,35 +725,38 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
       }
     }
   },
-  async editRequest({ path, requestIndex, requestNew }) {
+  async editRequest({ path, requestNew }) {
+    const localFolder = navigateToFolderWithIndexPath(
+      restCollectionStore.value.state,
+      path.split("/").map(Number)
+    )
+    if (!localFolder) return
+
+    if (
+      !requestNew._ref_id ||
+      (!requestNew.id &&
+        localFolder.requests.some(
+          (request) =>
+            request !== requestNew && request._ref_id === requestNew._ref_id
+        ))
+    ) {
+      requestNew._ref_id = generateUniqueRefId("req")
+    }
+    const savedRequest = JSON.parse(JSON.stringify(requestNew))
     const isSynced = await ensureRESTPathSynced(path)
+    if (!isSynced) return
 
     const folder = navigateToFolderWithIndexPath(
       restCollectionStore.value.state,
-      path.split("/").map((index) => parseInt(index))
+      path.split("/").map(Number)
     )
-    if (!folder) return
+    if (!folder?.id) return
 
-    const request = folder.requests[requestIndex]
+    const request = findRequestByIdentity(folder.requests, requestNew)
     if (!request) return
 
-    // Unified workspace: REST mutation handles both kinds — backend stores the request as opaque JSON in a REST row.
-    const typed = requestNew as HoppRESTRequest | HoppGQLRequest
-
-    if (request.id) {
-      editUserRequest(request.id, typed.name, JSON.stringify(typed))
-    } else {
-      if (isSynced && folder.id) {
-        const res = await createRESTUserRequest(
-          typed.name,
-          JSON.stringify(typed),
-          folder.id
-        )
-        if (res && E.isRight(res)) {
-          request.id = res.right.createRESTUserRequest.id
-        }
-      }
-    }
+    savedRequest.id = request.id
+    await syncRequest(folder.id, savedRequest)
   },
   async saveRequestAs({ path, request }) {
     // Establish identity before any asynchronous work or serialization.
@@ -762,20 +773,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     const pendingRequest = findRequestByIdentity(folder.requests, request)
     if (!pendingRequest || pendingRequest.id) return
 
-    const res = await createRESTUserRequest(
-      pendingRequest.name,
-      JSON.stringify(pendingRequest),
-      folder.id
-    )
-
-    if (E.isRight(res)) {
-      reconcileRequestID(
-        "REST",
-        folder.id,
-        request,
-        res.right.createRESTUserRequest.id
-      )
-    }
+    await syncRequest(folder.id, pendingRequest)
   },
   async removeRequest({ requestID }) {
     if (requestID) {

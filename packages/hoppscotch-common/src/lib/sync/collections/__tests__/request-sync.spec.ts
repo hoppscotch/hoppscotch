@@ -30,7 +30,11 @@ import {
 } from "~/newstore/collections"
 import { storeSyncDefinition as restSync } from "../sync"
 import { storeSyncDefinition as gqlSync } from "../gqlCollections.sync"
-import { def, setupUserRequestCreatedSubscription } from "../index"
+import {
+  def,
+  setupUserRequestCreatedSubscription,
+  setupUserRequestUpdatedSubscription,
+} from "../index"
 import { findRequestByIdentity } from "../requestIdentity"
 import { getSyncInitFunction, runDispatchWithOutSyncing } from "../.."
 
@@ -56,12 +60,14 @@ describe.each(["REST", "GQL"] as const)(
       type === "REST" ? api.createRESTUserRequest : api.createGQLUserRequest
     const makeRequest =
       type === "REST" ? getDefaultRESTRequest : getDefaultGQLRequest
+    let updates: Subject<any>
     let events: Subject<any>
     let persistence: Subscription | undefined
     afterEach(() => {
       syncEnabled = false
       persistence?.unsubscribe()
       events.complete()
+      updates.complete()
     })
     beforeEach(() => {
       vi.clearAllMocks()
@@ -77,6 +83,368 @@ describe.each(["REST", "GQL"] as const)(
         { unsubscribe: () => events.complete() },
       ] as any)
       setupUserRequestCreatedSubscription()
+      updates = new Subject()
+      vi.mocked(api.runUserRequestUpdatedSubscription).mockReturnValue([
+        updates,
+        { unsubscribe: () => updates.complete() },
+      ] as any)
+      setupUserRequestUpdatedSubscription()
+    })
+
+    it.each([
+      { subscriptionFirst: true, createFails: false },
+      { subscriptionFirst: false, createFails: false },
+      { subscriptionFirst: true, createFails: true },
+    ])(
+      "shares creation across saves: subscription first=$subscriptionFirst, response fails=$createFails",
+      async ({ subscriptionFirst, createFails }) => {
+        let persisted = ""
+        persistence = store.subject$.subscribe(({ state }) => {
+          persisted = JSON.stringify(state)
+        })
+        const responses: Array<(value: any) => void> = []
+        vi.mocked(create).mockImplementation(
+          () => new Promise((resolve) => responses.push(resolve)) as any
+        )
+        const update =
+          type === "REST" ? api.editUserRequest : api.editGQLUserRequest
+        vi.mocked(update).mockResolvedValue(E.right({}) as any)
+        const edit = type === "REST" ? editRESTRequest : editGraphqlRequest
+        syncEnabled = true
+        const request = makeRequest()
+        save("0", request as any)
+        await vi.waitFor(() => expect(create).toHaveBeenCalledTimes(1))
+        const wire = vi.mocked(create).mock.calls[0][1]
+        edit("0", 0, { ...request, name: "Second save" } as any)
+        await new Promise((resolve) => setTimeout(resolve, 0))
+        const emit = () =>
+          events.next(
+            E.right({
+              userRequestCreated: {
+                id: "server",
+                collectionID: "collection",
+                type,
+                request: wire,
+              },
+            })
+          )
+        if (subscriptionFirst) emit()
+        edit("0", 0, {
+          ...store.value.state[0].requests[0],
+          name: "Latest save",
+        } as any)
+        await new Promise((resolve) => setTimeout(resolve, 0))
+        responses.forEach((resolve, index) =>
+          resolve(
+            createFails
+              ? E.left({ error: "response failed" })
+              : E.right({
+                  [type === "REST"
+                    ? "createRESTUserRequest"
+                    : "createGQLUserRequest"]: {
+                    id: index === 0 ? "server" : `duplicate-${index}`,
+                  },
+                })
+          )
+        )
+        await new Promise((resolve) => setTimeout(resolve, 0))
+        if (!subscriptionFirst) emit()
+
+        expect(create).toHaveBeenCalledTimes(1)
+        expect(update).toHaveBeenCalledTimes(1)
+        const [id, name, savedWire] = vi.mocked(update).mock.calls[0]
+        expect(id).toBe("server")
+        expect(name).toBe("Latest save")
+        expect(JSON.parse(savedWire).id).toBe("server")
+        updates.next(
+          E.right({
+            userRequestUpdated: {
+              id: "server",
+              collectionID: "collection",
+              type,
+              request: savedWire,
+            },
+          })
+        )
+        expect(JSON.parse(savedWire)).toMatchObject({
+          name: "Latest save",
+          _ref_id: request._ref_id,
+        })
+        expect(JSON.parse(persisted)[0].requests).toEqual([
+          expect.objectContaining({ id: "server", name: "Latest save" }),
+        ])
+        vi.mocked(api.exportUserCollectionsToJSON).mockResolvedValue(
+          E.right({
+            exportUserCollectionsToJSON: {
+              exportedCollection: JSON.stringify([
+                {
+                  id: "collection",
+                  name: "Test",
+                  folders: [],
+                  requests: [{ ...JSON.parse(savedWire), id: "server" }],
+                  data: JSON.stringify({
+                    auth: { authType: "inherit", authActive: true },
+                    headers: [],
+                    variables: [],
+                  }),
+                },
+              ]),
+            },
+          }) as any
+        )
+        const setCollections =
+          type === "REST" ? setRESTCollections : setGraphqlCollections
+        runDispatchWithOutSyncing(() => setCollections(JSON.parse(persisted)))
+        await def.loadUserCollections!(type)
+        expect(store.value.state[0].requests).toEqual([
+          expect.objectContaining({ id: "server", name: "Latest save" }),
+        ])
+      }
+    )
+
+    it("flushes another saved edit made while the queued update is pending", async () => {
+      let respond!: (value: any) => void
+      vi.mocked(create).mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            respond = resolve
+          }) as any
+      )
+      const update =
+        type === "REST" ? api.editUserRequest : api.editGQLUserRequest
+      const updates: Array<(value: any) => void> = []
+      vi.mocked(update).mockImplementation(
+        () => new Promise((resolve) => updates.push(resolve)) as any
+      )
+      const edit = type === "REST" ? editRESTRequest : editGraphqlRequest
+      syncEnabled = true
+      const request = makeRequest()
+      save("0", request as any)
+      await vi.waitFor(() => expect(create).toHaveBeenCalledTimes(1))
+      edit("0", 0, { ...request, name: "Second save" } as any)
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      respond(
+        E.right({
+          [type === "REST" ? "createRESTUserRequest" : "createGQLUserRequest"]:
+            { id: "server" },
+        })
+      )
+      await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1))
+      edit("0", 0, {
+        ...store.value.state[0].requests[0],
+        name: "Third save",
+      } as any)
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      const beforeResponse = vi.mocked(update).mock.calls.length
+      updates[0](E.right({}))
+      await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(2))
+      updates[1](E.right({}))
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      expect(beforeResponse).toBe(1)
+      expect(create).toHaveBeenCalledTimes(1)
+      expect(vi.mocked(update).mock.calls.map((call) => call[1])).toEqual([
+        "Second save",
+        "Third save",
+      ])
+    })
+
+    it("sends the dispatched edit even if a local-only change replaces the row", async () => {
+      const request = { ...makeRequest(), id: "server" }
+      store.value.state[0].requests.push(request)
+      const update =
+        type === "REST" ? api.editUserRequest : api.editGQLUserRequest
+      vi.mocked(update).mockResolvedValue(E.right({}) as any)
+      const edit = type === "REST" ? editRESTRequest : editGraphqlRequest
+      syncEnabled = true
+      const saved = { ...request, name: "Saved edit" }
+      edit("0", 0, saved as any)
+      runDispatchWithOutSyncing(() =>
+        edit("0", 0, { ...request, name: "Local only" } as any)
+      )
+      saved.name = "Unsaved tab edit"
+      await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1))
+      expect(vi.mocked(update).mock.calls[0][1]).toBe("Saved edit")
+      expect(JSON.parse(vi.mocked(update).mock.calls[0][2]).name).toBe(
+        "Saved edit"
+      )
+    })
+
+    it("keeps a queued edit attached to its request after rows are reordered", async () => {
+      let respond!: (value: any) => void
+      vi.mocked(create).mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            respond = resolve
+          }) as any
+      )
+      const update =
+        type === "REST" ? api.editUserRequest : api.editGQLUserRequest
+      vi.mocked(update).mockResolvedValue(E.right({}) as any)
+      const edit = type === "REST" ? editRESTRequest : editGraphqlRequest
+      syncEnabled = true
+      const request = makeRequest()
+      save("0", request as any)
+      await vi.waitFor(() => expect(create).toHaveBeenCalledTimes(1))
+      store.value.state[0].requests.push({ ...makeRequest(), id: "other" })
+      edit("0", 0, { ...request, name: "Saved edit" } as any)
+      store.value.state[0].requests.reverse()
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      respond(
+        E.right({
+          [type === "REST" ? "createRESTUserRequest" : "createGQLUserRequest"]:
+            { id: "server" },
+        })
+      )
+      await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1))
+      expect(vi.mocked(update).mock.calls[0].slice(0, 2)).toEqual([
+        "server",
+        "Saved edit",
+      ])
+      expect(create).toHaveBeenCalledTimes(1)
+    })
+
+    it("keeps separate legacy requests with empty references distinct", async () => {
+      store.value.state[0].requests.push(
+        { ...makeRequest(), name: "First", _ref_id: "" },
+        { ...makeRequest(), name: "Second", _ref_id: "" }
+      )
+      const responses: Array<(value: any) => void> = []
+      vi.mocked(create).mockImplementation(
+        () => new Promise((resolve) => responses.push(resolve)) as any
+      )
+      const edit = type === "REST" ? editRESTRequest : editGraphqlRequest
+      syncEnabled = true
+      edit("0", 0, store.value.state[0].requests[0] as any)
+      edit("0", 1, store.value.state[0].requests[1] as any)
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      responses.forEach((resolve, index) =>
+        resolve(
+          E.right({
+            [type === "REST"
+              ? "createRESTUserRequest"
+              : "createGQLUserRequest"]: { id: `server-${index}` },
+          })
+        )
+      )
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      expect(create).toHaveBeenCalledTimes(2)
+      expect(
+        store.value.state[0].requests.map((request) => request.id)
+      ).toEqual(["server-0", "server-1"])
+    })
+
+    it.each([true, false])(
+      "keeps a legacy copy distinct from its original, synced=%s",
+      async (synced) => {
+        const original = {
+          ...makeRequest(),
+          name: "Original",
+          _ref_id: "shared",
+          ...(synced ? { id: "original" } : {}),
+        }
+        const copy = { ...makeRequest(), name: "Copy", _ref_id: "shared" }
+        store.value.state[0].requests.push(original, copy)
+        const responses: Array<(value: any) => void> = []
+        vi.mocked(create).mockImplementation(
+          () => new Promise((resolve) => responses.push(resolve)) as any
+        )
+        const update =
+          type === "REST" ? api.editUserRequest : api.editGQLUserRequest
+        vi.mocked(update).mockResolvedValue(E.right({}) as any)
+        const edit = type === "REST" ? editRESTRequest : editGraphqlRequest
+        syncEnabled = true
+        edit("0", 1, copy as any)
+        edit("0", 0, original as any)
+        await new Promise((resolve) => setTimeout(resolve, 0))
+        responses.forEach((resolve, index) =>
+          resolve(
+            E.right({
+              [type === "REST"
+                ? "createRESTUserRequest"
+                : "createGQLUserRequest"]: { id: `server-${index}` },
+            })
+          )
+        )
+        await new Promise((resolve) => setTimeout(resolve, 0))
+        expect(create).toHaveBeenCalledTimes(synced ? 1 : 2)
+        expect(update).toHaveBeenCalledTimes(synced ? 1 : 0)
+        if (synced)
+          expect(vi.mocked(update).mock.calls[0].slice(0, 2)).toEqual([
+            "original",
+            "Original",
+          ])
+        expect(copy._ref_id).not.toBe(original._ref_id)
+        expect(copy.id).toBe("server-0")
+      }
+    )
+
+    it("allows a later save to retry a failed creation", async () => {
+      let respond!: (value: any) => void
+      vi.mocked(create).mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            respond = resolve
+          }) as any
+      )
+      vi.mocked(create).mockResolvedValue(
+        E.right({
+          [type === "REST" ? "createRESTUserRequest" : "createGQLUserRequest"]:
+            { id: "retried" },
+        }) as any
+      )
+      const update =
+        type === "REST" ? api.editUserRequest : api.editGQLUserRequest
+      const edit = type === "REST" ? editRESTRequest : editGraphqlRequest
+      syncEnabled = true
+      const request = makeRequest()
+      save("0", request as any)
+      await vi.waitFor(() => expect(create).toHaveBeenCalledTimes(1))
+      edit("0", 0, { ...request, name: "Saved while offline" } as any)
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      respond(E.left({ error: "offline" }))
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      expect(create).toHaveBeenCalledTimes(1)
+      edit("0", 0, { ...request, name: "Retry save" } as any)
+      await vi.waitFor(() =>
+        expect(store.value.state[0].requests[0].id).toBe("retried")
+      )
+      expect(create).toHaveBeenCalledTimes(2)
+      expect(vi.mocked(create).mock.calls[1][0]).toBe("Retry save")
+      expect(update).not.toHaveBeenCalled()
+    })
+
+    it("keeps the same reference in different collections independent", async () => {
+      store.value.state.push({
+        ...store.value.state[0],
+        id: "other-collection",
+        requests: [],
+      })
+      const responses: Array<(value: any) => void> = []
+      vi.mocked(create).mockImplementation(
+        () => new Promise((resolve) => responses.push(resolve)) as any
+      )
+      syncEnabled = true
+      save("0", { ...makeRequest(), _ref_id: "shared" } as any)
+      save("1", { ...makeRequest(), _ref_id: "shared" } as any)
+      await vi.waitFor(() => expect(create).toHaveBeenCalledTimes(2))
+      responses.forEach((resolve, index) =>
+        resolve(
+          E.right({
+            [type === "REST"
+              ? "createRESTUserRequest"
+              : "createGQLUserRequest"]: { id: `server-${index}` },
+          })
+        )
+      )
+      await vi.waitFor(() =>
+        expect(
+          store.value.state.map((folder) => folder.requests[0].id)
+        ).toEqual(["server-0", "server-1"])
+      )
+      expect(vi.mocked(create).mock.calls.map((call) => call[2])).toEqual([
+        "collection",
+        "other-collection",
+      ])
     })
 
     it("creates the current stored request after the pending object is replaced", async () => {

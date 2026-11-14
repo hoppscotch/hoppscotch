@@ -1072,7 +1072,7 @@ export function setupUserRequestCreatedSubscription() {
   return userRequestCreatedSub
 }
 
-function setupUserRequestUpdatedSubscription() {
+export function setupUserRequestUpdatedSubscription() {
   const [userRequestUpdated$, userRequestUpdatedSub] =
     runUserRequestUpdatedSubscription()
 

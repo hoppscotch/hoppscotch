@@ -2,6 +2,11 @@ import { generateUniqueRefId } from "@hoppscotch/data"
 
 type Request = { id?: string; _ref_id?: string; name: string }
 type Payload = { name: string; wire: string }
+type PendingRequest = {
+  latest: Payload
+  sent: Payload
+  operation?: Promise<void>
+}
 
 export function createRequestSynchronizer(
   create: (
@@ -16,12 +21,46 @@ export function createRequestSynchronizer(
     id?: string
   ) => string | undefined
 ) {
-  const pending = new Map<
-    string,
-    { latest: Payload; operation: Promise<void> }
-  >()
+  const pending = new Map<string, PendingRequest>()
 
-  return async (collectionID: string, request: Request) => {
+  const run = (
+    collectionID: string,
+    request: Request,
+    key: string,
+    entry: PendingRequest
+  ) => {
+    entry.operation = (async () => {
+      let id = request.id
+      try {
+        if (!id) {
+          const payload = entry.latest
+          const createdID = await create(
+            payload.name,
+            payload.wire,
+            collectionID
+          )
+          id = reconcile(collectionID, request, createdID)
+          if (!id) return
+          if (createdID) entry.sent = payload
+        }
+
+        // Save only dispatched edits, not unsaved changes to the tab object.
+        while (entry.latest.wire !== entry.sent.wire) {
+          const payload = entry.latest
+          const wire = JSON.stringify({ ...JSON.parse(payload.wire), id })
+          await update(id, payload.name, wire)
+          entry.sent = payload
+        }
+      } finally {
+        entry.operation = undefined
+        // A late creation event can still supply the missing server ID.
+        if (id || entry.latest.wire === entry.sent.wire) pending.delete(key)
+      }
+    })()
+    return entry.operation
+  }
+
+  const sync = async (collectionID: string, request: Request) => {
     request._ref_id ||= generateUniqueRefId("req")
     const key = JSON.stringify([collectionID, request._ref_id])
     const payload = { name: request.name, wire: JSON.stringify(request) }
@@ -29,7 +68,7 @@ export function createRequestSynchronizer(
 
     if (existing) {
       existing.latest = payload
-      return existing.operation
+      return existing.operation ?? run(collectionID, request, key, existing)
     }
 
     if (request.id) {
@@ -37,25 +76,18 @@ export function createRequestSynchronizer(
       return
     }
 
-    const entry = { latest: payload, operation: Promise.resolve() }
+    const entry: PendingRequest = { latest: payload, sent: payload }
     pending.set(key, entry)
-    entry.operation = (async () => {
-      try {
-        const createdID = await create(payload.name, payload.wire, collectionID)
-        const id = reconcile(collectionID, request, createdID)
-        if (!id) return
-
-        let sent = payload
-        // Save only dispatched edits, not unsaved changes to the tab object.
-        while (entry.latest.wire !== sent.wire) {
-          sent = entry.latest
-          const wire = JSON.stringify({ ...JSON.parse(sent.wire), id })
-          await update(id, sent.name, wire)
-        }
-      } finally {
-        pending.delete(key)
-      }
-    })()
-    return entry.operation
+    return run(collectionID, request, key, entry)
   }
+
+  const onCreated = (collectionID: string, request: Request) => {
+    const key = JSON.stringify([collectionID, request._ref_id])
+    const entry = pending.get(key)
+    if (request.id && entry && !entry.operation) {
+      return run(collectionID, request, key, entry)
+    }
+  }
+
+  return Object.assign(sync, { onCreated })
 }

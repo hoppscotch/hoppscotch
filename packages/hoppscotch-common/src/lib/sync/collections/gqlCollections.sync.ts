@@ -53,7 +53,7 @@ const transformCollectionForBackend = (collection: HoppCollection): any => {
   }
 }
 
-const syncRequest = createRequestSynchronizer(
+export const syncRequest = createRequestSynchronizer(
   async (name, wire, collectionID) => {
     const result = await createGQLUserRequest(name, wire, collectionID)
     return E.isRight(result) ? result.right.createGQLUserRequest.id : undefined

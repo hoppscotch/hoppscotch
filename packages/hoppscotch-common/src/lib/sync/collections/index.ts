@@ -20,6 +20,7 @@ import {
   collectionsSyncer,
   getStoreByCollectionType,
   reconcileRequestID,
+  syncRequest as syncRESTRequest,
 } from "./sync"
 
 import {
@@ -78,7 +79,10 @@ import {
 } from "~/newstore/collections"
 import { platform } from "~/platform"
 import { runDispatchWithOutSyncing } from ".."
-import { gqlCollectionsSyncer } from "./gqlCollections.sync"
+import {
+  gqlCollectionsSyncer,
+  syncRequest as syncGQLRequest,
+} from "./gqlCollections.sync"
 import { importToPersonalWorkspace } from "./import"
 
 function initCollectionsSync() {
@@ -1049,6 +1053,9 @@ export function setupUserRequestCreatedSubscription() {
             existingRequest,
             requestID
           )
+          const syncRequest =
+            requestType === "REST" ? syncRESTRequest : syncGQLRequest
+          void syncRequest.onCreated(collectionID, existingRequest)
           return
         }
 

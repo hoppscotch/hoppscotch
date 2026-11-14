@@ -63,7 +63,7 @@ const transformCollectionForBackend = (collection: HoppCollection): any => {
   }
 }
 
-const syncRequest = createRequestSynchronizer(
+export const syncRequest = createRequestSynchronizer(
   async (name, wire, collectionID) => {
     const result = await createRESTUserRequest(name, wire, collectionID)
     return E.isRight(result) ? result.right.createRESTUserRequest.id : undefined

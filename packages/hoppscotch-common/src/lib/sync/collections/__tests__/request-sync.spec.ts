@@ -95,6 +95,7 @@ describe.each(["REST", "GQL"] as const)(
       { subscriptionFirst: true, createFails: false },
       { subscriptionFirst: false, createFails: false },
       { subscriptionFirst: true, createFails: true },
+      { subscriptionFirst: false, createFails: true },
     ])(
       "shares creation across saves: subscription first=$subscriptionFirst, response fails=$createFails",
       async ({ subscriptionFirst, createFails }) => {

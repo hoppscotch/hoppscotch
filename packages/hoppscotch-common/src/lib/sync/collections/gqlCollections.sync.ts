@@ -30,6 +30,7 @@ import {
   applyDuplicatedCollectionResult,
   moveOrReorderRequests,
   ensurePathSynced,
+  reconcileRequestID,
 } from "./sync"
 import { ReqType } from "~/helpers/backend/graphql"
 import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
@@ -414,10 +415,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     )
 
     if (E.isRight(res)) {
-      // The subscription may arrive first, or another save may append a row.
-      // Always reconcile the request that initiated this mutation.
-      const savedRequest = findRequestByIdentity(folder.requests, request)
-      if (savedRequest) savedRequest.id = res.right.createGQLUserRequest.id
+      reconcileRequestID(
+        "GQL",
+        folder.id,
+        request,
+        res.right.createGQLUserRequest.id
+      )
     }
   },
   async removeRequest({ requestID }) {

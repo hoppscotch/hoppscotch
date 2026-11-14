@@ -16,7 +16,11 @@ import {
   runUserRequestUpdatedSubscription,
   runUserRootCollectionsSortedSubscription,
 } from "./api"
-import { collectionsSyncer, getStoreByCollectionType } from "./sync"
+import {
+  collectionsSyncer,
+  getStoreByCollectionType,
+  reconcileRequestID,
+} from "./sync"
 
 import {
   generateUniqueRefId,
@@ -1039,26 +1043,27 @@ export function setupUserRequestCreatedSubscription() {
           findRequestByIdentity(target.requests, { ...request, id: requestID })
 
         if (existingRequest) {
-          // Preserve local edits made while the create mutation was pending.
-          existingRequest.id = requestID
+          reconcileRequestID(
+            requestType,
+            collectionID,
+            existingRequest,
+            requestID
+          )
           return
         }
 
         runDispatchWithOutSyncing(() => {
+          if (
+            target?.requests.some(
+              (existing) => existing._ref_id === request._ref_id
+            )
+          ) {
+            request._ref_id = generateUniqueRefId("req")
+          }
+          request.id = requestID
           requestType == "REST"
             ? saveRESTRequestAs(collectionPath, request)
             : saveGraphqlRequestAs(collectionPath, request as HoppGQLRequest)
-
-          const target = navigateToFolderWithIndexPath(
-            collectionStore.value.state,
-            collectionPath.split("/").map((index) => parseInt(index))
-          )
-
-          const targetRequest = target?.requests[target?.requests.length - 1]
-
-          if (targetRequest) {
-            targetRequest.id = requestID
-          }
         })
       }
     }

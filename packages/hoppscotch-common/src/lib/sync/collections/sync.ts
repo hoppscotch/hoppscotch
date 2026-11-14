@@ -106,6 +106,38 @@ function findCollectionPathByID(
   return undefined
 }
 
+export function reconcileRequestID(
+  collectionType: "REST" | "GQL",
+  collectionID: string,
+  request: { id?: string; _ref_id?: string },
+  requestID: string
+) {
+  const { collectionStore } = getStoreByCollectionType(collectionType)
+  const path = findCollectionPathByID(collectionStore.value.state, collectionID)
+  if (!path) return
+
+  const folder = navigateToFolderWithIndexPath(collectionStore.value.state, [
+    ...path,
+  ])
+  if (!folder) return
+
+  const currentRequest = findRequestByIdentity(folder.requests, request)
+  if (!currentRequest || currentRequest.id === requestID) return
+
+  // Notify persistence without echoing the server ID back as an edit.
+  runDispatchWithOutSyncing(() => {
+    currentRequest.id = requestID
+    collectionStore.dispatch({
+      dispatcher: "editRequest",
+      payload: {
+        path: path.join("/"),
+        requestIndex: folder.requests.indexOf(currentRequest),
+        requestNew: currentRequest,
+      },
+    })
+  })
+}
+
 // Suffix stamped onto the optimistically-inserted duplicate in the
 // `duplicateCollection` store dispatcher. Used here to locate that placeholder
 // so it can be swapped for the backend response carrying the real IDs.
@@ -737,10 +769,12 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     )
 
     if (E.isRight(res)) {
-      // The subscription may arrive first, or another save may append a row.
-      // Always reconcile the request that initiated this mutation.
-      const savedRequest = findRequestByIdentity(folder.requests, request)
-      if (savedRequest) savedRequest.id = res.right.createRESTUserRequest.id
+      reconcileRequestID(
+        "REST",
+        folder.id,
+        request,
+        res.right.createRESTUserRequest.id
+      )
     }
   },
   async removeRequest({ requestID }) {

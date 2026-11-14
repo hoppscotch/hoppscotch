@@ -800,6 +800,16 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
+    const currentRequest = targetLocation.requests[requestIndex]
+    if (
+      !requestNew.id &&
+      currentRequest?.id &&
+      requestNew._ref_id &&
+      requestNew._ref_id === currentRequest._ref_id
+    ) {
+      requestNew.id = currentRequest.id
+    }
+
     targetLocation.requests = targetLocation.requests.map((req, index) =>
       index !== requestIndex ? req : requestNew
     )
@@ -1526,6 +1536,16 @@ const gqlCollectionDispatchers = defineDispatchers({
         `Could not resolve path '${path}'. Ignoring editRequest dispatch.`
       )
       return {}
+    }
+
+    const currentRequest = targetLocation.requests[requestIndex]
+    if (
+      !requestNew.id &&
+      currentRequest?.id &&
+      requestNew._ref_id &&
+      requestNew._ref_id === currentRequest._ref_id
+    ) {
+      requestNew.id = currentRequest.id
     }
 
     targetLocation.requests = targetLocation.requests.map((req, index) =>

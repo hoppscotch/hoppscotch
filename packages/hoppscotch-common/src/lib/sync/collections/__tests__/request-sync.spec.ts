@@ -645,31 +645,72 @@ describe.each(["REST", "GQL"] as const)(
       expect(create).not.toHaveBeenCalled()
     })
 
-    it("keeps the open tab's saved request identity on the next save", async () => {
-      const request = makeRequest()
-      vi.mocked(create).mockResolvedValue(
-        E.right({
-          [type === "REST" ? "createRESTUserRequest" : "createGQLUserRequest"]:
-            { id: "server" },
-        }) as any
-      )
-      const update =
-        type === "REST" ? api.editUserRequest : api.editGQLUserRequest
-      vi.mocked(update).mockResolvedValue(E.right({}) as any)
-      syncEnabled = true
-      save("0", request as any)
-      await vi.waitFor(() =>
-        expect(store.value.state[0].requests[0].id).toBe("server")
-      )
-      expect(request.id).toBe("server")
-      expect(store.value.state[0].requests[0]).toBe(request)
+    it.each([false, true])(
+      "keeps the open tab's identity on the next save, pending rename=%s",
+      async (rename) => {
+        const request = makeRequest()
+        let respond!: (value: any) => void
+        vi.mocked(create).mockImplementation(
+          () =>
+            new Promise((resolve) => {
+              respond = resolve
+            }) as any
+        )
+        const update =
+          type === "REST" ? api.editUserRequest : api.editGQLUserRequest
+        vi.mocked(update).mockResolvedValue(E.right({}) as any)
+        const edit = type === "REST" ? editRESTRequest : editGraphqlRequest
+        syncEnabled = true
+        save("0", request as any)
+        await vi.waitFor(() => expect(create).toHaveBeenCalledTimes(1))
+        if (rename) {
+          edit("0", 0, { ...request, name: "Renamed" } as any)
+          request.name = "Renamed"
+          await new Promise((resolve) => setTimeout(resolve, 0))
+        }
+        respond(
+          E.right({
+            [type === "REST"
+              ? "createRESTUserRequest"
+              : "createGQLUserRequest"]: { id: "server" },
+          })
+        )
+        await vi.waitFor(() =>
+          expect(store.value.state[0].requests[0].id).toBe("server")
+        )
+        await new Promise((resolve) => setTimeout(resolve, 0))
 
-      request.name = "Saved again"
+        request.name = "Saved again"
+        edit("0", 0, request as any)
+        await new Promise((resolve) => setTimeout(resolve, 0))
+        expect(create).toHaveBeenCalledTimes(1)
+        expect(update).toHaveBeenCalledTimes(rename ? 2 : 1)
+        const lastUpdate = vi.mocked(update).mock.calls.at(-1)!
+        expect(lastUpdate.slice(0, 2)).toEqual(["server", "Saved again"])
+        expect(JSON.parse(lastUpdate[2])).toMatchObject({
+          id: "server",
+          name: "Saved again",
+        })
+        expect(request.id).toBe("server")
+        expect(store.value.state[0].requests[0]).toBe(request)
+      }
+    )
+
+    it.each([
+      { ref: "different", id: undefined },
+      { ref: undefined, id: undefined },
+      { ref: "", id: undefined },
+      { ref: "shared", id: "other-server" },
+    ])("does not inherit a foreign ID for ref=$ref, id=$id", ({ ref, id }) => {
+      store.value.state[0].requests.push({
+        ...makeRequest(),
+        _ref_id: "shared",
+        id: "server",
+      })
+      const replacement = { ...makeRequest(), _ref_id: ref, id }
       const edit = type === "REST" ? editRESTRequest : editGraphqlRequest
-      edit("0", 0, request as any)
-      await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1))
-      expect(vi.mocked(update).mock.calls[0][0]).toBe("server")
-      expect(create).toHaveBeenCalledTimes(1)
+      edit("0", 0, replacement as any)
+      expect(store.value.state[0].requests[0].id).toBe(id)
     })
 
     it("gives a remote copy its own reference identity", () => {

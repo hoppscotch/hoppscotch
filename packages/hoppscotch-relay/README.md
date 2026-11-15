@@ -191,8 +191,8 @@ cancel_token.cancel();
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/hoppscotch/hoppscotch-relay
-cd hoppscotch-relay
+git clone https://github.com/hoppscotch/hoppscotch.git
+cd hoppscotch/packages/hoppscotch-relay
 ```
 
 2. Build the project:

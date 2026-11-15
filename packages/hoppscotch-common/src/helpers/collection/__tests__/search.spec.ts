@@ -133,6 +133,26 @@ describe("searchCollectionChildren", () => {
     ).toEqual(["Restore", "Purge"])
   })
 
+  test("lists a folder matching by its name and by a request whole, and only once", () => {
+    const parent = collection(
+      "Trash",
+      [],
+      [
+        collection("Deleted items", [
+          request("Restore"),
+          request("Delete forever"),
+        ]),
+      ]
+    )
+
+    expect(searchCollectionChildren(parent, 1, "delete").folders).toEqual([
+      { index: 0, data: parent.folders[0] },
+    ])
+    expect(
+      names(searchCollectionChildren(parent.folders[0], 2, "delete").requests)
+    ).toEqual(["Restore", "Delete forever"])
+  })
+
   test("lists everything without a search or below the searched levels", () => {
     expect(names(searchCollectionChildren(petStore, 1, "").requests)).toEqual([
       "List pets",

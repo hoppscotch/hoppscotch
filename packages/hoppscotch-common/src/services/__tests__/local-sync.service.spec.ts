@@ -13,14 +13,17 @@ import {
   makeRESTRequest,
   getDefaultRESTRequest,
   makeGQLRequest,
+  getDefaultGQLRequest,
 } from "@hoppscotch/data"
 import {
   LocalSyncService,
   sanitizeFileName,
   getUniqueName,
+  sanitizeAuthForExport,
   serializeAllCollectionsToDir,
   deserializeAllCollectionsFromDir,
   preserveExistingLocalIds,
+  mergeRepositoryWithLocal,
 } from "../local-sync.service"
 
 // In-memory mock for W3C File System Access API
@@ -148,12 +151,17 @@ describe("LocalSyncService File Utilities", () => {
       })
 
       const sampleGQL = makeGQLRequest({
+        ...getDefaultGQLRequest(),
         name: "GraphQL User Query",
         url: "https://api.example.com/graphql",
         query: "query { user { id name } }",
         headers: [],
         variables: "{}",
         auth: { authType: "inherit", authActive: true },
+        description: null,
+        responses: {},
+        preRequestScript: "",
+        testScript: "",
       })
 
       const subReq = makeRESTRequest({
@@ -208,6 +216,12 @@ describe("LocalSyncService File Utilities", () => {
 
       const colDir = collectionsDir.directories.get("User Service API")!
       expect(colDir.files.has("_collection.json")).toBe(true)
+      const meta = JSON.parse(
+        (colDir.files.get("_collection.json") as MockFileHandle).content
+      )
+      // Bearer token must be stripped from exported Git files
+      expect(meta.auth.token).toBe("")
+
       expect(colDir.files.has("Get User By ID.json")).toBe(true)
       expect(colDir.files.has("Create User.json")).toBe(true)
       expect(colDir.files.has("GraphQL User Query.json")).toBe(true)
@@ -223,10 +237,22 @@ describe("LocalSyncService File Utilities", () => {
       const restored = deserialized![0]
       expect(restored.name).toBe("User Service API")
       expect(restored.description).toBe("User management APIs")
-      expect(restored.auth).toEqual(sampleCollection.auth)
+      // Auth on disk has sanitized credential
+      expect(restored.auth).toEqual({
+        authType: "bearer",
+        authActive: true,
+        token: "",
+      })
       expect(restored.headers).toEqual(sampleCollection.headers)
       expect(restored.preRequestScript).toBe("// pre-request")
       expect(restored.testScript).toBe("// test")
+
+      // preserveExistingLocalIds should reattach local active credentials in-memory
+      const reconciled = preserveExistingLocalIds(
+        [restored],
+        [sampleCollection]
+      )
+      expect((reconciled[0].auth as any)?.token).toBe("secret-token")
 
       expect(restored.requests.length).toBe(3)
       expect(restored.requests[0].name).toBe("Get User By ID")
@@ -435,6 +461,131 @@ describe("LocalSyncService File Utilities", () => {
       expect((reconciled[0].requests[0] as any).id).toBe(
         "remote-account-req-id-123"
       )
+    })
+  })
+
+  describe("mergeRepositoryWithLocal", () => {
+    it("should replace default empty local collection with repository collections", () => {
+      const defaultLocal = [
+        makeCollection({
+          name: "My Collection",
+          folders: [],
+          requests: [],
+          auth: { authType: "inherit", authActive: true },
+          headers: [],
+          variables: [],
+          description: null,
+          preRequestScript: "",
+          testScript: "",
+        }),
+      ]
+
+      const repoCol = makeCollection({
+        name: "Repo Collection",
+        folders: [],
+        requests: [],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [],
+        description: null,
+        preRequestScript: "",
+        testScript: "",
+      })
+
+      const merged = mergeRepositoryWithLocal([repoCol], defaultLocal)
+      expect(merged.length).toBe(1)
+      expect(merged[0].name).toBe("Repo Collection")
+    })
+
+    it("should merge and preserve non-empty local-only collections alongside repo collections", () => {
+      const repoCol = makeCollection({
+        name: "Repo Service",
+        folders: [],
+        requests: [],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [],
+        description: null,
+        preRequestScript: "",
+        testScript: "",
+      })
+
+      const localCol = makeCollection({
+        name: "Local Scratchpad",
+        folders: [],
+        requests: [
+          makeRESTRequest({
+            ...getDefaultRESTRequest(),
+            name: "Local Test",
+            endpoint: "https://local.test",
+          }),
+        ],
+        auth: { authType: "inherit", authActive: true },
+        headers: [],
+        variables: [],
+        description: null,
+        preRequestScript: "",
+        testScript: "",
+      })
+
+      const merged = mergeRepositoryWithLocal([repoCol], [localCol])
+      expect(merged.length).toBe(2)
+      expect(merged[0].name).toBe("Repo Service")
+      expect(merged[1].name).toBe("Local Scratchpad")
+    })
+  })
+
+  describe("sanitizeAuthForExport", () => {
+    it("should strip plaintext bearer token, basic password, and api key while preserving templates", () => {
+      const bearerAuth = {
+        authType: "bearer",
+        authActive: true,
+        token: "my-secret-token",
+      }
+      expect(sanitizeAuthForExport(bearerAuth)).toEqual({
+        authType: "bearer",
+        authActive: true,
+        token: "",
+      })
+
+      const templateAuth = {
+        authType: "bearer",
+        authActive: true,
+        token: "<<access_token>>",
+      }
+      expect(sanitizeAuthForExport(templateAuth)).toEqual({
+        authType: "bearer",
+        authActive: true,
+        token: "<<access_token>>",
+      })
+
+      const basicAuth = {
+        authType: "basic",
+        authActive: true,
+        username: "admin",
+        password: "supersecretpassword",
+      }
+      expect(sanitizeAuthForExport(basicAuth)).toEqual({
+        authType: "basic",
+        authActive: true,
+        username: "admin",
+        password: "",
+      })
+
+      const apiKeyAuth = {
+        authType: "api-key",
+        authActive: true,
+        key: "secret-key",
+        value: "secret-value",
+        addTo: "HEADERS",
+      }
+      expect(sanitizeAuthForExport(apiKeyAuth)).toEqual({
+        authType: "api-key",
+        authActive: true,
+        key: "",
+        value: "secret-value",
+        addTo: "HEADERS",
+      })
     })
   })
 })

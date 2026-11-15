@@ -1,7 +1,7 @@
 import { Container, Service } from "dioc"
 import { ref } from "vue"
 import { Subscription } from "rxjs"
-import { debounceTime, filter, tap } from "rxjs/operators"
+import { debounceTime, filter, skip, tap } from "rxjs/operators"
 import {
   HoppCollection,
   HoppRESTRequest,
@@ -81,6 +81,37 @@ export function getUniqueName(
   }
   usedNames.add(uniqueName.toLowerCase())
   return uniqueName
+}
+
+/**
+ * Strips raw secrets/credentials from auth structures before serializing to Git
+ */
+export function sanitizeAuthForExport(auth: any): any {
+  if (!auth || typeof auth !== "object") return auth
+  const copy = { ...auth }
+  if (
+    "token" in copy &&
+    typeof copy.token === "string" &&
+    !copy.token.startsWith("<<")
+  ) {
+    copy.token = ""
+  }
+  if (
+    "password" in copy &&
+    typeof copy.password === "string" &&
+    !copy.password.startsWith("<<")
+  ) {
+    copy.password = ""
+  }
+  if (
+    "key" in copy &&
+    typeof copy.key === "string" &&
+    copy.authType === "api-key" &&
+    !copy.key.startsWith("<<")
+  ) {
+    copy.key = ""
+  }
+  return copy
 }
 
 /**
@@ -225,20 +256,50 @@ export async function serializeCollectionToDir(
     create: true,
   })
 
+  const usedFileNames = new Set<string>(["_collection.json"])
+  const serializedRequests: Array<{ fileName: string; req: any }> = []
+  for (const req of collection.requests ?? []) {
+    const fileName = getUniqueName(
+      req.name,
+      req._ref_id || (req as any).id,
+      usedFileNames,
+      ".json"
+    )
+    const { id: _reqId, ...cleanReq } = req as any
+    if (cleanReq.auth) {
+      cleanReq.auth = sanitizeAuthForExport(cleanReq.auth)
+    }
+    serializedRequests.push({ fileName, req: cleanReq })
+  }
+
+  const usedSubFolderNames = new Set<string>()
+  const serializedFolders: Array<{
+    dirName: string
+    folder: HoppCollection
+  }> = []
+  for (const folder of collection.folders ?? []) {
+    const dirName = getUniqueName(
+      folder.name,
+      folder._ref_id || folder.id,
+      usedSubFolderNames
+    )
+    serializedFolders.push({ dirName, folder })
+  }
+
   // 1. Write collection metadata (_collection.json)
   const meta: SerializedCollectionMeta = {
     v: collection.v ?? 12,
     name: collection.name,
     _ref_id: collection._ref_id,
-    auth: collection.auth,
+    auth: sanitizeAuthForExport(collection.auth),
     headers: collection.headers,
     variables: collection.variables,
     description: collection.description ?? null,
     preRequestScript: collection.preRequestScript ?? "",
     testScript: collection.testScript ?? "",
     order: {
-      folders: (collection.folders ?? []).map((f) => f.name),
-      requests: (collection.requests ?? []).map((r) => r.name),
+      folders: serializedFolders.map((f) => f.dirName),
+      requests: serializedRequests.map((r) => r.fileName),
     },
   }
   await writeJsonFile(colDir, "_collection.json", meta)
@@ -247,31 +308,16 @@ export async function serializeCollectionToDir(
   const expectedFiles = new Set<string>(["_collection.json"])
   const expectedFolders = new Set<string>()
 
-  const usedFileNames = new Set<string>(["_collection.json"])
-
   // 2. Write individual request JSON files
-  for (const req of collection.requests ?? []) {
-    const reqFileName = getUniqueName(
-      req.name,
-      req._ref_id || (req as any).id,
-      usedFileNames,
-      ".json"
-    )
-    expectedFiles.add(reqFileName)
-    const { id: _reqId, ...cleanReq } = req as any
-    await writeJsonFile(colDir, reqFileName, cleanReq)
+  for (const { fileName, req } of serializedRequests) {
+    expectedFiles.add(fileName)
+    await writeJsonFile(colDir, fileName, req)
   }
 
   // 3. Recursively serialize subfolders
-  const usedSubFolderNames = new Set<string>()
-  for (const folder of collection.folders ?? []) {
-    const folderDirName = getUniqueName(
-      folder.name,
-      folder._ref_id || folder.id,
-      usedSubFolderNames
-    )
-    expectedFolders.add(folderDirName)
-    await serializeCollectionToDir(folder, colDir, folderDirName)
+  for (const { dirName, folder } of serializedFolders) {
+    expectedFolders.add(dirName)
+    await serializeCollectionToDir(folder, colDir, dirName)
   }
 
   // 4. Prune stale requests or deleted subfolders
@@ -330,16 +376,15 @@ export async function deserializeCollectionFromDir(
   for (const reqFile of requestFiles) {
     const parsed = await readJsonFile(reqFile)
     if (parsed) {
-      if (
+      const item =
         typeof parsed === "object" &&
         "query" in parsed &&
         "url" in parsed &&
         !("endpoint" in parsed)
-      ) {
-        requests.push(translateToGQLRequest(parsed))
-      } else {
-        requests.push(translateToNewRequest(parsed))
-      }
+          ? translateToGQLRequest(parsed)
+          : translateToNewRequest(parsed)
+      ;(item as any)._diskFileName = reqFile.name
+      requests.push(item)
     }
   }
 
@@ -351,6 +396,7 @@ export async function deserializeCollectionFromDir(
 
   for (const subDir of subDirs) {
     const subCol = await deserializeCollectionFromDir(subDir)
+    ;(subCol as any)._diskDirName = subDir.name
     folders.push(subCol)
   }
 
@@ -359,20 +405,38 @@ export async function deserializeCollectionFromDir(
     const orderMap = new Map<string, number>()
     meta.order.requests.forEach((name, idx) => orderMap.set(name, idx))
     requests.sort((a, b) => {
-      const idxA = orderMap.has(a.name) ? orderMap.get(a.name)! : 9999
-      const idxB = orderMap.has(b.name) ? orderMap.get(b.name)! : 9999
+      const keyA = (a as any)._diskFileName || a.name
+      const keyB = (b as any)._diskFileName || b.name
+      const idxA = orderMap.has(keyA)
+        ? orderMap.get(keyA)!
+        : (orderMap.get(a.name) ?? 9999)
+      const idxB = orderMap.has(keyB)
+        ? orderMap.get(keyB)!
+        : (orderMap.get(b.name) ?? 9999)
       return idxA - idxB
     })
+  }
+  for (const r of requests) {
+    delete (r as any)._diskFileName
   }
 
   if (meta.order?.folders) {
     const orderMap = new Map<string, number>()
     meta.order.folders.forEach((name, idx) => orderMap.set(name, idx))
     folders.sort((a, b) => {
-      const idxA = orderMap.has(a.name) ? orderMap.get(a.name)! : 9999
-      const idxB = orderMap.has(b.name) ? orderMap.get(b.name)! : 9999
+      const keyA = (a as any)._diskDirName || a.name
+      const keyB = (b as any)._diskDirName || b.name
+      const idxA = orderMap.has(keyA)
+        ? orderMap.get(keyA)!
+        : (orderMap.get(a.name) ?? 9999)
+      const idxB = orderMap.has(keyB)
+        ? orderMap.get(keyB)!
+        : (orderMap.get(b.name) ?? 9999)
       return idxA - idxB
     })
+  }
+  for (const f of folders) {
+    delete (f as any)._diskDirName
   }
 
   return makeCollection({
@@ -400,15 +464,20 @@ export async function serializeAllCollectionsToDir(
   const expectedDirs = new Set<string>()
   const usedColNames = new Set<string>(["_order.json", "_order"])
 
-  // Save deterministic top-level collection order
+  const serializedRoots: Array<{ dirName: string; col: HoppCollection }> = []
+  for (const col of collections) {
+    const dirName = getUniqueName(col.name, col._ref_id || col.id, usedColNames)
+    serializedRoots.push({ dirName, col })
+    expectedDirs.add(dirName)
+  }
+
+  // Save deterministic top-level collection order using unique directory names
   const rootOrderMeta: RootOrderMeta = {
-    order: collections.map((c) => c.name),
+    order: serializedRoots.map((r) => r.dirName),
   }
   await writeJsonFile(collectionsDir, "_order.json", rootOrderMeta)
 
-  for (const col of collections) {
-    const dirName = getUniqueName(col.name, col._ref_id || col.id, usedColNames)
-    expectedDirs.add(dirName)
+  for (const { dirName, col } of serializedRoots) {
     await serializeCollectionToDir(col, collectionsDir, dirName)
   }
 
@@ -466,6 +535,7 @@ export async function deserializeAllCollectionsFromDir(
 
   for (const dir of dirEntries) {
     const col = await deserializeCollectionFromDir(dir)
+    ;(col as any)._diskDirName = dir.name
     collections.push(col)
   }
 
@@ -473,17 +543,26 @@ export async function deserializeAllCollectionsFromDir(
     const orderMap = new Map<string, number>()
     rootOrder.forEach((name, idx) => orderMap.set(name, idx))
     collections.sort((a, b) => {
-      const idxA = orderMap.has(a.name) ? orderMap.get(a.name)! : 9999
-      const idxB = orderMap.has(b.name) ? orderMap.get(b.name)! : 9999
+      const keyA = (a as any)._diskDirName || a.name
+      const keyB = (b as any)._diskDirName || b.name
+      const idxA = orderMap.has(keyA)
+        ? orderMap.get(keyA)!
+        : (orderMap.get(a.name) ?? 9999)
+      const idxB = orderMap.has(keyB)
+        ? orderMap.get(keyB)!
+        : (orderMap.get(b.name) ?? 9999)
       return idxA - idxB
     })
+  }
+  for (const c of collections) {
+    delete (c as any)._diskDirName
   }
 
   return collections
 }
 
 /**
- * Preserves local account IDs for existing collections and requests matching by _ref_id or name
+ * Preserves local account IDs and credentials for existing collections and requests matching by _ref_id or name
  */
 export function preserveExistingLocalIds(
   newCollections: HoppCollection[],
@@ -491,20 +570,25 @@ export function preserveExistingLocalIds(
 ): HoppCollection[] {
   const existingMap = new Map<
     string,
-    { id?: string; reqIds: Map<string, string> }
+    {
+      id?: string
+      auth?: any
+      reqIds: Map<string, { id?: string; auth?: any }>
+    }
   >()
 
   const indexCollections = (cols: HoppCollection[]) => {
     for (const col of cols) {
       const key = col._ref_id || col.name
-      const reqIds = new Map<string, string>()
+      const reqIds = new Map<string, { id?: string; auth?: any }>()
       for (const req of col.requests ?? []) {
         const reqKey = req._ref_id || req.name
-        if ((req as any).id) {
-          reqIds.set(reqKey, (req as any).id)
-        }
+        reqIds.set(reqKey, {
+          id: (req as any).id,
+          auth: (req as any).auth,
+        })
       }
-      existingMap.set(key, { id: col.id, reqIds })
+      existingMap.set(key, { id: col.id, auth: col.auth, reqIds })
       if (col.folders?.length) {
         indexCollections(col.folders)
       }
@@ -519,10 +603,27 @@ export function preserveExistingLocalIds(
       const existing = existingMap.get(key)
       const preservedId = existing?.id
 
+      let resolvedAuth = col.auth
+      if (existing?.auth && existing.auth.authType === col.auth?.authType) {
+        resolvedAuth = existing.auth
+      }
+
       const preservedRequests = (col.requests ?? []).map((req) => {
         const reqKey = req._ref_id || req.name
-        const reqId = existing?.reqIds.get(reqKey)
-        return reqId ? { ...req, id: reqId } : req
+        const existingReq = existing?.reqIds.get(reqKey)
+        const reqId = existingReq?.id
+        let reqAuth = (req as any).auth
+        if (
+          existingReq?.auth &&
+          existingReq.auth.authType === reqAuth?.authType
+        ) {
+          reqAuth = existingReq.auth
+        }
+        return {
+          ...req,
+          ...(reqId ? { id: reqId } : {}),
+          ...(reqAuth ? { auth: reqAuth } : {}),
+        }
       })
 
       const preservedFolders = col.folders ? reattach(col.folders) : []
@@ -530,6 +631,7 @@ export function preserveExistingLocalIds(
       return {
         ...col,
         ...(preservedId ? { id: preservedId } : {}),
+        ...(resolvedAuth ? { auth: resolvedAuth } : {}),
         requests: preservedRequests,
         folders: preservedFolders,
       }
@@ -537,6 +639,40 @@ export function preserveExistingLocalIds(
   }
 
   return reattach(newCollections)
+}
+
+/**
+ * Merges repository collections with existing browser collections upon connecting
+ * to ensure non-empty local collections are not discarded.
+ */
+export function mergeRepositoryWithLocal(
+  repoCollections: HoppCollection[],
+  localCollections: HoppCollection[]
+): HoppCollection[] {
+  const isDefaultEmpty =
+    localCollections.length === 0 ||
+    (localCollections.length === 1 &&
+      localCollections[0].name === "My Collection" &&
+      (localCollections[0].requests?.length ?? 0) === 0 &&
+      (localCollections[0].folders?.length ?? 0) === 0)
+
+  if (isDefaultEmpty) {
+    return repoCollections
+  }
+
+  const repoNames = new Set<string>()
+  for (const c of repoCollections) {
+    if (c._ref_id) repoNames.add(c._ref_id)
+    repoNames.add(c.name.toLowerCase())
+  }
+
+  const localOnly = localCollections.filter((c) => {
+    const hasRef = c._ref_id && repoNames.has(c._ref_id)
+    const hasName = repoNames.has(c.name.toLowerCase())
+    return !hasRef && !hasName
+  })
+
+  return [...repoCollections, ...localOnly]
 }
 
 /**
@@ -585,6 +721,9 @@ export class LocalSyncService extends Service {
           this.directoryName.value = savedHandle.name
           this.isConnected.value = true
           this.syncStatus.value = "connected"
+
+          // Read and reconcile disk before enabling automatic writes
+          await this.checkForExternalUpdates()
         }
       }
     } catch {
@@ -594,6 +733,7 @@ export class LocalSyncService extends Service {
     // Subscribe to collection changes with debounce for auto-sync
     this.storeSub = restCollections$
       .pipe(
+        skip(1),
         filter(() => !this.isInternalUpdate),
         tap(() => {
           if (this.isConnected.value) {
@@ -605,18 +745,18 @@ export class LocalSyncService extends Service {
       .subscribe(() => {
         this.hasPendingLocalChange = false
         if (this.autoSync.value && this.isConnected.value) {
-          if (this.isSyncing.value) {
-            this.hasPendingExport = true
-          } else {
-            this.exportToDirectory()
-          }
+          this.exportToDirectory()
         }
       })
 
     // Listen for window focus to detect branch switches / git pulls
     if (typeof window !== "undefined") {
       this.onWindowFocus = () => {
-        if (this.isConnected.value && !this.isSyncing.value) {
+        if (
+          this.isConnected.value &&
+          !this.isSyncing.value &&
+          this.autoSync.value
+        ) {
           if (this.hasPendingLocalChange) {
             this.hasPendingLocalChange = false
             this.exportToDirectory()
@@ -672,11 +812,22 @@ export class LocalSyncService extends Service {
 
       // Check if folder contains existing Hoppscotch collections
       const existingCollections = await deserializeAllCollectionsFromDir(handle)
+      const currentMemory = restCollectionStore.value.state
 
       let syncSuccess = false
       if (existingCollections && existingCollections.length > 0) {
-        // Disk already has collections: import from disk to avoid overwriting repo
-        syncSuccess = await this.importFromDirectory()
+        // Disk already has collections: merge to preserve non-empty local-only collections
+        const merged = mergeRepositoryWithLocal(
+          existingCollections,
+          currentMemory
+        )
+        const reconciled = preserveExistingLocalIds(merged, currentMemory)
+        this.isInternalUpdate = true
+        setRESTCollections(reconciled)
+        this.isInternalUpdate = false
+        syncSuccess = true
+        this.lastSyncedAt.value = new Date()
+        this.syncStatus.value = "connected"
       } else {
         // Folder is empty or uninitialized: export memory collections to disk
         syncSuccess = await this.exportToDirectory()
@@ -698,8 +849,12 @@ export class LocalSyncService extends Service {
       this.isSyncing.value = false
       return true
     } catch (err: any) {
+      this.directoryHandle = null
+      this.directoryName.value = null
+      this.isConnected.value = false
       if (err.name !== "AbortError") {
         this.syncError.value = err.message || "Failed to select directory"
+        this.syncStatus.value = "error"
       }
       this.isSyncing.value = false
       return false
@@ -716,6 +871,7 @@ export class LocalSyncService extends Service {
     this.syncStatus.value = "disconnected"
     this.syncError.value = null
     this.hasPendingLocalChange = false
+    this.hasPendingExport = false
     await removeHandleFromIDB()
   }
 
@@ -725,13 +881,25 @@ export class LocalSyncService extends Service {
   public async exportToDirectory(): Promise<boolean> {
     if (!this.directoryHandle) return false
 
+    // If already syncing, queue a trailing export and wait for active sync to finish
+    if (this.isSyncing.value) {
+      this.hasPendingExport = true
+      return true
+    }
+
     try {
       this.isSyncing.value = true
       this.syncStatus.value = "syncing"
       this.syncError.value = null
 
-      const collections = restCollectionStore.value.state
-      await serializeAllCollectionsToDir(collections, this.directoryHandle)
+      let hasNext = true
+      while (hasNext) {
+        this.hasPendingExport = false
+        const collections = restCollectionStore.value.state
+        await serializeAllCollectionsToDir(collections, this.directoryHandle)
+        this.hasPendingLocalChange = false
+        hasNext = this.hasPendingExport
+      }
 
       this.lastSyncedAt.value = new Date()
       this.syncStatus.value = "connected"
@@ -744,10 +912,7 @@ export class LocalSyncService extends Service {
     } finally {
       this.isSyncing.value = false
       this.hasPendingLocalChange = false
-      if (this.hasPendingExport) {
-        this.hasPendingExport = false
-        this.exportToDirectory()
-      }
+      this.hasPendingExport = false
     }
   }
 

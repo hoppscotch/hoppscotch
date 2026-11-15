@@ -158,7 +158,7 @@ The standard installation includes auto-start functionality. The portable versio
 - [Node.js](https://nodejs.org/) (v18 or later)
 - [pnpm](https://pnpm.io/) package manager
 - [Rust](https://rustup.rs/) (latest stable)
-- [Tauri CLI](https://tauri.app/v1/guides/getting-started/prerequisites)
+- [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/)
 
 ### Development
 

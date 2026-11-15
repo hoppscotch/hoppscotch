@@ -1,12 +1,14 @@
 import { Container, Service } from "dioc"
 import { ref } from "vue"
 import { Subscription } from "rxjs"
-import { debounceTime } from "rxjs/operators"
+import { debounceTime, filter, tap } from "rxjs/operators"
 import {
   HoppCollection,
   HoppRESTRequest,
+  HoppGQLRequest,
   makeCollection,
   translateToNewRequest,
+  translateToGQLRequest,
 } from "@hoppscotch/data"
 import {
   restCollections$,
@@ -20,7 +22,6 @@ export interface SerializedCollectionMeta {
   v: number
   name: string
   _ref_id?: string
-  id?: string
   auth?: any
   headers?: any
   variables?: any
@@ -31,6 +32,10 @@ export interface SerializedCollectionMeta {
     folders?: string[]
     requests?: string[]
   }
+}
+
+export interface RootOrderMeta {
+  order: string[]
 }
 
 const DB_NAME = "hoppscotch-local-sync"
@@ -49,6 +54,33 @@ export function sanitizeFileName(name: string): string {
     .trim()
     .replace(/^\.+/, "")
   return sanitized.length > 0 ? sanitized : "untitled"
+}
+
+/**
+ * Generates collision-resistant unique names in a given folder scope
+ */
+export function getUniqueName(
+  baseName: string,
+  id: string | undefined,
+  usedNames: Set<string>,
+  ext: string = ""
+): string {
+  const sanitized = sanitizeFileName(baseName)
+  const candidate = `${sanitized}${ext}`
+  if (!usedNames.has(candidate.toLowerCase())) {
+    usedNames.add(candidate.toLowerCase())
+    return candidate
+  }
+
+  const suffix = id ? `-${id.slice(-6)}` : ""
+  let uniqueName = `${sanitized}${suffix}${ext}`
+  let counter = 1
+  while (usedNames.has(uniqueName.toLowerCase())) {
+    uniqueName = `${sanitized}${suffix}-${counter}${ext}`
+    counter++
+  }
+  usedNames.add(uniqueName.toLowerCase())
+  return uniqueName
 }
 
 /**
@@ -148,17 +180,19 @@ async function writeJsonFile(
 }
 
 /**
- * Reads JSON content from a file handle
+ * Reads JSON content from a file handle, failing fast with descriptive error on syntax issues
  */
 async function readJsonFile<T = any>(
   fileHandle: FileSystemFileHandle
-): Promise<T | null> {
+): Promise<T> {
+  const file = await fileHandle.getFile()
+  const text = await file.text()
   try {
-    const file = await fileHandle.getFile()
-    const text = await file.text()
     return JSON.parse(text) as T
-  } catch {
-    return null
+  } catch (err: any) {
+    throw new Error(
+      `Failed to parse JSON in "${fileHandle.name}": ${err.message || "Invalid syntax"}`
+    )
   }
 }
 
@@ -183,9 +217,10 @@ export async function resolveCollectionsDirectory(
  */
 export async function serializeCollectionToDir(
   collection: HoppCollection,
-  parentDir: FileSystemDirectoryHandle
+  parentDir: FileSystemDirectoryHandle,
+  targetDirName?: string
 ): Promise<void> {
-  const colDirName = sanitizeFileName(collection.name)
+  const colDirName = targetDirName ?? sanitizeFileName(collection.name)
   const colDir = await parentDir.getDirectoryHandle(colDirName, {
     create: true,
   })
@@ -195,7 +230,6 @@ export async function serializeCollectionToDir(
     v: collection.v ?? 12,
     name: collection.name,
     _ref_id: collection._ref_id,
-    id: collection.id,
     auth: collection.auth,
     headers: collection.headers,
     variables: collection.variables,
@@ -213,18 +247,31 @@ export async function serializeCollectionToDir(
   const expectedFiles = new Set<string>(["_collection.json"])
   const expectedFolders = new Set<string>()
 
+  const usedFileNames = new Set<string>(["_collection.json"])
+
   // 2. Write individual request JSON files
   for (const req of collection.requests ?? []) {
-    const reqFileName = `${sanitizeFileName(req.name)}.json`
+    const reqFileName = getUniqueName(
+      req.name,
+      req._ref_id || (req as any).id,
+      usedFileNames,
+      ".json"
+    )
     expectedFiles.add(reqFileName)
-    await writeJsonFile(colDir, reqFileName, req)
+    const { id: _reqId, ...cleanReq } = req as any
+    await writeJsonFile(colDir, reqFileName, cleanReq)
   }
 
   // 3. Recursively serialize subfolders
+  const usedSubFolderNames = new Set<string>()
   for (const folder of collection.folders ?? []) {
-    const folderDirName = sanitizeFileName(folder.name)
+    const folderDirName = getUniqueName(
+      folder.name,
+      folder._ref_id || folder.id,
+      usedSubFolderNames
+    )
     expectedFolders.add(folderDirName)
-    await serializeCollectionToDir(folder, colDir)
+    await serializeCollectionToDir(folder, colDir, folderDirName)
   }
 
   // 4. Prune stale requests or deleted subfolders
@@ -271,8 +318,8 @@ export async function deserializeCollectionFromDir(
     }
   }
 
-  // 2. Read requests
-  const requests: HoppRESTRequest[] = []
+  // 2. Read requests (both REST and GraphQL)
+  const requests: (HoppRESTRequest | HoppGQLRequest)[] = []
   const requestFiles = entries.filter(
     (e) =>
       e.kind === "file" &&
@@ -283,7 +330,16 @@ export async function deserializeCollectionFromDir(
   for (const reqFile of requestFiles) {
     const parsed = await readJsonFile(reqFile)
     if (parsed) {
-      requests.push(translateToNewRequest(parsed))
+      if (
+        typeof parsed === "object" &&
+        "query" in parsed &&
+        "url" in parsed &&
+        !("endpoint" in parsed)
+      ) {
+        requests.push(translateToGQLRequest(parsed))
+      } else {
+        requests.push(translateToNewRequest(parsed))
+      }
     }
   }
 
@@ -322,7 +378,6 @@ export async function deserializeCollectionFromDir(
   return makeCollection({
     name: meta.name ?? colDir.name,
     _ref_id: meta._ref_id,
-    id: meta.id,
     auth: meta.auth ?? { authType: "inherit", authActive: false },
     headers: meta.headers ?? [],
     variables: meta.variables ?? [],
@@ -343,11 +398,18 @@ export async function serializeAllCollectionsToDir(
 ): Promise<void> {
   const collectionsDir = await resolveCollectionsDirectory(rootDir, true)
   const expectedDirs = new Set<string>()
+  const usedColNames = new Set<string>(["_order.json", "_order"])
+
+  // Save deterministic top-level collection order
+  const rootOrderMeta: RootOrderMeta = {
+    order: collections.map((c) => c.name),
+  }
+  await writeJsonFile(collectionsDir, "_order.json", rootOrderMeta)
 
   for (const col of collections) {
-    const dirName = sanitizeFileName(col.name)
+    const dirName = getUniqueName(col.name, col._ref_id || col.id, usedColNames)
     expectedDirs.add(dirName)
-    await serializeCollectionToDir(col, collectionsDir)
+    await serializeCollectionToDir(col, collectionsDir, dirName)
   }
 
   // Clean up deleted collections from disk
@@ -370,25 +432,111 @@ export async function serializeAllCollectionsToDir(
  */
 export async function deserializeAllCollectionsFromDir(
   rootDir: FileSystemDirectoryHandle
-): Promise<HoppCollection[]> {
+): Promise<HoppCollection[] | null> {
+  let collectionsDir: FileSystemDirectoryHandle
   try {
-    const collectionsDir = await resolveCollectionsDirectory(rootDir, false)
-    const entries = await getDirectoryEntries(collectionsDir)
-    const collections: HoppCollection[] = []
-
-    const dirEntries = entries.filter(
-      (e) => e.kind === "directory" && !e.name.startsWith(".")
-    ) as FileSystemDirectoryHandle[]
-
-    for (const dir of dirEntries) {
-      const col = await deserializeCollectionFromDir(dir)
-      collections.push(col)
-    }
-
-    return collections
+    collectionsDir = await resolveCollectionsDirectory(rootDir, false)
   } catch {
-    return []
+    return null
   }
+
+  const entries = await getDirectoryEntries(collectionsDir)
+  const collections: HoppCollection[] = []
+
+  // Read top-level ordering if available
+  let rootOrder: string[] | null = null
+  const orderEntry = entries.find(
+    (e) => e.kind === "file" && e.name === "_order.json"
+  ) as FileSystemFileHandle | undefined
+
+  if (orderEntry) {
+    try {
+      const orderMeta = await readJsonFile<RootOrderMeta>(orderEntry)
+      if (orderMeta && Array.isArray(orderMeta.order)) {
+        rootOrder = orderMeta.order
+      }
+    } catch {
+      // Fall back to un-ordered if _order.json is unreadable
+    }
+  }
+
+  const dirEntries = entries.filter(
+    (e) => e.kind === "directory" && !e.name.startsWith(".")
+  ) as FileSystemDirectoryHandle[]
+
+  for (const dir of dirEntries) {
+    const col = await deserializeCollectionFromDir(dir)
+    collections.push(col)
+  }
+
+  if (rootOrder) {
+    const orderMap = new Map<string, number>()
+    rootOrder.forEach((name, idx) => orderMap.set(name, idx))
+    collections.sort((a, b) => {
+      const idxA = orderMap.has(a.name) ? orderMap.get(a.name)! : 9999
+      const idxB = orderMap.has(b.name) ? orderMap.get(b.name)! : 9999
+      return idxA - idxB
+    })
+  }
+
+  return collections
+}
+
+/**
+ * Preserves local account IDs for existing collections and requests matching by _ref_id or name
+ */
+export function preserveExistingLocalIds(
+  newCollections: HoppCollection[],
+  existingCollections: HoppCollection[]
+): HoppCollection[] {
+  const existingMap = new Map<
+    string,
+    { id?: string; reqIds: Map<string, string> }
+  >()
+
+  const indexCollections = (cols: HoppCollection[]) => {
+    for (const col of cols) {
+      const key = col._ref_id || col.name
+      const reqIds = new Map<string, string>()
+      for (const req of col.requests ?? []) {
+        const reqKey = req._ref_id || req.name
+        if ((req as any).id) {
+          reqIds.set(reqKey, (req as any).id)
+        }
+      }
+      existingMap.set(key, { id: col.id, reqIds })
+      if (col.folders?.length) {
+        indexCollections(col.folders)
+      }
+    }
+  }
+
+  indexCollections(existingCollections)
+
+  const reattach = (cols: HoppCollection[]): HoppCollection[] => {
+    return cols.map((col) => {
+      const key = col._ref_id || col.name
+      const existing = existingMap.get(key)
+      const preservedId = existing?.id
+
+      const preservedRequests = (col.requests ?? []).map((req) => {
+        const reqKey = req._ref_id || req.name
+        const reqId = existing?.reqIds.get(reqKey)
+        return reqId ? { ...req, id: reqId } : req
+      })
+
+      const preservedFolders = col.folders ? reattach(col.folders) : []
+
+      return {
+        ...col,
+        ...(preservedId ? { id: preservedId } : {}),
+        requests: preservedRequests,
+        folders: preservedFolders,
+      }
+    })
+  }
+
+  return reattach(newCollections)
 }
 
 /**
@@ -411,7 +559,10 @@ export class LocalSyncService extends Service {
 
   private directoryHandle: FileSystemDirectoryHandle | null = null
   private isInternalUpdate = false
+  private hasPendingExport = false
+  private hasPendingLocalChange = false
   private storeSub: Subscription | null = null
+  private onWindowFocus: (() => void) | null = null
 
   constructor(c: Container) {
     super(c)
@@ -441,24 +592,40 @@ export class LocalSyncService extends Service {
     }
 
     // Subscribe to collection changes with debounce for auto-sync
-    this.storeSub = restCollections$.pipe(debounceTime(1200)).subscribe(() => {
-      if (
-        this.autoSync.value &&
-        this.isConnected.value &&
-        !this.isInternalUpdate &&
-        !this.isSyncing.value
-      ) {
-        this.exportToDirectory()
-      }
-    })
+    this.storeSub = restCollections$
+      .pipe(
+        filter(() => !this.isInternalUpdate),
+        tap(() => {
+          if (this.isConnected.value) {
+            this.hasPendingLocalChange = true
+          }
+        }),
+        debounceTime(1200)
+      )
+      .subscribe(() => {
+        this.hasPendingLocalChange = false
+        if (this.autoSync.value && this.isConnected.value) {
+          if (this.isSyncing.value) {
+            this.hasPendingExport = true
+          } else {
+            this.exportToDirectory()
+          }
+        }
+      })
 
     // Listen for window focus to detect branch switches / git pulls
     if (typeof window !== "undefined") {
-      window.addEventListener("focus", () => {
+      this.onWindowFocus = () => {
         if (this.isConnected.value && !this.isSyncing.value) {
-          this.checkForExternalUpdates()
+          if (this.hasPendingLocalChange) {
+            this.hasPendingLocalChange = false
+            this.exportToDirectory()
+          } else {
+            this.checkForExternalUpdates()
+          }
         }
-      })
+      }
+      window.addEventListener("focus", this.onWindowFocus)
     }
   }
 
@@ -466,6 +633,11 @@ export class LocalSyncService extends Service {
     if (this.storeSub) {
       this.storeSub.unsubscribe()
       this.storeSub = null
+    }
+
+    if (typeof window !== "undefined" && this.onWindowFocus) {
+      window.removeEventListener("focus", this.onWindowFocus)
+      this.onWindowFocus = null
     }
   }
 
@@ -497,29 +669,31 @@ export class LocalSyncService extends Service {
 
       this.directoryHandle = handle
       this.directoryName.value = handle.name
-      this.isConnected.value = true
-      this.syncStatus.value = "connected"
-
-      await saveHandleToIDB(handle)
 
       // Check if folder contains existing Hoppscotch collections
       const existingCollections = await deserializeAllCollectionsFromDir(handle)
-      const currentMemoryCollections = restCollectionStore.value.state
 
-      if (
-        existingCollections.length > 0 &&
-        (currentMemoryCollections.length === 0 ||
-          (currentMemoryCollections.length === 1 &&
-            currentMemoryCollections[0].name === "My Collection" &&
-            currentMemoryCollections[0].requests.length === 0 &&
-            currentMemoryCollections[0].folders.length === 0))
-      ) {
-        // Disk has real collections, memory is pristine: import from disk
-        await this.importFromDirectory()
+      let syncSuccess = false
+      if (existingCollections && existingCollections.length > 0) {
+        // Disk already has collections: import from disk to avoid overwriting repo
+        syncSuccess = await this.importFromDirectory()
       } else {
-        // Otherwise export current collections to disk
-        await this.exportToDirectory()
+        // Folder is empty or uninitialized: export memory collections to disk
+        syncSuccess = await this.exportToDirectory()
       }
+
+      if (!syncSuccess) {
+        this.directoryHandle = null
+        this.directoryName.value = null
+        this.isConnected.value = false
+        this.syncStatus.value = "error"
+        this.isSyncing.value = false
+        return false
+      }
+
+      this.isConnected.value = true
+      this.syncStatus.value = "connected"
+      await saveHandleToIDB(handle)
 
       this.isSyncing.value = false
       return true
@@ -541,6 +715,7 @@ export class LocalSyncService extends Service {
     this.isConnected.value = false
     this.syncStatus.value = "disconnected"
     this.syncError.value = null
+    this.hasPendingLocalChange = false
     await removeHandleFromIDB()
   }
 
@@ -560,14 +735,19 @@ export class LocalSyncService extends Service {
 
       this.lastSyncedAt.value = new Date()
       this.syncStatus.value = "connected"
-      this.isSyncing.value = false
       return true
     } catch (err: any) {
       this.syncError.value =
         err.message || "Failed to export collections to directory"
       this.syncStatus.value = "error"
-      this.isSyncing.value = false
       return false
+    } finally {
+      this.isSyncing.value = false
+      this.hasPendingLocalChange = false
+      if (this.hasPendingExport) {
+        this.hasPendingExport = false
+        this.exportToDirectory()
+      }
     }
   }
 
@@ -585,23 +765,37 @@ export class LocalSyncService extends Service {
       const collections = await deserializeAllCollectionsFromDir(
         this.directoryHandle
       )
-      if (collections.length > 0) {
+      if (collections !== null) {
+        const memoryCollections = restCollectionStore.value.state
+        const reconciled = preserveExistingLocalIds(
+          collections,
+          memoryCollections
+        )
         this.isInternalUpdate = true
-        setRESTCollections(collections)
+        setRESTCollections(reconciled)
         this.isInternalUpdate = false
       }
 
       this.lastSyncedAt.value = new Date()
       this.syncStatus.value = "connected"
-      this.isSyncing.value = false
       return true
     } catch (err: any) {
       this.syncError.value =
         err.message || "Failed to import collections from directory"
       this.syncStatus.value = "error"
-      this.isSyncing.value = false
       return false
+    } finally {
+      this.isSyncing.value = false
     }
+  }
+
+  /**
+   * Performs full bi-directional sync (external pull check followed by push)
+   */
+  public async syncNow(): Promise<boolean> {
+    if (!this.directoryHandle) return false
+    await this.checkForExternalUpdates()
+    return await this.exportToDirectory()
   }
 
   /**
@@ -614,16 +808,20 @@ export class LocalSyncService extends Service {
       const diskCollections = await deserializeAllCollectionsFromDir(
         this.directoryHandle
       )
-      if (diskCollections.length === 0) return
+      if (diskCollections === null) return
 
       const memoryCollections = restCollectionStore.value.state
-      const diskJson = JSON.stringify(diskCollections)
+      const reconciled = preserveExistingLocalIds(
+        diskCollections,
+        memoryCollections
+      )
+      const diskJson = JSON.stringify(reconciled)
       const memJson = JSON.stringify(memoryCollections)
 
       if (diskJson !== memJson) {
         // Differences detected between disk and memory: re-sync from disk
         this.isInternalUpdate = true
-        setRESTCollections(diskCollections)
+        setRESTCollections(reconciled)
         this.isInternalUpdate = false
         this.lastSyncedAt.value = new Date()
       }

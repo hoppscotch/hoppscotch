@@ -44,6 +44,7 @@
             localSyncService.isConnected.value ? IconFolderGit2 : IconGitBranch
           "
           :class="{ '!text-accent': localSyncService.isConnected.value }"
+          :disabled="localSyncService.isSyncing.value"
           :title="
             localSyncService.isConnected.value
               ? `${t('collection.git_sync')}: ${localSyncService.directoryName.value}`
@@ -73,7 +74,7 @@
           v-if="localSyncService.isSyncing.value"
           class="text-accent animate-pulse"
         >
-          (Syncing...)
+          ({{ t("state.syncing") }})
         </span>
       </div>
       <div class="flex items-center gap-2">
@@ -82,7 +83,7 @@
           :disabled="localSyncService.isSyncing.value"
           @click="handleSyncNow"
         >
-          {{ t("action.sync") || "Sync" }}
+          {{ t("action.sync") }}
         </button>
         <span class="text-divider">•</span>
         <button
@@ -853,7 +854,7 @@ const toast = useToast()
 
 const handleConnectGitFolder = async () => {
   const success = await localSyncService.connect()
-  if (success) {
+  if (success && !localSyncService.syncError.value) {
     toast.success(
       `${t("collection.git_sync_connected")}: ${localSyncService.directoryName.value}`
     )
@@ -863,7 +864,7 @@ const handleConnectGitFolder = async () => {
 }
 
 const handleSyncNow = async () => {
-  const success = await localSyncService.exportToDirectory()
+  const success = await localSyncService.syncNow()
   if (success) {
     toast.success(t("collection.git_sync_success"))
   } else if (localSyncService.syncError.value) {

@@ -96,11 +96,12 @@ const convertPostDataToHoppBody = (
 ): HoppRESTReqBody => {
   let contentType: ValidContentTypes = "text/plain"
 
-  if (isValidContentType(postData.mimeType)) {
-    contentType = postData.mimeType
-  } else if (postData.mimeType.startsWith("multipart/form-data")) {
-    // some har files will have formdata formatted like multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-    contentType = "multipart/form-data"
+  // Browser HAR exports often include MIME parameters (charset, boundary, etc.).
+  // Match on the base media type so JSON/urlencoded bodies are not treated as text/plain.
+  const baseMimeType = postData.mimeType.split(";", 1)[0].trim().toLowerCase()
+
+  if (isValidContentType(baseMimeType)) {
+    contentType = baseMimeType
   }
 
   // all the contentTypes except application/x-www-form-urlencoded && multipart/form-data will have text content

@@ -23,7 +23,7 @@
           :icon="IconHelpCircle"
         />
         <HoppButtonSecondary
-          v-if="filteredCollections && filteredCollections.length > 1"
+          v-if="visibleCollections.length > 1"
           v-tippy="{ theme: 'tooltip' }"
           blank
           :title="t('action.sort')"
@@ -398,7 +398,7 @@
         </template>
         <template #emptyNode="{ node }">
           <HoppSmartPlaceholder
-            v-if="filterText.length !== 0 && filteredCollections.length === 0"
+            v-if="filterText.length !== 0 && visibleCollections.length === 0"
             :text="`${t('state.nothing_found')} ‟${filterText}”`"
           >
             <template #icon>
@@ -490,6 +490,10 @@ import { useService } from "dioc/vue"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { useDebounceFn } from "@vueuse/core"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
+import {
+  searchCollectionChildren,
+  searchCollections,
+} from "~/helpers/collection/search"
 
 export type Collection = {
   type: "collections"
@@ -531,7 +535,7 @@ type CollectionType =
   | { type: "my-collections"; selectedTeam: undefined }
 
 const props = defineProps({
-  filteredCollections: {
+  collections: {
     type: Array as PropType<HoppCollection[]>,
     default: () => [],
     required: true,
@@ -746,7 +750,12 @@ const emit = defineEmits<{
   ): void
 }>()
 
-const refFilterCollection = toRef(props, "filteredCollections")
+const refCollections = toRef(props, "collections")
+const refFilterText = toRef(props, "filterText")
+
+const visibleCollections = computed(() =>
+  searchCollections(props.collections, props.filterText)
+)
 
 const currentSortValuesService = useService(CurrentSortValuesService)
 
@@ -927,7 +936,10 @@ const debouncedSorting = useDebounceFn(() => {
 type MyCollectionNode = Collection | Folder | Requests
 
 class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
-  constructor(public data: Ref<HoppCollection[]>) {}
+  constructor(
+    public data: Ref<HoppCollection[]>,
+    public filterText: Ref<string>
+  ) {}
 
   navigateToFolderWithIndexPath(
     collections: HoppCollection[],
@@ -943,14 +955,22 @@ class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
     return target !== undefined ? target : null
   }
 
+  // Node IDs are always positions in the unfiltered collections, so that a
+  // search result resolves to the same request, folder or collection in the
+  // store as it does without a search.
   getChildren(id: string | null): Ref<ChildrenResult<MyCollectionNode>> {
     return computed(() => {
       if (id === null) {
-        const data = this.data.value.map((item, index) => ({
+        const collections = searchCollections(
+          this.data.value,
+          this.filterText.value
+        )
+
+        const data = collections.map(({ index, data: item }, position) => ({
           id: index.toString(),
           data: {
             type: "collections",
-            isLastItem: index === this.data.value.length - 1,
+            isLastItem: position === collections.length - 1,
             data: {
               parentIndex: null,
               data: item,
@@ -964,6 +984,7 @@ class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
       }
 
       const indexPath = id.split("/").map((x) => parseInt(x))
+      const depth = indexPath.length
 
       const item = this.navigateToFolderWithIndexPath(
         this.data.value,
@@ -971,14 +992,18 @@ class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
       )
 
       if (item) {
+        const { folders, requests } = searchCollectionChildren(
+          item,
+          depth,
+          this.filterText.value
+        )
+
         const data = [
-          ...item.folders.map((folder, index) => ({
+          ...folders.map(({ index, data: folder }, position) => ({
             id: `${id}/${index}`,
             data: {
               isLastItem:
-                item.folders && item.folders.length > 1
-                  ? index === item.folders.length - 1
-                  : false,
+                folders.length > 1 ? position === folders.length - 1 : false,
               type: "folders",
               data: {
                 parentIndex: id,
@@ -986,17 +1011,15 @@ class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
               },
             },
           })),
-          ...item.requests.map((requests, index) => ({
+          ...requests.map(({ index, data: request }, position) => ({
             id: `${id}/${index}`,
             data: {
               isLastItem:
-                item.requests && item.requests.length > 1
-                  ? index === item.requests.length - 1
-                  : false,
+                requests.length > 1 ? position === requests.length - 1 : false,
               type: "requests",
               data: {
                 parentIndex: id,
-                data: requests,
+                data: request,
               },
             },
           })),
@@ -1016,6 +1039,7 @@ class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
 }
 
 const myAdapter: SmartTreeAdapter<MyCollectionNode> = new MyCollectionsAdapter(
-  refFilterCollection
+  refCollections,
+  refFilterText
 )
 </script>

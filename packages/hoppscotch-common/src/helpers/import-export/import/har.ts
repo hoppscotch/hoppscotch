@@ -100,7 +100,12 @@ const convertPostDataToHoppBody = (
   // Match on the base media type so JSON/urlencoded bodies are not treated as text/plain.
   const baseMimeType = postData.mimeType.split(";", 1)[0].trim().toLowerCase()
 
-  if (isValidContentType(baseMimeType)) {
+  // application/octet-stream is in ValidContentTypesList but has no converter
+  // below — keep the text/plain fallback so non-empty HAR text is preserved.
+  if (
+    isValidContentType(baseMimeType) &&
+    baseMimeType !== "application/octet-stream"
+  ) {
     contentType = baseMimeType
   }
 

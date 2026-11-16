@@ -50,6 +50,40 @@ describe("harImporter — mimeType parameters", () => {
     })
   })
 
+  it("normalizes mixed-case mimeTypes with surrounding whitespace", () => {
+    const result = harImporter([
+      buildHar({
+        mimeType: "  Application/JSON ; charset=UTF-8",
+        text: '{"user":"ada"}',
+      }),
+    ])
+
+    expect(E.isRight(result)).toBe(true)
+    if (E.isLeft(result)) return
+
+    expect(result.right[0].requests[0].body).toEqual({
+      contentType: "application/json",
+      body: '{"user":"ada"}',
+    })
+  })
+
+  it("keeps octet-stream HAR text via text/plain instead of discarding it", () => {
+    const result = harImporter([
+      buildHar({
+        mimeType: "application/octet-stream; charset=utf-8",
+        text: "binary-looking-but-text",
+      }),
+    ])
+
+    expect(E.isRight(result)).toBe(true)
+    if (E.isLeft(result)) return
+
+    expect(result.right[0].requests[0].body).toEqual({
+      contentType: "text/plain",
+      body: "binary-looking-but-text",
+    })
+  })
+
   it("parses application/x-www-form-urlencoded; charset=UTF-8 as form fields", () => {
     const result = harImporter([
       buildHar({

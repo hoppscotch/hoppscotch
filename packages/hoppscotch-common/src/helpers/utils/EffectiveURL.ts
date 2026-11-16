@@ -278,7 +278,10 @@ export const resolvesEnvsInBody = (
     }
   }
 
-  let bodyContent = ""
+  // Mirrors getFinalBodyFromRequest: every raw content type (text/plain,
+  // XML, HTML, urlencoded, ...) keeps its body; JSON additionally has
+  // comments stripped
+  let bodyContent = body.body ?? ""
 
   // WORKAROUND: body.body can be null when creating example responses programmatically
   // (see PR #5652), despite the Zod schema requiring string with .catch(""). The ?? ""
@@ -287,10 +290,6 @@ export const resolvesEnvsInBody = (
   // consistently throughout this file (see also getFinalBodyFromRequest).
   if (isJSONContentType(body.contentType))
     bodyContent = stripComments(body.body ?? "")
-
-  if (body.contentType === "application/x-www-form-urlencoded") {
-    bodyContent = body.body
-  }
 
   return {
     contentType: body.contentType,

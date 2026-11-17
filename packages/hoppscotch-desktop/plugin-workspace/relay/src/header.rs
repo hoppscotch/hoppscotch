@@ -15,7 +15,9 @@ impl<'a> HeadersBuilder<'a> {
         Self { handle }
     }
 
-    #[tracing::instrument(skip(self), level = "debug")]
+    // The values include the `Authorization` header the auth handler adds,
+    // so the span and the records name the headers alone.
+    #[tracing::instrument(skip(self, headers), level = "debug")]
     pub(crate) fn add_headers(&mut self, headers: Option<&HashMap<String, String>>) -> Result<()> {
         let Some(headers) = headers else {
             tracing::debug!("No headers provided");
@@ -37,15 +39,8 @@ impl<'a> HeadersBuilder<'a> {
             .map(|(key, value)| {
                 let key_str = key.as_str();
                 let value_str = value.to_str().unwrap_or("");
-                tracing::debug!(
-                    key = ?key_str,
-                    value_count = value_str.len(),
-                    value = ?value_str,
-                    "Processing headers"
-                );
-                let header = format!("{}: {}", key_str, value_str);
-                tracing::debug!(%header, "Adding header");
-                header
+                tracing::debug!(key = ?key_str, "Adding header");
+                format!("{}: {}", key_str, value_str)
             })
             .try_fold(List::new(), |mut list, header| {
                 list.append(&header).map_err(|e| {

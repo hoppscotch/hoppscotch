@@ -1,12 +1,6 @@
-use std::{
-    sync::{
-        atomic::{AtomicBool, Ordering},
-        Arc,
-    },
-    time::SystemTime,
-};
+use std::time::SystemTime;
 
-use curl::easy::Easy;
+use curl::easy::{Easy, InfoType};
 use dashmap::DashMap;
 use http::StatusCode;
 use tokio_util::sync::CancellationToken;
@@ -19,8 +13,25 @@ use crate::{
     transfer::TransferHandler,
 };
 
+// `cancel` runs on another task from the transfer it stops, so each running
+// request registers its token here by id, and the progress callback in
+// `TransferHandler::handle_transfer` reads the same token.
 lazy_static::lazy_static! {
-    static ref ACTIVE_REQUESTS: DashMap<i64, Arc<AtomicBool>> = DashMap::new();
+    static ref ACTIVE_REQUESTS: DashMap<i64, CancellationToken> = DashMap::new();
+}
+
+// A cancel that lands after curl finished leaves the completed response
+// intact, so only a transfer that failed while cancelled reports `Abort`.
+fn settle<T>(result: Result<T>, cancelled: bool) -> Result<T> {
+    match result {
+        Err(_) if cancelled => {
+            tracing::info!("Request was cancelled by user");
+            Err(RelayError::Abort {
+                message: "Request cancelled by user".into(),
+            })
+        }
+        result => result,
+    }
 }
 
 #[tracing::instrument(skip(request), fields(request_id = request.id), level = "debug")]
@@ -38,7 +49,10 @@ fn execute_request(request: &Request, cancel_token: &CancellationToken) -> Resul
     let mut curl_request = CurlRequest::new(&mut handle, request);
     curl_request.prepare()?;
 
-    tracing::debug!(request = ?request, "Full request details before sending");
+    // The `Request` debug output includes the auth credentials, the client
+    // key, the proxy password and the body, so only the method and URL are
+    // logged.
+    tracing::debug!(method = %request.method, url = %request.url, "Sending request");
 
     handle.verbose(true).map_err(|e| RelayError::Network {
         message: "Failed to set verbose mode".into(),
@@ -47,6 +61,13 @@ fn execute_request(request: &Request, cancel_token: &CancellationToken) -> Resul
 
     handle
         .debug_function(|info_type, data| {
+            // `InfoType::Text` is curl's own commentary on connect, TLS and
+            // redirects. The header and data types repeat the request and
+            // response bytes, the `Authorization` and `Cookie` headers and
+            // the body included, so they are dropped.
+            if !matches!(info_type, InfoType::Text) {
+                return;
+            }
             if let Ok(s) = std::str::from_utf8(data) {
                 tracing::debug!(info_type = ?info_type, s = ?s, "cURL debug fn");
             }
@@ -103,7 +124,6 @@ fn execute_request(request: &Request, cancel_token: &CancellationToken) -> Resul
 #[tracing::instrument(skip(request), fields(request_id = request.id), level = "debug")]
 pub async fn execute(request: Request) -> Result<Response> {
     let request_id = request.id;
-    let cancelled = Arc::new(AtomicBool::new(false));
 
     tracing::info!(
         method = %request.method,
@@ -111,32 +131,14 @@ pub async fn execute(request: Request) -> Result<Response> {
         "Starting request execution"
     );
 
-    ACTIVE_REQUESTS.insert(request_id, Arc::clone(&cancelled));
-
     let cancel_token = CancellationToken::new();
-    let cancel_token_clone = cancel_token.clone();
-    let cancelled_clone = Arc::clone(&cancelled);
+    ACTIVE_REQUESTS.insert(request_id, cancel_token.clone());
 
-    let handle = std::thread::spawn(move || {
-        let result = execute_request(&request, &cancel_token);
-        if cancel_token_clone.is_cancelled() {
-            cancelled_clone.store(true, Ordering::SeqCst);
-        }
-        result
-    });
+    let thread_token = cancel_token.clone();
+    let handle = std::thread::spawn(move || execute_request(&request, &thread_token));
 
     let result = match handle.join() {
-        Ok(result) => {
-            if cancelled.load(Ordering::SeqCst) {
-                tracing::info!("Request was cancelled by user");
-                Err(RelayError::Abort {
-                    message: "Request cancelled by user".into(),
-                })
-            } else {
-                tracing::debug!("Request completed normally");
-                result
-            }
-        }
+        Ok(result) => settle(result, cancel_token.is_cancelled()),
         Err(_) => {
             tracing::error!("Request thread panicked");
             Err(RelayError::Network {
@@ -149,8 +151,6 @@ pub async fn execute(request: Request) -> Result<Response> {
     ACTIVE_REQUESTS.remove(&request_id);
     tracing::debug!("Request execution completed");
 
-    tracing::debug!("Result {:#?}", result);
-
     result
 }
 
@@ -158,8 +158,8 @@ pub async fn execute(request: Request) -> Result<Response> {
 pub async fn cancel(request_id: i64) -> Result<()> {
     tracing::debug!(request_id = request_id, "Attempting to cancel request");
 
-    if let Some(cancelled) = ACTIVE_REQUESTS.get(&request_id) {
-        cancelled.store(true, Ordering::SeqCst);
+    if let Some(token) = ACTIVE_REQUESTS.get(&request_id) {
+        token.cancel();
         tracing::info!(request_id = request_id, "Request cancelled successfully");
         Ok(())
     } else {
@@ -171,5 +171,140 @@ pub async fn cancel(request_id: i64) -> Result<()> {
             message: "Request not found".into(),
             cause: None,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::future::Future;
+    use std::io::{Read, Write};
+    use std::net::TcpListener;
+    use std::sync::mpsc;
+    use std::task::{Context, Poll, Waker};
+    use std::time::{Duration, Instant};
+
+    use http::{Method, Version};
+
+    use super::{cancel, execute, settle};
+    use crate::error::RelayError;
+    use crate::interop::Request;
+
+    // `execute` and `cancel` await nothing, so one poll runs each to the
+    // end and the tests need no async runtime.
+    fn run<F: Future>(future: F) -> F::Output {
+        let mut future = std::pin::pin!(future);
+        match future
+            .as_mut()
+            .poll(&mut Context::from_waker(Waker::noop()))
+        {
+            Poll::Ready(output) => output,
+            Poll::Pending => panic!("the future awaited something"),
+        }
+    }
+
+    fn get(id: i64, port: u16) -> Request {
+        Request {
+            id,
+            url: format!("http://127.0.0.1:{port}/"),
+            method: Method::GET,
+            version: Version::HTTP_11,
+            headers: None,
+            params: None,
+            content: None,
+            auth: None,
+            security: None,
+            proxy: None,
+            meta: None,
+        }
+    }
+
+    // Accepts one connection, reads the request and signals `read`, then
+    // answers with `reply` or holds the connection open with no answer.
+    fn serve_once(reply: Option<&'static [u8]>, read: mpsc::Sender<()>) -> u16 {
+        let listener = TcpListener::bind("127.0.0.1:0").expect("bind");
+        let port = listener.local_addr().expect("local addr").port();
+        std::thread::spawn(move || {
+            let Ok((mut stream, _)) = listener.accept() else {
+                return;
+            };
+            let mut request = [0u8; 1024];
+            let _ = stream.read(&mut request);
+            let _ = read.send(());
+            match reply {
+                Some(reply) => {
+                    let _ = stream.write_all(reply);
+                }
+                None => std::thread::sleep(Duration::from_secs(30)),
+            }
+        });
+        port
+    }
+
+    #[test]
+    fn a_cancel_stops_a_transfer_that_has_no_answer() {
+        let (read_tx, read_rx) = mpsc::channel();
+        let port = serve_once(None, read_tx);
+        let request = std::thread::spawn(move || run(execute(get(9_001, port))));
+
+        read_rx
+            .recv_timeout(Duration::from_secs(5))
+            .expect("the request arrives");
+        let cancelled_at = Instant::now();
+        run(cancel(9_001)).expect("the request is active");
+
+        let result = request.join().expect("request thread");
+        assert!(
+            matches!(result, Err(RelayError::Abort { .. })),
+            "got {result:?}"
+        );
+        assert!(
+            cancelled_at.elapsed() < Duration::from_secs(5),
+            "the transfer ran on after the cancel"
+        );
+    }
+
+    #[test]
+    fn a_request_that_completed_returns_its_response() {
+        let (read_tx, _read_rx) = mpsc::channel();
+        let port = serve_once(
+            Some(b"HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok"),
+            read_tx,
+        );
+
+        let response = run(execute(get(9_002, port))).expect("the request completes");
+        assert_eq!(response.status, 200);
+        assert!(
+            run(cancel(9_002)).is_err(),
+            "a finished request is no longer active"
+        );
+    }
+
+    #[test]
+    fn a_cancel_after_the_transfer_completed_keeps_the_result() {
+        assert_eq!(settle(Ok(1), true).expect("completed"), 1);
+    }
+
+    #[test]
+    fn a_transfer_that_failed_after_a_cancel_is_an_abort() {
+        let failed: crate::error::Result<()> = Err(RelayError::Network {
+            message: "Failed to perform request".into(),
+            cause: None,
+        });
+        assert!(matches!(
+            settle(failed, true),
+            Err(RelayError::Abort { .. })
+        ));
+    }
+
+    #[test]
+    fn a_failure_without_a_cancel_keeps_its_error() {
+        let failed: crate::error::Result<()> = Err(RelayError::Network {
+            message: "Failed to perform request".into(),
+            cause: None,
+        });
+        assert!(matches!(
+            settle(failed, false),
+            Err(RelayError::Network { .. })
+        ));
     }
 }

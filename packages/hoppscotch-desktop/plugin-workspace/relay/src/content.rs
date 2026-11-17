@@ -47,7 +47,9 @@ impl<'a> ContentHandler<'a> {
         tracing::trace!(merged_headers = ?self.headers, "Headers after merge");
     }
 
-    #[tracing::instrument(skip(self), level = "debug")]
+    // The request body can include credentials, a login form or a token
+    // exchange, so the span leaves it out.
+    #[tracing::instrument(skip(self, content), level = "debug")]
     pub(crate) fn set_content(&mut self, content: &ContentType) -> Result<()> {
         match content {
             ContentType::Text {

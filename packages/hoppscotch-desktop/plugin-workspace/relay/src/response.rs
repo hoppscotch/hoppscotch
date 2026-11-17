@@ -3,7 +3,7 @@ use std::{collections::HashMap, str::FromStr, time::SystemTime};
 use bytes::Bytes;
 use http::{StatusCode, Version};
 use mime::Mime;
-use time::OffsetDateTime;
+use time::{Duration, OffsetDateTime};
 
 use crate::{
     error::{RelayError, Result},
@@ -101,6 +101,7 @@ impl ResponseHandler {
             .find(|(k, _)| k.eq_ignore_ascii_case("set-cookie"))
             .map(|(_, v)| v.as_str())?;
 
+        let now = OffsetDateTime::now_utc();
         let cookies: Vec<Cookie> = raw
             .split('\n')
             .filter_map(|line| {
@@ -109,9 +110,12 @@ impl ResponseHandler {
                     return None;
                 }
                 match cookie::Cookie::parse(line) {
-                    Ok(parsed) => Some(Self::to_interop_cookie(&parsed)),
+                    Ok(parsed) => Some(Self::to_interop_cookie(&parsed, now)),
                     Err(e) => {
-                        tracing::warn!(error = %e, raw = %line, "Skipping unparseable Set-Cookie");
+                        // The cookie value is a session credential, so the
+                        // record names the cookie alone.
+                        let name = line.split_once('=').map(|(name, _)| name.trim());
+                        tracing::warn!(error = %e, name = ?name, "Skipping unparseable Set-Cookie");
                         None
                     }
                 }
@@ -121,13 +125,24 @@ impl ResponseHandler {
         (!cookies.is_empty()).then_some(cookies)
     }
 
-    fn to_interop_cookie(c: &cookie::Cookie<'_>) -> Cookie {
+    fn to_interop_cookie(c: &cookie::Cookie<'_>, now: OffsetDateTime) -> Cookie {
         // RFC 6265 5.2.2, Max-Age takes precedence over Expires when both
         // are present. `checked_add` so an absurd Max-Age cannot panic the
         // relay, it just drops the expiry and the cookie reads as session.
+        // RFC 6265 5.2.2 also expires a cookie at once when Max-Age is zero
+        // or less, and an expiry equal to `now` is not yet in the past for
+        // a jar that compares it to the current time, so the cookie a server
+        // asked to remove would be kept. One millisecond before `now` is
+        // already past.
         let expires = c
             .max_age()
-            .and_then(|age| OffsetDateTime::now_utc().checked_add(age))
+            .and_then(|age| {
+                if age <= Duration::ZERO {
+                    Some(now - Duration::milliseconds(1))
+                } else {
+                    now.checked_add(age)
+                }
+            })
             .or_else(|| c.expires_datetime());
 
         let same_site = c.same_site().map(|s| match s {
@@ -223,5 +238,66 @@ impl ResponseHandler {
             start: start_ms,
             end: end_ms,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use time::{Duration, OffsetDateTime};
+
+    use super::ResponseHandler;
+
+    // 2026-01-01 12:00:00 UTC
+    const NOW_UNIX: i64 = 1767268800;
+    // 2031-01-01 00:00:00 UTC, the `Expires` date in the tests below
+    const EXPIRES_UNIX: i64 = 1924992000;
+
+    fn at(unix: i64) -> OffsetDateTime {
+        OffsetDateTime::from_unix_timestamp(unix).expect("timestamp")
+    }
+
+    fn expires(set_cookie: &str) -> Option<OffsetDateTime> {
+        let parsed = cookie::Cookie::parse(set_cookie).expect("parse");
+        ResponseHandler::to_interop_cookie(&parsed, at(NOW_UNIX)).expires
+    }
+
+    #[test]
+    fn a_zero_max_age_expires_before_now() {
+        assert_eq!(
+            expires("session=; Max-Age=0"),
+            Some(at(NOW_UNIX) - Duration::milliseconds(1))
+        );
+    }
+
+    #[test]
+    fn a_negative_max_age_expires_before_now() {
+        assert_eq!(
+            expires("session=; Max-Age=-1"),
+            Some(at(NOW_UNIX) - Duration::milliseconds(1))
+        );
+    }
+
+    #[test]
+    fn a_positive_max_age_counts_from_now() {
+        assert_eq!(
+            expires("session=abc; Max-Age=60"),
+            Some(at(NOW_UNIX) + Duration::seconds(60))
+        );
+    }
+
+    #[test]
+    fn max_age_takes_precedence_over_expires() {
+        assert_eq!(
+            expires("session=; Max-Age=0; Expires=Wed, 01 Jan 2031 00:00:00 GMT"),
+            Some(at(NOW_UNIX) - Duration::milliseconds(1))
+        );
+    }
+
+    #[test]
+    fn expires_applies_without_max_age() {
+        assert_eq!(
+            expires("session=abc; Expires=Wed, 01 Jan 2031 00:00:00 GMT"),
+            Some(at(EXPIRES_UNIX))
+        );
     }
 }

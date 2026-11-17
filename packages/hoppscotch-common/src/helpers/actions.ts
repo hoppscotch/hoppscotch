@@ -72,6 +72,7 @@ export type HoppAction =
   | "tab.reopen-closed" // Reopen recently closed tab
   | "tab.mru-switch" // Switch to MRU tab (Ctrl/Cmd+Alt+])
   | "tab.mru-switch-reverse" // Switch to previous MRU tab (Ctrl/Cmd+Alt+[)
+  | "tab.switch-protocol" // Switch the active tab between REST and GraphQL
   | "request.focus-url" // Focus the URL bar
   | "collection.new" // Create root collection
   | "flyouts.chat.open" // Shows the keybinds flyout
@@ -145,6 +146,19 @@ type HoppActionArgsMap = {
     }
     text: string | null
   }
+  // Optional: a GraphQL query document can hold several operations — the run
+  // executes the named one instead of the first. REST handlers ignore this.
+  "request.send-cancel":
+    | {
+        operationName?: string
+      }
+    | undefined
+  // Optional: no payload toggles; a protocol targets that side explicitly.
+  "tab.switch-protocol":
+    | {
+        protocol?: "rest" | "graphql"
+      }
+    | undefined
   "modals.global.environment.update": {
     variables?: Environment["variables"]
     isSecret?: boolean

@@ -259,7 +259,9 @@ const changeOptionTab = (e: GQLOptionTabs) => {
   selectedOptionTab.value = e
 }
 
-defineActionHandler("request.send-cancel", runQuery)
+// The action's optional payload (operationName) is for the unified workspace
+// GQL pane — this legacy page keeps its cursor-driven behavior.
+defineActionHandler("request.send-cancel", () => runQuery())
 defineActionHandler("request-response.save", saveRequest)
 defineActionHandler("request.save-as", () => {
   showSaveRequestModal.value = true

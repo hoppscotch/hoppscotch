@@ -1,5 +1,9 @@
 import { onBeforeUnmount, onMounted } from "vue"
-import { HoppActionWithOptionalArgs, invokeAction } from "./actions"
+import {
+  HoppActionWithOptionalArgs,
+  invokeAction,
+  isActionBound,
+} from "./actions"
 import {
   getKeyboardLayoutStrategy,
   type KeyboardLayoutStrategy,
@@ -78,6 +82,7 @@ const baseBindings: {
   "shift-/": "modals.support.toggle",
   "ctrl-shift-/": "flyouts.keybinds.toggle",
   "ctrl-m": "modals.share.toggle",
+  "alt-t": "tab.switch-protocol",
   "alt-r": "navigation.jump.rest",
   "alt-q": "navigation.jump.graphql",
   "alt-w": "navigation.jump.realtime",
@@ -136,6 +141,11 @@ function getActiveBindings(): typeof baseBindings {
 }
 
 export const bindings = getActiveBindings()
+
+// Actions whose key passes through while no mounted view handles them
+const handlerGatedActions = new Set<HoppActionWithOptionalArgs>([
+  "tab.switch-protocol",
+])
 
 /**
  * A composable that hooks to the caller component's
@@ -262,6 +272,9 @@ function handleKeyDown(ev: KeyboardEvent) {
 
   // If no action is bound, do nothing
   if (!boundAction) return
+
+  if (handlerGatedActions.has(boundAction) && !isActionBound(boundAction).value)
+    return
 
   ev.preventDefault()
   invokeAction(boundAction, undefined, "keypress")

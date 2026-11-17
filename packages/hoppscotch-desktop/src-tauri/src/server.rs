@@ -1,4 +1,6 @@
-use std::net::SocketAddr;
+use std::io::{self, ErrorKind};
+use std::net::{Ipv4Addr, Ipv6Addr, TcpListener};
+use std::ops::RangeInclusive;
 
 use axum::{
     extract::Query,
@@ -42,8 +44,60 @@ async fn device_token<R: Runtime>(
     StatusCode::OK.into_response()
 }
 
-pub(crate) fn init<R: Runtime>(port: u16, handle: tauri::AppHandle<R>) -> u16 {
+/// The OS error code for `EAFNOSUPPORT`, which a socket call returns on a
+/// host with IPv6 disabled. `std` maps it to no `ErrorKind`, so the check
+/// compares the raw code.
+#[cfg(unix)]
+const ADDRESS_FAMILY_NOT_SUPPORTED: i32 = libc::EAFNOSUPPORT;
+#[cfg(windows)]
+const ADDRESS_FAMILY_NOT_SUPPORTED: i32 = 10047;
+
+/// Binds the first port in `range` that is free on `127.0.0.1` and that no
+/// other process listens on at `::1`, and returns the `127.0.0.1` listener,
+/// so the port stays reserved until `init` serves on it.
+///
+/// Login pages from earlier releases send the device token to `localhost`,
+/// which a browser can resolve to `::1` first, so a port taken on `::1`
+/// would send the token to that listener. A `::1` bind counts as free only
+/// where it succeeds or where the host has no IPv6 loopback, as on a kernel
+/// booted with `ipv6.disable=1`.
+pub(crate) fn bind_listener(range: RangeInclusive<u16>) -> Option<TcpListener> {
+    range.into_iter().find_map(|port| {
+        let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, port)).ok()?;
+        is_free_on_ipv6_loopback(TcpListener::bind((Ipv6Addr::LOCALHOST, port))).then_some(listener)
+    })
+}
+
+/// Any other error, `AddrInUse` and the `PermissionDenied` Windows returns
+/// for a port bound with `SO_EXCLUSIVEADDRUSE` among them, counts as taken.
+fn is_free_on_ipv6_loopback(bind: io::Result<TcpListener>) -> bool {
+    match bind {
+        Ok(_) => true,
+        Err(e) => {
+            e.kind() == ErrorKind::AddrNotAvailable
+                || e.raw_os_error() == Some(ADDRESS_FAMILY_NOT_SUPPORTED)
+        }
+    }
+}
+
+pub(crate) fn init<R: Runtime>(
+    listener: TcpListener,
+    handle: tauri::AppHandle<R>,
+) -> io::Result<u16> {
     tracing::info!("Beginning server initialization");
+
+    let addr = listener.local_addr()?;
+    let port = addr.port();
+    listener.set_nonblocking(true)?;
+    // `from_std` registers the socket with the reactor of the runtime it is
+    // called under, so it runs here under the runtime that serves it, and a
+    // failure returns from `init` before startup reports a port.
+    let listener = {
+        let runtime = tauri::async_runtime::handle();
+        let _guard = runtime.inner().enter();
+        tokio::net::TcpListener::from_std(listener)?
+    };
+    tracing::info!(local_addr = %addr, "Server bound successfully");
 
     let app = Router::new()
         .route(
@@ -52,33 +106,12 @@ pub(crate) fn init<R: Runtime>(port: u16, handle: tauri::AppHandle<R>) -> u16 {
         )
         .layer(CorsLayer::very_permissive());
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], port));
-
     tauri::async_runtime::spawn(async move {
         tracing::info!(
             address = %addr,
             port = port,
             "Starting HTTP server"
         );
-
-        let listener = match tokio::net::TcpListener::bind(addr).await {
-            Ok(l) => {
-                tracing::info!(
-                    local_addr = %l.local_addr().unwrap_or(addr),
-                    "Server bound successfully"
-                );
-                l
-            }
-            Err(e) => {
-                tracing::error!(
-                    error.message = %e,
-                    error.kind = ?e.kind(),
-                    attempted_address = %addr,
-                    "Server bind failed"
-                );
-                panic!("Could not bind to the unused port");
-            }
-        };
 
         tracing::info!("Server starting");
         if let Err(e) = axum::serve(listener, app).await {
@@ -90,7 +123,7 @@ pub(crate) fn init<R: Runtime>(port: u16, handle: tauri::AppHandle<R>) -> u16 {
         }
     });
 
-    port
+    Ok(port)
 }
 
 // `AuthTokensQuery` gets deserialized from query params on the `/device-token`
@@ -151,5 +184,53 @@ mod tests {
 
         assert_eq!(query.access_token, "abc123");
         assert_eq!(query.refresh_token, None);
+    }
+
+    #[test]
+    fn test_bind_listener_reserves_a_free_port() {
+        let port = TcpListener::bind((Ipv4Addr::LOCALHOST, 0))
+            .unwrap()
+            .local_addr()
+            .unwrap()
+            .port();
+
+        let listener = bind_listener(port..=port).unwrap();
+
+        assert_eq!(listener.local_addr().unwrap().port(), port);
+        assert!(TcpListener::bind((Ipv4Addr::LOCALHOST, port)).is_err());
+    }
+
+    #[test]
+    fn test_bind_listener_skips_port_taken_on_ipv4_loopback() {
+        let taken = TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).unwrap();
+        let port = taken.local_addr().unwrap().port();
+
+        assert!(bind_listener(port..=port).is_none());
+    }
+
+    #[test]
+    fn test_bind_listener_skips_port_taken_on_ipv6_loopback() {
+        let Ok(taken) = TcpListener::bind((Ipv6Addr::LOCALHOST, 0)) else {
+            return;
+        };
+        let port = taken.local_addr().unwrap().port();
+
+        assert!(bind_listener(port..=port).is_none());
+    }
+
+    #[test]
+    fn test_ipv6_loopback_counts_as_free_only_without_ipv6() {
+        assert!(is_free_on_ipv6_loopback(Err(io::Error::from(
+            ErrorKind::AddrNotAvailable
+        ))));
+        assert!(is_free_on_ipv6_loopback(Err(io::Error::from_raw_os_error(
+            ADDRESS_FAMILY_NOT_SUPPORTED
+        ))));
+        assert!(!is_free_on_ipv6_loopback(Err(io::Error::from(
+            ErrorKind::AddrInUse
+        ))));
+        assert!(!is_free_on_ipv6_loopback(Err(io::Error::from(
+            ErrorKind::PermissionDenied
+        ))));
     }
 }

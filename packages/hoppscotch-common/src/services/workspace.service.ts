@@ -5,7 +5,6 @@ import { useStreamStatic } from "~/composables/stream"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { platform } from "~/platform"
 import { isEqual, min } from "lodash-es"
-import { TeamAccessRole } from "~/helpers/backend/graphql"
 import { applyLocalState } from "~/newstore/localstate"
 import { TeamCollectionsService } from "./team-collection.service"
 import { DocumentationService } from "./documentation.service"
@@ -14,6 +13,12 @@ import {
   getSelectedEnvironmentIndex,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
+
+export enum TeamAccessRole {
+  Editor = "EDITOR",
+  Owner = "OWNER",
+  Viewer = "VIEWER",
+}
 
 /**
  * Defines a workspace and its information

@@ -157,17 +157,16 @@ const convertSecurity = (
         ...(O.isSome(certificatesOption)
           ? { certificates: certificatesOption.value }
           : {}),
-        // Default to `false` if not explicitly set,
-        // if no certificates but security object exists, still return verify settings
-        verifyHost: security.verifyHost ?? false,
-        verifyPeer: security.verifyPeer ?? false,
+        // An unset flag verifies, so a domain entry that sets only one of
+        // the two, or a store that never seeded `*`, keeps TLS checks on.
+        verifyHost: security.verifyHost ?? true,
+        verifyPeer: security.verifyPeer ?? true,
       })
     }),
-    // If no security object at all, return default settings
     O.alt(() =>
       O.some({
-        verifyHost: false,
-        verifyPeer: false,
+        verifyHost: true,
+        verifyPeer: true,
       })
     )
   )

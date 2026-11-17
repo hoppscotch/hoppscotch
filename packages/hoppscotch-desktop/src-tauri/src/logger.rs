@@ -11,7 +11,14 @@ pub struct LogGuard(pub tracing_appender::non_blocking::WorkerGuard);
 pub fn setup(log_dir: &PathBuf) -> Result<LogGuard, Box<dyn std::error::Error>> {
     std::fs::create_dir_all(log_dir)?;
 
-    let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| "debug".into());
+    // DEBUG output includes request and response details, so a release
+    // build defaults to INFO, and RUST_LOG sets any other level.
+    let default_level = if cfg!(debug_assertions) {
+        "debug"
+    } else {
+        "info"
+    };
+    let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| default_level.into());
 
     let log_file_path = path::log_file_path();
     tracing::info!(log_file_path =? &log_file_path);

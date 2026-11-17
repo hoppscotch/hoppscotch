@@ -207,12 +207,12 @@ impl<'a> CurlRequest<'a> {
         let mut headers = HashMap::new();
 
         if let Some(ref content) = self.request.content {
-            tracing::trace!(content_type = ?content, "Setting request content");
+            tracing::trace!("Setting request content");
             ContentHandler::new(self.handle, &mut headers).set_content(content)?;
         }
 
         if let Some(ref auth) = self.request.auth {
-            tracing::trace!(auth_type = ?auth, "Configuring authentication");
+            tracing::trace!("Configuring authentication");
             AuthHandler::new(self.handle, &mut headers).set_auth(auth)?;
         }
 

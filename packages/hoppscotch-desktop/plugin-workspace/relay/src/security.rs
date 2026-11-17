@@ -65,6 +65,59 @@ fn combine_ca_bundle(system: &[u8], user: &[Bytes]) -> Vec<u8> {
     combined
 }
 
+// curl reads the PEM blob given to `ssl_cert_blob` as a chain and sends the
+// leaf with every certificate after it, so the intermediates in the bundle
+// follow the leaf. A server that trusts only the root cannot build a path
+// from a leaf sent without its intermediates and fails the handshake.
+fn pkcs12_to_pem(data: &[u8], password: &str) -> Result<(Vec<u8>, Vec<u8>)> {
+    let pkcs12 = Pkcs12::from_der(data).map_err(|e| {
+        tracing::error!(error = %e, "Failed to parse PKCS#12 data");
+        RelayError::Certificate {
+            message: "Failed to parse PKCS#12 data".into(),
+            cause: Some(e.to_string()),
+        }
+    })?;
+
+    let parsed = pkcs12.parse2(password).map_err(|e| {
+        tracing::error!(error = %e, "Failed to parse PKCS#12 password");
+        RelayError::Certificate {
+            message: "Failed to parse the PKCS#12 bundle".into(),
+            cause: Some(e.to_string()),
+        }
+    })?;
+
+    let (Some(cert), Some(key)) = (parsed.cert, parsed.pkey) else {
+        tracing::error!("PKCS#12 file missing certificate or private key");
+        return Err(RelayError::Certificate {
+            message: "PKCS#12 file missing certificate or private key".into(),
+            cause: None,
+        });
+    };
+
+    let to_pem_error = |e: openssl::error::ErrorStack| {
+        tracing::error!(error = %e, "Failed to convert certificate to PEM");
+        RelayError::Certificate {
+            message: "Failed to convert certificate to PEM".into(),
+            cause: Some(e.to_string()),
+        }
+    };
+
+    let mut chain_pem = cert.to_pem().map_err(to_pem_error)?;
+    for intermediate in parsed.ca.iter().flatten() {
+        chain_pem.extend_from_slice(&intermediate.to_pem().map_err(to_pem_error)?);
+    }
+
+    let key_pem = key.private_key_to_pem_pkcs8().map_err(|e| {
+        tracing::error!(error = %e, "Failed to convert private key to PEM");
+        RelayError::Certificate {
+            message: "Failed to convert private key to PEM".into(),
+            cause: Some(e.to_string()),
+        }
+    })?;
+
+    Ok((chain_pem, key_pem))
+}
+
 pub(crate) struct SecurityHandler<'a> {
     handle: &'a mut Easy,
 }
@@ -124,7 +177,9 @@ impl<'a> SecurityHandler<'a> {
         Ok(())
     }
 
-    #[tracing::instrument(skip(self), level = "debug")]
+    // The `CertificateConfig` debug output includes the client key and the
+    // PKCS#12 password, so the span leaves it out.
+    #[tracing::instrument(skip(self, certs), level = "debug")]
     fn configure_certificates(&mut self, certs: &CertificateConfig) -> Result<()> {
         if let Some(ref client_cert) = certs.client {
             match client_cert {
@@ -183,47 +238,8 @@ impl<'a> SecurityHandler<'a> {
     }
 
     fn configure_pfx_certificate(&mut self, data: &[u8], password: &str) -> Result<()> {
-        let pkcs12 = Pkcs12::from_der(data).map_err(|e| {
-            tracing::error!(error = %e, "Failed to parse PKCS#12 data");
-            RelayError::Certificate {
-                message: "Failed to parse PKCS#12 data".into(),
-                cause: Some(e.to_string()),
-            }
-        })?;
-
-        let parsed = pkcs12.parse2(password).map_err(|e| {
-            tracing::error!(error = %e, "Failed to parse PKCS#12 password");
-            RelayError::Certificate {
-                message: "Failed to parse the PKCS#12 bundle".into(),
-                cause: Some(e.to_string()),
-            }
-        })?;
-
-        if let (Some(cert), Some(key)) = (parsed.cert, parsed.pkey) {
-            let cert_pem = cert.to_pem().map_err(|e| {
-                tracing::error!(error = %e, "Failed to convert certificate to PEM");
-                RelayError::Certificate {
-                    message: "Failed to convert certificate to PEM".into(),
-                    cause: Some(e.to_string()),
-                }
-            })?;
-
-            let key_pem = key.private_key_to_pem_pkcs8().map_err(|e| {
-                tracing::error!(error = %e, "Failed to convert private key to PEM");
-                RelayError::Certificate {
-                    message: "Failed to convert private key to PEM".into(),
-                    cause: Some(e.to_string()),
-                }
-            })?;
-
-            self.configure_pem_certificate(&cert_pem, &key_pem)
-        } else {
-            tracing::error!("PKCS#12 file missing certificate or private key");
-            Err(RelayError::Certificate {
-                message: "PKCS#12 file missing certificate or private key".into(),
-                cause: None,
-            })
-        }
+        let (cert_pem, key_pem) = pkcs12_to_pem(data, password)?;
+        self.configure_pem_certificate(&cert_pem, &key_pem)
     }
 
     fn configure_ca_certificates(&mut self, ca_certs: &[Bytes]) -> Result<()> {
@@ -283,19 +299,25 @@ impl<'a> SecurityHandler<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::{combine_ca_bundle, SecurityHandler};
+    use super::{combine_ca_bundle, pkcs12_to_pem, SecurityHandler};
     use crate::interop::{CertificateConfig, SecurityConfig};
     use bytes::Bytes;
     use curl::easy::Easy;
     use openssl::asn1::Asn1Time;
     use openssl::hash::MessageDigest;
-    use openssl::pkey::PKey;
+    use openssl::pkcs12::Pkcs12;
+    use openssl::pkey::{PKey, Private};
     use openssl::rsa::Rsa;
+    use openssl::stack::Stack;
     use openssl::x509::{X509Name, X509};
 
     // A real certificate, ∵ `combine_ca_bundle` re-encodes each user entry
     // from the blocks that parse and a placeholder string parses as nothing.
     fn cert(cn: &str) -> Bytes {
+        Bytes::from(keyed_cert(cn).1.to_pem().expect("pem"))
+    }
+
+    fn keyed_cert(cn: &str) -> (PKey<Private>, X509) {
         let key = PKey::from_rsa(Rsa::generate(2048).expect("rsa")).expect("pkey");
         let mut name = X509Name::builder().expect("name builder");
         name.append_entry_by_text("CN", cn).expect("cn");
@@ -313,7 +335,70 @@ mod tests {
             .set_not_after(&Asn1Time::days_from_now(365).expect("year"))
             .expect("not after");
         builder.sign(&key, MessageDigest::sha256()).expect("sign");
-        Bytes::from(builder.build().to_pem().expect("pem"))
+        (key, builder.build())
+    }
+
+    fn pkcs12(intermediates: &[&X509], password: &str) -> (Vec<u8>, X509) {
+        let (key, leaf) = keyed_cert("leaf");
+        let mut builder = Pkcs12::builder();
+        builder.name("client").pkey(&key).cert(&leaf);
+        if !intermediates.is_empty() {
+            let mut stack = Stack::new().expect("stack");
+            for cert in intermediates {
+                stack.push((*cert).to_owned()).expect("push");
+            }
+            builder.ca(stack);
+        }
+        let der = builder
+            .build2(password)
+            .expect("pkcs12")
+            .to_der()
+            .expect("der");
+        (der, leaf)
+    }
+
+    fn position(haystack: &[u8], needle: &[u8]) -> usize {
+        haystack
+            .windows(needle.len())
+            .position(|window| window == needle)
+            .expect("certificate present in the chain")
+    }
+
+    #[test]
+    fn a_pkcs12_chain_sends_the_leaf_then_the_intermediates() {
+        let (_, one) = keyed_cert("intermediate one");
+        let (_, two) = keyed_cert("intermediate two");
+        let (der, leaf) = pkcs12(&[&one, &two], "secret");
+
+        let (chain, key) = pkcs12_to_pem(&der, "secret").expect("parse");
+
+        let leaf_pem = leaf.to_pem().expect("pem");
+        assert!(chain.starts_with(&leaf_pem), "the leaf comes first");
+        assert!(position(&chain, &one.to_pem().expect("pem")) >= leaf_pem.len());
+        assert!(position(&chain, &two.to_pem().expect("pem")) >= leaf_pem.len());
+        assert_eq!(anchors(&chain), 3);
+        assert!(key.starts_with(b"-----BEGIN PRIVATE KEY-----"));
+    }
+
+    #[test]
+    fn a_pkcs12_without_intermediates_sends_the_leaf_alone() {
+        let (der, leaf) = pkcs12(&[], "secret");
+
+        let (chain, _) = pkcs12_to_pem(&der, "secret").expect("parse");
+
+        assert_eq!(chain, leaf.to_pem().expect("pem"));
+    }
+
+    #[test]
+    fn a_pkcs12_with_the_wrong_password_is_an_error() {
+        let (der, _) = pkcs12(&[], "secret");
+
+        let error = pkcs12_to_pem(&der, "wrong").expect_err("the password does not match");
+
+        assert!(
+            format!("{error:?}").contains("Failed to parse the PKCS#12 bundle"),
+            "got {error:?}"
+        );
     }
 
     fn anchors(blob: &[u8]) -> usize {

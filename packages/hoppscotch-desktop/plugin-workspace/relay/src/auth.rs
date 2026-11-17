@@ -16,11 +16,13 @@ impl<'a> AuthHandler<'a> {
         Self { handle, headers }
     }
 
-    #[tracing::instrument(skip(self), level = "debug")]
+    // The `AuthType` debug output includes the password, token and secret
+    // key, so the span leaves it out.
+    #[tracing::instrument(skip(self, auth), level = "debug")]
     pub(crate) fn set_auth(&mut self, auth: &AuthType) -> Result<()> {
         match auth {
             AuthType::Basic { username, password } => {
-                tracing::info!(username = %username, "Setting basic auth");
+                tracing::info!("Setting basic auth");
                 self.set_basic_auth(username, password)
             }
             AuthType::Bearer { token } => {
@@ -30,7 +32,7 @@ impl<'a> AuthHandler<'a> {
             AuthType::Digest {
                 username, password, ..
             } => {
-                tracing::info!(username = %username, "Setting digest auth");
+                tracing::info!("Setting digest auth");
                 self.set_digest_auth(username, password)
             }
             AuthType::ApiKey {
@@ -83,7 +85,7 @@ impl<'a> AuthHandler<'a> {
     }
 
     fn set_basic_auth(&mut self, username: &str, password: &str) -> Result<()> {
-        tracing::debug!(username = %username, "Setting basic auth credentials");
+        tracing::debug!("Setting basic auth credentials");
 
         self.handle.username(username).map_err(|e| {
             tracing::error!(error = %e, "Failed to set username");

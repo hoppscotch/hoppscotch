@@ -695,6 +695,7 @@ const handleConnectionStateChange = (state: ConnectionState): void => {
 
   if (isErrorState(state)) {
     connectionError.value = state.message
+    isConnecting.value = false
     if (previousState !== "error") {
       toast.error(state.message || "Connection error occurred")
     }

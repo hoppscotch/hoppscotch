@@ -254,7 +254,6 @@ export async function setInitialUser() {
   if (res.data?.me) {
     const hoppBackendUser = res.data.me
     const accessToken = await persistenceService.getLocalConfig("access_token")
-    if (!accessToken) return null
 
     if (!accessToken) {
       await setUser(null)
@@ -278,7 +277,14 @@ export async function setInitialUser() {
       event: "login",
       user: HoppUserWithAuthDetail,
     })
+    return
   }
+
+  // A response without `me` that the branches above don't handle signs the
+  // user out, so `waitProbableLoginToConfirm` sees the flag change and its
+  // callers resume.
+  await setUser(null)
+  isGettingInitialUser.value = false
 }
 
 async function refreshToken() {

@@ -9,3 +9,7 @@ export function getPlatformSpecialKey() {
 export function getPlatformAlternateKey() {
   return isAppleDevice() ? "⌥" : "Alt"
 }
+
+export function getPlatformShiftKey() {
+  return isAppleDevice() ? "⇧" : "Shift"
+}

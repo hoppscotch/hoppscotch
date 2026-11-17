@@ -784,6 +784,10 @@ const getErrorMessage = (err: GQLError<string>) => {
       return t("profile.no_permission")
     case "Forbidden resource":
       return t("profile.no_permission")
+    case "team/legacy_workspace_blocked":
+      return t("team.legacy_workspace_blocked")
+    case "legacy_workspace/migration_in_progress":
+      return t("team.migration_in_progress")
     default:
       return t("error.something_went_wrong")
   }

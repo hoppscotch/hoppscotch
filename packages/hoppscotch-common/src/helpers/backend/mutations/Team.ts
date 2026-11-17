@@ -27,6 +27,7 @@ type DeleteTeamErrors =
   | "team/invalid_id"
   | "team/member_not_found"
   | "ea/not_invite_or_admin"
+  | "legacy_workspace/migration_in_progress"
 
 type LeaveTeamErrors =
   "team/invalid_id" | "team/member_not_found" | "ea/not_invite_or_admin"

@@ -235,7 +235,10 @@ const joinTeam = () => {
         loading.value = false
         toast.error(
           platform.organization?.describeTeamError?.(err) ??
-            t("error.something_went_wrong")
+            (err.type === "gql_error" &&
+            err.error === "legacy_workspace/migration_in_progress"
+              ? t("team.migration_in_progress")
+              : t("error.something_went_wrong"))
         )
       },
       () => {

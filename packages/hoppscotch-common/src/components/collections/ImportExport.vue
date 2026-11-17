@@ -622,7 +622,11 @@ const getWorkspaceCollections = async (): Promise<{
   const team = props.collectionsType.selectedTeam
   const res = await teamCollectionsExporter(team.teamID)
   if (E.isLeft(res)) {
-    toast.error(res.left)
+    toast.error(
+      res.left === "team/legacy_workspace_blocked"
+        ? t("team.legacy_workspace_blocked")
+        : res.left
+    )
     return null
   }
 

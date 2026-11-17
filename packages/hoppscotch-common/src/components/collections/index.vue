@@ -4206,6 +4206,10 @@ const getErrorMessage = (err: GQLError<string>) => {
     case "team/team_collections_have_different_parents":
     case "team_coll/not_same_parent":
       return t("collection.different_parent")
+    case "team/legacy_workspace_blocked":
+      return t("team.legacy_workspace_blocked")
+    case "legacy_workspace/migration_in_progress":
+      return t("team.migration_in_progress")
     default:
       return t("error.something_went_wrong")
   }

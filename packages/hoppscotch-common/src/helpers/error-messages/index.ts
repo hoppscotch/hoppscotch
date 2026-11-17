@@ -12,6 +12,10 @@ export const getEnvActionErrorMessage = (err: GQLError<string>) => {
       return "environment.short_name"
     case "Forbidden resource":
       return "profile.no_permission"
+    case "team/legacy_workspace_blocked":
+      return "team.legacy_workspace_blocked"
+    case "legacy_workspace/migration_in_progress":
+      return "team.migration_in_progress"
     default:
       return "error.something_went_wrong"
   }

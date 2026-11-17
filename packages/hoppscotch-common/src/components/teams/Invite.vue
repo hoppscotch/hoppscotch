@@ -691,6 +691,10 @@ const getErrorMessage = (error: GQLError<CreateTeamInvitationErrors>) => {
       return t("team.member_has_invite")
     case "user/not_found":
       return t("team.user_not_found")
+    case "legacy_workspace/migration_in_progress":
+      return t("team.migration_in_progress")
+    default:
+      return t("error.something_went_wrong")
   }
 }
 

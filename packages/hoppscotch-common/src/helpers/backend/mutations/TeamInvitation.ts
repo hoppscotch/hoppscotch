@@ -17,6 +17,7 @@ export type CreateTeamInvitationErrors =
   | "team_invite/already_member"
   | "team_invite/member_has_invite"
   | "user/not_found"
+  | "legacy_workspace/migration_in_progress"
 
 type RevokeTeamInvitationErrors =
   "team/not_required_role" | "team_invite/no_invite_found"
@@ -25,6 +26,7 @@ type AcceptTeamInvitationErrors =
   | "team_invite/no_invite_found"
   | "team_invite/already_member"
   | "team_invite/email_do_not_match"
+  | "legacy_workspace/migration_in_progress"
 
 export const createTeamInvitation = (
   inviteeEmail: Email,

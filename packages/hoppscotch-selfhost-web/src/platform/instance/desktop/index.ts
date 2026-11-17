@@ -36,8 +36,15 @@ import {
 import { Store } from "@app/kernel/store"
 import { getKernelMode } from "@hoppscotch/kernel"
 import { getService } from "@hoppscotch/common/modules/dioc"
+import { useDesktopSettings } from "@hoppscotch/common/composables/desktop-settings"
 
 const STORE_NAMESPACE = "hoppscotch-desktop.v1"
+
+// tauri-plugin-appload times the bundle request at DOWNLOAD_TIMEOUT_FACTOR
+// times the persisted connection timeout. The race below wraps the whole
+// download, so it uses the same factor and base, or it rejects a bundle
+// the shell is in the middle of receiving.
+const BUNDLE_DOWNLOAD_TIMEOUT_FACTOR = 10
 
 type RecentInstances = Instance[]
 
@@ -836,19 +843,33 @@ export class DesktopInstanceService
   ): TE.TaskEither<string, DownloadResponse> {
     console.log(`[InstanceService] Downloading from: ${serverUrl}`)
 
-    const timeout = this.config?.connectionTimeout || 30000
-
     return TE.tryCatch(
-      () =>
-        Promise.race([
-          download({ serverUrl }),
-          new Promise<never>((_, reject) =>
-            setTimeout(
-              () => reject(new Error(`Connection timeout after ${timeout}ms`)),
-              timeout
-            )
-          ),
-        ]),
+      async () => {
+        const desktopSettings = useDesktopSettings()
+        await desktopSettings.ready()
+
+        const connectionTimeout =
+          desktopSettings.settings.connectionTimeoutMs ||
+          this.config?.connectionTimeout ||
+          30000
+        const timeout = connectionTimeout * BUNDLE_DOWNLOAD_TIMEOUT_FACTOR
+
+        let timer: ReturnType<typeof setTimeout> | undefined
+        try {
+          return await Promise.race([
+            download({ serverUrl }),
+            new Promise<never>((_, reject) => {
+              timer = setTimeout(
+                () =>
+                  reject(new Error(`Connection timeout after ${timeout}ms`)),
+                timeout
+              )
+            }),
+          ])
+        } finally {
+          clearTimeout(timer)
+        }
+      },
       (error) => `Failed to download instance: ${error}`
     )
   }

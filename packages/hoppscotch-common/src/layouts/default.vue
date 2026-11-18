@@ -4,11 +4,15 @@
       <Pane style="height: auto">
         <AppHeader />
       </Pane>
-      <Pane :class="spacerClass" class="flex flex-1 !overflow-hidden md:mb-0">
+      <Pane
+        :class="spacerClass"
+        class="relative flex flex-1 !overflow-hidden md:mb-0"
+      >
         <Splitpanes
           class="no-splitter min-w-0 flex-1"
           :dbl-click-splitter="false"
           :horizontal="!mdAndLarger"
+          :inert="workspaceOverlayActive"
         >
           <Pane
             style="width: auto; height: auto"
@@ -37,7 +41,12 @@
             </Splitpanes>
           </Pane>
         </Splitpanes>
-        <AichatAssistant v-if="hasAIChat" />
+        <AichatAssistant v-if="hasAIChat && !workspaceOverlayActive" />
+        <component
+          :is="workspaceOverlayComponent"
+          v-if="workspaceOverlayComponent"
+          @update:active="workspaceOverlayActive = $event"
+        />
       </Pane>
       <Pane v-if="mdAndLarger" style="height: auto">
         <AppFooter />
@@ -75,13 +84,23 @@ import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { useService } from "dioc/vue"
 import { Pane, Splitpanes } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
-import { computed, onBeforeMount, onMounted, ref, watch } from "vue"
+import {
+  computed,
+  onBeforeMount,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from "vue"
 import { RouterView, useRouter } from "vue-router"
 
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { InvocationTriggers, defineActionHandler } from "~/helpers/actions"
-import { hookKeybindingsListener } from "~/helpers/keybindings"
+import {
+  hookKeybindingsListener,
+  setKeybindingsSuspended,
+} from "~/helpers/keybindings"
 import { applySetting, toggleSetting } from "~/newstore/settings"
 import { platform } from "~/platform"
 import { HoppSpotlightSessionEventData } from "~/platform/analytics"
@@ -114,6 +133,13 @@ const HAS_OPENED_SPOTLIGHT = useSetting("HAS_OPENED_SPOTLIGHT")
 
 // Fixed per platform; a platform that can't chat skips the assistant entirely.
 const hasAIChat = !!platform.experiments?.aiExperiments?.chat
+
+const workspaceOverlayComponent = platform.ui?.workspaceOverlayComponent
+const workspaceOverlayActive = ref(false)
+
+// Shortcuts would act on the covered workspace.
+watch(workspaceOverlayActive, setKeybindingsSuspended)
+onBeforeUnmount(() => setKeybindingsSuspended(false))
 
 onBeforeMount(() => {
   if (!mdAndLarger.value) {

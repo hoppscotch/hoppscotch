@@ -8,7 +8,14 @@ import * as RNEA from "fp-ts/ReadonlyNonEmptyArray"
  */
 export const browserIODef: IOPlatformDef = {
   saveFileWithDialog(opts) {
-    const file = new Blob([opts.data], { type: opts.contentType })
+    // Ensure binary data is properly handled as Uint8Array for Blob construction
+    const blobData =
+      typeof opts.data === "string"
+        ? opts.data
+        : opts.data instanceof Uint8Array
+          ? opts.data
+          : new Uint8Array(opts.data as ArrayBuffer)
+    const file = new Blob([blobData], { type: opts.contentType })
     const a = document.createElement("a")
     const url = URL.createObjectURL(file)
 

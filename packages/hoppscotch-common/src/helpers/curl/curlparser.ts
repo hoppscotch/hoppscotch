@@ -46,13 +46,36 @@ export const parseCurlCommand = (curlCommand: string) => {
 
   curlCommand = preProcessCurlCommand(curlCommand)
 
-  const { curlCommand: sanitizedCurlCommand, extractedJSONData } =
+  const { curlCommand: jsonSanitizedCommand, extractedJSONData } =
     replaceJSONDataArgsWithPlaceholders(curlCommand)
 
+  // Preserve shell-escaped double quotes for yargs' string tokenizer.
+  const escapedArguments: string[] = []
+  const sanitizedCurlCommand = jsonSanitizedCommand.replace(
+    /'[^']*'|"(?:\\.|[^"\\])*"/g,
+    (quoted) => {
+      if (!quoted.startsWith('"') || !quoted.includes('\\"')) return quoted
+      const value = quoted.slice(1, -1).replace(/\\(["\\$`])/g, "$1")
+      const placeholder = `__HOPP_ESCAPED_ARG_${escapedArguments.length}__`
+      escapedArguments.push(value)
+      return placeholder
+    }
+  )
+
   const args: parser.Arguments = restoreJSONDataArgsFromPlaceholders(
-    parser(sanitizedCurlCommand),
+    parser(sanitizedCurlCommand, { boolean: ["compressed"] }),
     extractedJSONData
   )
+
+  const restoreEscaped = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map(restoreEscaped)
+    if (typeof value !== "string") return value
+    const match = /^__HOPP_ESCAPED_ARG_(\d+)__$/.exec(value)
+    return match ? (escapedArguments[Number(match[1])] ?? value) : value
+  }
+  for (const key of Object.keys(args)) {
+    args[key] = restoreEscaped(args[key]) as (typeof args)[typeof key]
+  }
 
   const parsedArguments = pipe(
     args,

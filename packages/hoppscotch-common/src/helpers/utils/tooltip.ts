@@ -172,6 +172,146 @@ export function createTooltipValueRow(
   return row
 }
 
+export type TooltipEditableValueRowOptions = {
+  label: string
+  /** Set as the input's `.value` property, never as the attribute. */
+  value: string
+  placeholder?: string
+  /**
+   * `input` saves on every keystroke (for tooltips that can close at any
+   * moment). `commit` saves on Enter or blur (for tooltips that are rebuilt
+   * when the underlying data changes).
+   */
+  saveOn: "input" | "commit"
+  onSave: (value: string) => void
+  /** When set, the input is masked and gets a show/hide toggle button. */
+  secret?: {
+    showLabel: string
+    hideLabel: string
+    showIcon: string
+    hideIcon: string
+  }
+}
+
+/**
+ * Creates a tooltip row with a label and an editable single-line input.
+ *
+ * While the input is focused, a capture-phase keydown listener handles Enter
+ * (commit, then blur) and Escape (restore the opening value). Keystrokes that
+ * belong to an IME composition are ignored. Ctrl/Cmd+S commits a pending
+ * change without blurring, so the save shortcut sees the new value.
+ *
+ * Call `flush()` when the tooltip is torn down: browsers do not reliably
+ * fire `blur` on an element that is removed while focused, so a pending
+ * change would otherwise be lost.
+ *
+ * @param options - Label, initial value, save behaviour and secret handling
+ * @returns The row, its input, and a `flush` function that saves any pending change
+ */
+export function createTooltipEditableValueRow(
+  options: TooltipEditableValueRowOptions
+): { row: HTMLDivElement; input: HTMLInputElement; flush: () => void } {
+  const { label, value, placeholder, saveOn, onSave, secret } = options
+
+  const row = document.createElement("div")
+  row.className = "flex items-center space-x-2"
+  row.style.width = "100%"
+
+  const labelEl = document.createElement("div")
+  labelEl.textContent = label
+  labelEl.className = "font-bold"
+  labelEl.style.flexShrink = "0"
+  labelEl.style.minWidth = "50px"
+  labelEl.style.marginRight = "0.5rem"
+
+  const input = document.createElement("input")
+  input.type = secret ? "password" : "text"
+  input.className =
+    "env-tooltip-value flex-1 min-w-0 px-2 py-1 rounded border border-divider bg-primaryLight text-secondaryDark focus:border-dividerDark"
+  input.autocomplete = "off"
+  input.setAttribute("aria-label", label)
+  input.spellcheck = false
+  if (placeholder !== undefined) input.placeholder = placeholder
+  // The value is only ever set as a property so that a secret never shows
+  // up in serialized HTML.
+  input.value = value
+
+  let committed = value
+  const commit = (v: string) => {
+    if (v === committed) return
+    onSave(v)
+    committed = v
+  }
+
+  // Runs in the capture phase on window so the commit happens before the
+  // global shortcut handler on document, which sends the request on
+  // Ctrl/Cmd+Enter. The event is not stopped, so the shortcut still fires.
+  const onKeydown = (ev: KeyboardEvent) => {
+    if (ev.target !== input) return
+    // Skip during IME composition (CJK input). Enter confirms and Escape
+    // cancels a candidate, so they must not commit or restore here.
+    // Modern browsers report `isComposing`, older ones `keyCode === 229`.
+    if (ev.isComposing || ev.keyCode === 229) return
+    if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === "s") {
+      // Save shortcuts run on document after this, so commit first or the
+      // old value gets saved. Keep focus: committing more would close the
+      // tooltip for request variables.
+      commit(input.value)
+    } else if (ev.key === "Enter") {
+      commit(input.value)
+      input.blur()
+    } else if (ev.key === "Escape") {
+      input.value = value
+      commit(value)
+    }
+  }
+  const detachKeydown = () =>
+    window.removeEventListener("keydown", onKeydown, true)
+
+  input.addEventListener("focus", () => {
+    window.addEventListener("keydown", onKeydown, true)
+  })
+  input.addEventListener("blur", () => {
+    detachKeydown()
+    commit(input.value)
+  })
+  if (saveOn === "input") {
+    input.addEventListener("input", () => commit(input.value))
+  }
+
+  row.appendChild(labelEl)
+  row.appendChild(input)
+
+  if (secret) {
+    const toggle = document.createElement("button")
+    toggle.type = "button"
+    toggle.className =
+      "flex flex-shrink-0 items-center justify-center p-1 rounded text-secondaryLight hover:text-secondaryDark"
+
+    let revealed = false
+    const render = () => {
+      const labelText = revealed ? secret.hideLabel : secret.showLabel
+      toggle.innerHTML = revealed ? secret.hideIcon : secret.showIcon
+      toggle.setAttribute("aria-label", labelText)
+      toggle.title = labelText
+      input.type = revealed ? "text" : "password"
+    }
+    toggle.addEventListener("click", () => {
+      revealed = !revealed
+      render()
+    })
+    render()
+    row.appendChild(toggle)
+  }
+
+  const flush = () => {
+    detachKeydown()
+    commit(input.value)
+  }
+
+  return { row, input, flush }
+}
+
 /**
  * Applies overflow constraints to the outer tooltip container element
  * (the `.tippy-box` wrapper). This ensures the entire tooltip

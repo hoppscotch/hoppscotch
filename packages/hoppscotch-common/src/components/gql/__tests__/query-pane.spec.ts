@@ -106,6 +106,31 @@ describe("gql query pane", () => {
     app = null
   })
 
+  describe("operation definitions on mount", () => {
+    it.each([
+      { name: "empty", query: "", operations: [] },
+      { name: "whitespace-only", query: " \t\n", operations: [] },
+      { name: "invalid", query: "query Broken {", operations: [] },
+      { name: "valid", query: "query C { c }", operations: ["C"] },
+    ])(
+      "updates shared operations when switching to a $name tab",
+      ({ query, operations }) => {
+        mount(Query, { modelValue: QUERY, tabId: "a" })
+        expect(builder.operations.value.map((op) => op.name?.value)).toEqual([
+          "A",
+          "B",
+        ])
+        app!.unmount()
+
+        mount(Query, { modelValue: query, tabId: "b" })
+
+        expect(builder.operations.value.map((op) => op.name?.value)).toEqual(
+          operations
+        )
+      }
+    )
+  })
+
   describe("requested cursor moves", () => {
     it("applies a move for its own tab", async () => {
       mount(Query, { modelValue: QUERY, tabId: "a" })

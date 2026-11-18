@@ -675,7 +675,7 @@ const sendInvites = async () => {
 
 const getErrorMessage = (error: GQLError<CreateTeamInvitationErrors>) => {
   const platformMessage = platform.organization?.describeTeamError?.(error)
-  if (platformMessage) return platformMessage
+  if (platformMessage !== undefined) return platformMessage
 
   if (error.type === "network_error") {
     return t("error.network_error")

@@ -115,9 +115,9 @@ export default class TeamEnvironmentAdapter {
     })
 
     if (E.isLeft(result)) {
-      this.error$.next(result.left)
       this.loading$.next(false)
       if (isExpectedTeamError(result.left)) return
+      this.error$.next(result.left)
       console.error(result.left)
       throw new Error(`Failed fetching team environments: ${result.left}`)
     }

@@ -137,8 +137,11 @@ const hasAIChat = !!platform.experiments?.aiExperiments?.chat
 const workspaceOverlayComponent = platform.ui?.workspaceOverlayComponent
 const workspaceOverlayActive = ref(false)
 
-// Shortcuts would act on the covered workspace.
-watch(workspaceOverlayActive, setKeybindingsSuspended)
+// Shortcuts and search would act on the covered workspace.
+watch(workspaceOverlayActive, (active) => {
+  setKeybindingsSuspended(active)
+  if (active) showSearch.value = false
+})
 onBeforeUnmount(() => setKeybindingsSuspended(false))
 
 onBeforeMount(() => {
@@ -192,6 +195,8 @@ const spacerClass = computed(() =>
 )
 
 defineActionHandler("modals.search.toggle", (_, trigger) => {
+  if (workspaceOverlayActive.value) return
+
   const triggerMethodMap: Record<
     InvocationTriggers,
     HoppSpotlightSessionEventData["method"]

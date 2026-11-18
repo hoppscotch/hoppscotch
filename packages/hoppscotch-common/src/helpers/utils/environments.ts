@@ -168,6 +168,34 @@ export const filterNonEmptyEnvironmentVariables = <
 }
 
 /**
+ * Returns the index of the row that `key` resolves to, using the same precedence
+ * as `filterNonEmptyEnvironmentVariables`: the first active row with this key
+ * that has a `currentValue` or `initialValue`, otherwise the first active row
+ * with this key. Returns -1 when no active row matches.
+ */
+export const findEffectiveVariableIndex = (
+  rows: ReadonlyArray<{
+    key: string
+    currentValue?: string
+    initialValue?: string
+    active?: boolean
+  }>,
+  key: string
+): number => {
+  let fallbackIndex = -1
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i]
+    if (row.key !== key || row.active === false) continue
+
+    if (row.currentValue || row.initialValue) return i
+    if (fallbackIndex === -1) fallbackIndex = i
+  }
+
+  return fallbackIndex
+}
+
+/**
  * Defensively normalizes possibly-legacy env rows to the v2 `AggregateEnvironment`
  * shape (preserving any extra fields), so consumers like
  * `filterNonEmptyEnvironmentVariables` / `parseTemplateStringE` always see a

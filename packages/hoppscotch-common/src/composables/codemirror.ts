@@ -37,7 +37,15 @@ import {
   getAggregateEnvsWithCurrentValue,
 } from "~/newstore/environments"
 import { linter } from "@codemirror/lint"
-import { watch, ref, Ref, onMounted, onBeforeUnmount } from "vue"
+import {
+  watch,
+  ref,
+  Ref,
+  onMounted,
+  onBeforeUnmount,
+  getCurrentInstance,
+  inject,
+} from "vue"
 import { javascriptLanguage } from "@codemirror/lang-javascript"
 import { xmlLanguage } from "@codemirror/lang-xml"
 import { jsoncLanguage } from "@shopify/lang-jsonc"
@@ -65,7 +73,10 @@ import {
   baseTheme,
   baseHighlightStyle,
 } from "@helpers/editor/themes/baseTheme"
-import { HoppEnvironmentPlugin } from "@helpers/editor/extensions/HoppEnvironment"
+import {
+  ENV_TOOLTIP_EDITABLE,
+  HoppEnvironmentPlugin,
+} from "@helpers/editor/extensions/HoppEnvironment"
 import xmlFormat from "xml-formatter"
 import { platform } from "~/platform"
 import {
@@ -409,7 +420,10 @@ export function useCodemirror(
     ? new HoppEnvironmentPlugin(
         subscribeToStream,
         view,
-        options.envs !== undefined ? () => options.envs : undefined
+        options.envs !== undefined ? () => options.envs : undefined,
+        // `inject` only works inside a component's setup(). Called anywhere
+        // else, the tooltip stays read-only instead of logging a Vue warning.
+        getCurrentInstance() ? inject(ENV_TOOLTIP_EDITABLE, false) : false
       )
     : null
 

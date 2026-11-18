@@ -234,7 +234,7 @@
 </template>
 
 <script setup lang="ts">
-import { ComputedRef, computed, ref, watch } from "vue"
+import { ComputedRef, computed, provide, ref, watch } from "vue"
 import * as E from "fp-ts/Either"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
@@ -255,6 +255,7 @@ import {
 } from "~/helpers/backend/mutations/TeamEnvironment"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
+import { ENV_TOOLTIP_EDITABLE } from "~/helpers/editor/extensions/HoppEnvironment"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import { useColorMode } from "~/composables/theming"
 import { platform } from "~/platform"
@@ -282,6 +283,10 @@ type EnvironmentVariable = {
 const t = useI18n()
 const toast = useToast()
 const colorMode = useColorMode()
+
+// This modal edits a draft, and it can be opened from inside a request tab.
+// Keep variable tooltips read-only here so they never write around the draft.
+provide(ENV_TOOLTIP_EDITABLE, false)
 
 const props = withDefaults(
   defineProps<{

@@ -1,10 +1,12 @@
-import { describe, expect, test, beforeEach, afterEach } from "vitest"
+import { describe, expect, test, beforeEach, afterEach, vi } from "vitest"
 import {
   truncateText,
   formatTooltipValue,
   calculateTooltipDimensions,
   applyTooltipOverflowStyles,
   createTooltipValueRow,
+  createTooltipEditableValueRow,
+  type TooltipEditableValueRowOptions,
   constrainTooltipToViewport,
   stabilizeTooltipHover,
   TOOLTIP_MAX_VALUE_LENGTH,
@@ -294,6 +296,274 @@ describe("createTooltipValueRow", () => {
     const row = createTooltipValueRow("Initial", "test")
     const value = row.querySelector("span")
     expect(value!.classList.contains("env-tooltip-value")).toBe(true)
+  })
+})
+
+// ─── createTooltipEditableValueRow ───────────────────────────────
+
+describe("createTooltipEditableValueRow", () => {
+  const secretOptions = {
+    showLabel: "Show secret",
+    hideLabel: "Hide secret",
+    showIcon: "<svg>show</svg>",
+    hideIcon: "<svg>hide</svg>",
+  }
+
+  // Every mounted row's `flush`, so each test can detach the row's window
+  // keydown listener before the next test starts.
+  let flushes: Array<() => void> = []
+
+  const mount = (overrides: Partial<TooltipEditableValueRowOptions> = {}) => {
+    const onSave = vi.fn()
+    const result = createTooltipEditableValueRow({
+      label: "Current",
+      value: "v",
+      placeholder: "init",
+      saveOn: "commit",
+      onSave,
+      ...overrides,
+    })
+    flushes.push(result.flush)
+    document.body.appendChild(result.row)
+    return { ...result, onSave }
+  }
+
+  const type = (input: HTMLInputElement, v: string) => {
+    input.value = v
+    input.dispatchEvent(new Event("input", { bubbles: true }))
+  }
+
+  const key = (
+    input: HTMLInputElement,
+    k: string,
+    init: KeyboardEventInit = {}
+  ) =>
+    input.dispatchEvent(
+      new KeyboardEvent("keydown", { key: k, bubbles: true, ...init })
+    )
+
+  afterEach(() => {
+    flushes.forEach((flush) => flush())
+    flushes = []
+    document.body.innerHTML = ""
+  })
+
+  test("renders the label and an input holding the value as a property", () => {
+    const { row, input } = mount()
+    expect(row.textContent).toContain("Current")
+    expect(input.value).toBe("v")
+    expect(input.placeholder).toBe("init")
+    expect(input.getAttribute("value")).toBeNull()
+    expect(input.type).toBe("text")
+    expect(row.querySelector("button")).toBeNull()
+  })
+
+  test("saveOn input: saves on every input event", () => {
+    const { input, onSave } = mount({ saveOn: "input" })
+    type(input, "a")
+    type(input, "ab")
+    expect(onSave.mock.calls).toEqual([["a"], ["ab"]])
+  })
+
+  test("saveOn commit: saves on blur, once per change", () => {
+    const { input, onSave } = mount()
+    input.focus()
+    type(input, "x")
+    expect(onSave).not.toHaveBeenCalled()
+    input.blur()
+    expect(onSave).toHaveBeenCalledTimes(1)
+    expect(onSave).toHaveBeenCalledWith("x")
+    input.focus()
+    input.blur()
+    expect(onSave).toHaveBeenCalledTimes(1)
+  })
+
+  test("saveOn commit: flush saves a pending change and is a no-op otherwise", () => {
+    const { input, flush, onSave } = mount()
+    flush()
+    expect(onSave).toHaveBeenCalledTimes(0)
+    type(input, "y")
+    flush()
+    expect(onSave).toHaveBeenCalledTimes(1)
+    expect(onSave).toHaveBeenCalledWith("y")
+    flush()
+    expect(onSave).toHaveBeenCalledTimes(1)
+  })
+
+  test("Enter commits and blurs, even with a modifier", () => {
+    const { input, onSave } = mount()
+    input.focus()
+    type(input, "z")
+    key(input, "Enter", { ctrlKey: true })
+    expect(onSave).toHaveBeenCalledWith("z")
+    expect(document.activeElement).not.toBe(input)
+  })
+
+  test("Enter commits before document capture-phase shortcuts run", () => {
+    const seen: number[] = []
+    const { input, onSave } = mount()
+    const listener = () => seen.push(onSave.mock.calls.length)
+    document.addEventListener("keydown", listener, true)
+    try {
+      input.focus()
+      type(input, "z")
+      key(input, "Enter", { metaKey: true })
+      expect(seen).toEqual([1])
+    } finally {
+      document.removeEventListener("keydown", listener, true)
+    }
+  })
+
+  test("Escape restores the opening value and saves it", () => {
+    const { input, onSave } = mount({ saveOn: "input", value: "orig" })
+    input.focus()
+    type(input, "new")
+    key(input, "Escape")
+    expect(input.value).toBe("orig")
+    expect(onSave.mock.calls.at(-1)).toEqual(["orig"])
+  })
+
+  test("Escape in commit mode with nothing committed does not save", () => {
+    const { input, onSave } = mount()
+    input.focus()
+    type(input, "new")
+    key(input, "Escape")
+    expect(input.value).toBe("v")
+    expect(onSave).not.toHaveBeenCalled()
+  })
+
+  test.each(["input", "commit"] as const)(
+    "saveOn %s: a value the input cannot hold is not saved without an edit",
+    (saveOn) => {
+      // Text inputs strip line breaks from their value, so the input holds
+      // "line1line2". Opening and closing without typing must not save that.
+      const { input, flush, onSave } = mount({ saveOn, value: "line1\nline2" })
+      input.focus()
+      input.blur()
+      flush()
+      expect(onSave).not.toHaveBeenCalled()
+    }
+  )
+
+  test("Escape restores the value the input opened with", () => {
+    const { input, onSave } = mount({ saveOn: "input", value: "line1\nline2" })
+    const opening = input.value
+    input.focus()
+    type(input, "new")
+    key(input, "Escape")
+    expect(input.value).toBe(opening)
+    expect(onSave.mock.calls.at(-1)).toEqual([opening])
+  })
+
+  test("saveOn input: an input event during IME composition does not save", () => {
+    const { input, onSave } = mount({ saveOn: "input" })
+    input.focus()
+    input.value = "ni"
+    input.dispatchEvent(
+      new InputEvent("input", { bubbles: true, isComposing: true })
+    )
+    expect(onSave).not.toHaveBeenCalled()
+  })
+
+  test("saveOn input: compositionend saves the composed value", () => {
+    const { input, onSave } = mount({ saveOn: "input" })
+    input.focus()
+    input.value = "你"
+    input.dispatchEvent(
+      new InputEvent("input", { bubbles: true, isComposing: true })
+    )
+    expect(onSave).not.toHaveBeenCalled()
+    input.dispatchEvent(new CompositionEvent("compositionend", { data: "你" }))
+    expect(onSave.mock.calls).toEqual([["你"]])
+  })
+
+  test("input has an accessible name matching the label", () => {
+    const { input } = mount()
+    expect(input.getAttribute("aria-label")).toBe("Current")
+  })
+
+  test("a composing Enter is ignored (isComposing)", () => {
+    const { input, onSave } = mount()
+    input.focus()
+    type(input, "x")
+    key(input, "Enter", { isComposing: true })
+    expect(onSave).not.toHaveBeenCalled()
+    expect(document.activeElement).toBe(input)
+  })
+
+  test("a composing Escape does not wipe the edit", () => {
+    const { input, onSave } = mount({ saveOn: "input" })
+    input.focus()
+    type(input, "new")
+    const calls = onSave.mock.calls.length
+    key(input, "Escape", { isComposing: true })
+    expect(input.value).toBe("new")
+    expect(onSave).toHaveBeenCalledTimes(calls)
+  })
+
+  test("a keyCode 229 Enter is ignored", () => {
+    const { input, onSave } = mount()
+    input.focus()
+    type(input, "x")
+    const ev = new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+    Object.defineProperty(ev, "keyCode", { value: 229 })
+    input.dispatchEvent(ev)
+    expect(onSave).not.toHaveBeenCalled()
+    expect(document.activeElement).toBe(input)
+  })
+
+  test("Ctrl/Cmd+S commits a pending change without blurring", () => {
+    const { input, onSave } = mount()
+    input.focus()
+    type(input, "x")
+    key(input, "s", { metaKey: true })
+    expect(onSave).toHaveBeenCalledTimes(1)
+    expect(onSave).toHaveBeenCalledWith("x")
+    expect(document.activeElement).toBe(input)
+  })
+
+  test("Ctrl/Cmd+S commits before document capture-phase shortcuts run", () => {
+    const seen: number[] = []
+    const { input, onSave } = mount()
+    const listener = () => seen.push(onSave.mock.calls.length)
+    document.addEventListener("keydown", listener, true)
+    try {
+      input.focus()
+      type(input, "x")
+      key(input, "S", { ctrlKey: true, shiftKey: true })
+      expect(seen).toEqual([1])
+    } finally {
+      document.removeEventListener("keydown", listener, true)
+    }
+  })
+
+  test("other Ctrl combinations do not commit", () => {
+    const { input, onSave } = mount()
+    input.focus()
+    type(input, "x")
+    key(input, "a", { ctrlKey: true })
+    expect(onSave).not.toHaveBeenCalled()
+  })
+
+  test("secret: masked input with a labelled eye toggle", () => {
+    const { row, input } = mount({ secret: secretOptions })
+    const button = row.querySelector("button")!
+    expect(input.type).toBe("password")
+    expect(button.getAttribute("aria-label")).toBe("Show secret")
+    button.click()
+    expect(input.type).toBe("text")
+    expect(button.getAttribute("aria-label")).toBe("Hide secret")
+    button.click()
+    expect(input.type).toBe("password")
+    expect(button.getAttribute("aria-label")).toBe("Show secret")
+  })
+
+  test("secret: every new row starts masked", () => {
+    const first = mount({ secret: secretOptions })
+    first.row.querySelector("button")!.click()
+    expect(first.input.type).toBe("text")
+    const second = mount({ secret: secretOptions })
+    expect(second.input.type).toBe("password")
   })
 })
 

@@ -218,10 +218,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from "vue"
+import { computed, provide, reactive, ref, watch } from "vue"
 import { refAutoReset, useVModel } from "@vueuse/core"
 import { clone } from "lodash-es"
 import { useCodemirror } from "@composables/codemirror"
+import { ENV_TOOLTIP_EDITABLE } from "~/helpers/editor/extensions/HoppEnvironment"
 import { useI18n } from "@composables/i18n"
 import { useSetting } from "~/composables/settings"
 import { useToast } from "~/composables/toast"
@@ -258,6 +259,10 @@ import { RESTOptionTabs } from "../http/RequestOptions.vue"
 const persistenceService = useService(PersistenceService)
 const t = useI18n()
 const toast = useToast()
+
+// This modal edits a draft, and it can be opened from inside a request tab.
+// Keep variable tooltips read-only here so they never write around the draft.
+provide(ENV_TOOLTIP_EDITABLE, false)
 
 export type EditingProperties = {
   collection: Partial<HoppCollection> | null

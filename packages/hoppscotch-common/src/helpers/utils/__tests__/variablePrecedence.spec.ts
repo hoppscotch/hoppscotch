@@ -9,6 +9,7 @@ import {
   getEffectiveVariablesForRequest,
   normalizeAggregateEnvs,
   filterNonEmptyEnvironmentVariables,
+  findEffectiveVariableIndex,
 } from "../environments"
 import { getComputedAuthHeaders } from "../EffectiveURL"
 import { AggregateEnvironment } from "~/newstore/environments"
@@ -272,5 +273,51 @@ describe("resolver current→initial fallback (single source of truth)", () => {
 
   test("parseBodyEnvVariables: empty currentValue resolves to initialValue", () => {
     expect(parseBodyEnvVariables("token=<<emptyCur>>", vars)).toBe("token=init")
+  })
+})
+
+describe("findEffectiveVariableIndex", () => {
+  const row = (
+    key: string,
+    currentValue = "",
+    initialValue = "",
+    active?: boolean
+  ) => ({ key, currentValue, initialValue, active })
+
+  test("returns -1 when no row has the key", () => {
+    expect(findEffectiveVariableIndex([row("a", "1")], "b")).toBe(-1)
+  })
+  test("picks the first duplicate that has a current value", () => {
+    expect(
+      findEffectiveVariableIndex(
+        [row("x", "1"), row("k"), row("k", "2"), row("k", "3")],
+        "k"
+      )
+    ).toBe(2)
+  })
+  test("counts an initial value as a value", () => {
+    expect(
+      findEffectiveVariableIndex([row("k"), row("k", "", "init")], "k")
+    ).toBe(1)
+  })
+  test("falls back to the first row by position when none has a value", () => {
+    expect(
+      findEffectiveVariableIndex([row("x", "1"), row("k"), row("k")], "k")
+    ).toBe(1)
+  })
+  test("skips inactive rows", () => {
+    expect(
+      findEffectiveVariableIndex(
+        [row("k", "on", "", false), row("k", "", "", true)],
+        "k"
+      )
+    ).toBe(1)
+  })
+  test("targets the row filterNonEmptyEnvironmentVariables resolves to", () => {
+    const rows = [row("k"), row("k", "", "init"), row("k", "cur")]
+    const resolved = filterNonEmptyEnvironmentVariables(rows).find(
+      (r) => r.key === "k"
+    )
+    expect(rows[findEffectiveVariableIndex(rows, "k")]).toBe(resolved)
   })
 })

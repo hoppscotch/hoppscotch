@@ -1060,6 +1060,23 @@ data2: {"type":"test2","typeId":"123"}`,
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {
+  test("imports Charles Proxy double-quoted curl", () => {
+    const command = String.raw`curl -H "Host: example.com" -H "sec-ch-ua-platform: \"Android\"" -H "sec-ch-ua: \"Chromium\";v=\"134\", \"Not:A-Brand\";v=\"24\", \"Android WebView\";v=\"134\"" -H "content-type: application/json" --data-binary "{\"deeplink_url\":\"/in/payment/v2/status?action=TEST&prevpageurl=/\",\"app_launch_count\":1}" --compressed "https://example.com"`
+    const actual = parseCurlToHoppRESTReq(command)
+    expect(actual.endpoint).toBe("https://example.com/")
+    expect(actual.method).toBe("POST")
+    expect(JSON.parse(actual.body.body)).toEqual({
+      deeplink_url: "/in/payment/v2/status?action=TEST&prevpageurl=/",
+      app_launch_count: 1,
+    })
+    expect(
+      actual.headers.find((h) => h.key === "sec-ch-ua-platform").value
+    ).toBe('"Android"')
+    expect(actual.headers.find((h) => h.key === "sec-ch-ua").value).toBe(
+      '"Chromium";v="134", "Not:A-Brand";v="24", "Android WebView";v="134"'
+    )
+  })
+
   test("parses json body with semicolon-only headers", () => {
     const command = String.raw`curl 'https://echo.hoppscotch.io/api/process/insert' \
   -H 'Authorization-OAuth2;' \

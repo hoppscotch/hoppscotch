@@ -41,7 +41,10 @@
             </Splitpanes>
           </Pane>
         </Splitpanes>
-        <AichatAssistant v-if="hasAIChat && !workspaceOverlayActive" />
+        <!-- Hidden, not unmounted: the assistant clears its session on logout. -->
+        <div v-if="hasAIChat" v-show="!workspaceOverlayActive" class="contents">
+          <AichatAssistant />
+        </div>
         <component
           :is="workspaceOverlayComponent"
           v-if="workspaceOverlayComponent"
@@ -104,6 +107,7 @@ import {
 import { applySetting, toggleSetting } from "~/newstore/settings"
 import { platform } from "~/platform"
 import { HoppSpotlightSessionEventData } from "~/platform/analytics"
+import { AIChatService } from "~/services/ai-chat.service"
 import { PersistenceService } from "~/services/persistence"
 import { SpotlightService } from "~/services/spotlight"
 import { UIExtensionService } from "~/services/ui-extension.service"
@@ -137,10 +141,15 @@ const hasAIChat = !!platform.experiments?.aiExperiments?.chat
 const workspaceOverlayComponent = platform.ui?.workspaceOverlayComponent
 const workspaceOverlayActive = ref(false)
 
-// Shortcuts and search would act on the covered workspace.
+// Shortcuts, search and the assistant would act on the covered workspace.
+// Stopping the assistant's turn also declines a prompt its modal would show
+// above the overlay.
+const aiChat = hasAIChat ? useService(AIChatService) : null
 watch(workspaceOverlayActive, (active) => {
   setKeybindingsSuspended(active)
-  if (active) showSearch.value = false
+  if (!active) return
+  showSearch.value = false
+  aiChat?.stop()
 })
 onBeforeUnmount(() => setKeybindingsSuspended(false))
 

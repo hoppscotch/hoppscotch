@@ -84,6 +84,7 @@ export const ENV_TOOLTIP_EDITABLE: InjectionKey<boolean> = Symbol(
 type EditTarget =
   | {
       kind: "env"
+      scope: "selected" | "global"
       envID: string
       varIndex: number
       key: string
@@ -144,23 +145,32 @@ const resolveEditTarget = (
   // request runner reads, indexed by position in the environment.
   const { global, selected } = getCombinedEnvVariables()
 
+  // Search the selected environment's rows and then the global rows, the
+  // order the request runner uses. The source name cannot tell the two
+  // apart, because an environment can itself be named "Global".
+  const combinedIndex = findEffectiveVariableIndex(
+    [...selected, ...global],
+    key
+  )
+  if (combinedIndex === -1) return null
+
+  const scope = combinedIndex < selected.length ? "selected" : "global"
+  const varIndex =
+    scope === "selected" ? combinedIndex : combinedIndex - selected.length
+  const rows = scope === "selected" ? selected : global
+
   let envID: string
-  let rows: typeof global | typeof selected
-  if (sourceEnv === "Global") {
+  if (scope === "global") {
     envID = "Global"
-    rows = global
   } else {
     envID = getCurrentEnvironment().id
     if (envID === "") return null
-    rows = selected
   }
-
-  const varIndex = findEffectiveVariableIndex(rows, key)
-  if (varIndex === -1) return null
 
   const row = rows[varIndex]
   return {
     kind: "env",
+    scope,
     envID,
     varIndex,
     key,
@@ -177,6 +187,17 @@ const resolveEditTarget = (
  */
 const saveEditTarget = (target: EditTarget, value: string): void => {
   if (target.kind === "env") {
+    // Skip if another environment was selected, or the variables were
+    // reordered or renamed, since the tooltip opened: the stored index would
+    // now point at a different variable.
+    if (
+      target.scope === "selected" &&
+      getCurrentEnvironment().id !== target.envID
+    )
+      return
+    const rows = getCombinedEnvVariables()[target.scope]
+    if (rows[target.varIndex]?.key !== target.key) return
+
     if (target.secret) {
       secretEnvironmentService.setSecretEnvironmentVariableValue(
         target.envID,
@@ -489,11 +510,14 @@ const cursorTooltipField = (
           )
           // With an edit target the Current row is an input that writes the
           // variable's current value; otherwise it stays read-only text.
-          const editableCurrentRow = editTarget
-            ? createTooltipEditableValueRow(
-                getEditableCurrentRowOptions(editTarget)
-              )
-            : null
+          // Multi-line values (an imported PEM key, for example) stay
+          // read-only too, since a single-line input drops line breaks.
+          const editableCurrentRow =
+            editTarget && !/[\r\n]/.test(editTarget.value)
+              ? createTooltipEditableValueRow(
+                  getEditableCurrentRowOptions(editTarget)
+                )
+              : null
           const currentValueRow =
             editableCurrentRow?.row ??
             createTooltipValueRow("Current", envCurrentValue)

@@ -309,6 +309,10 @@ describe("createTooltipEditableValueRow", () => {
     hideIcon: "<svg>hide</svg>",
   }
 
+  // Every mounted row's `flush`, so each test can detach the row's window
+  // keydown listener before the next test starts.
+  let flushes: Array<() => void> = []
+
   const mount = (overrides: Partial<TooltipEditableValueRowOptions> = {}) => {
     const onSave = vi.fn()
     const result = createTooltipEditableValueRow({
@@ -319,6 +323,7 @@ describe("createTooltipEditableValueRow", () => {
       onSave,
       ...overrides,
     })
+    flushes.push(result.flush)
     document.body.appendChild(result.row)
     return { ...result, onSave }
   }
@@ -338,6 +343,8 @@ describe("createTooltipEditableValueRow", () => {
     )
 
   afterEach(() => {
+    flushes.forEach((flush) => flush())
+    flushes = []
     document.body.innerHTML = ""
   })
 
@@ -423,6 +430,51 @@ describe("createTooltipEditableValueRow", () => {
     key(input, "Escape")
     expect(input.value).toBe("v")
     expect(onSave).not.toHaveBeenCalled()
+  })
+
+  test.each(["input", "commit"] as const)(
+    "saveOn %s: a value the input cannot hold is not saved without an edit",
+    (saveOn) => {
+      // Text inputs strip line breaks from their value, so the input holds
+      // "line1line2". Opening and closing without typing must not save that.
+      const { input, flush, onSave } = mount({ saveOn, value: "line1\nline2" })
+      input.focus()
+      input.blur()
+      flush()
+      expect(onSave).not.toHaveBeenCalled()
+    }
+  )
+
+  test("Escape restores the value the input opened with", () => {
+    const { input, onSave } = mount({ saveOn: "input", value: "line1\nline2" })
+    const opening = input.value
+    input.focus()
+    type(input, "new")
+    key(input, "Escape")
+    expect(input.value).toBe(opening)
+    expect(onSave.mock.calls.at(-1)).toEqual([opening])
+  })
+
+  test("saveOn input: an input event during IME composition does not save", () => {
+    const { input, onSave } = mount({ saveOn: "input" })
+    input.focus()
+    input.value = "ni"
+    input.dispatchEvent(
+      new InputEvent("input", { bubbles: true, isComposing: true })
+    )
+    expect(onSave).not.toHaveBeenCalled()
+  })
+
+  test("saveOn input: compositionend saves the composed value", () => {
+    const { input, onSave } = mount({ saveOn: "input" })
+    input.focus()
+    input.value = "你"
+    input.dispatchEvent(
+      new InputEvent("input", { bubbles: true, isComposing: true })
+    )
+    expect(onSave).not.toHaveBeenCalled()
+    input.dispatchEvent(new CompositionEvent("compositionend", { data: "你" }))
+    expect(onSave.mock.calls).toEqual([["你"]])
   })
 
   test("input has an accessible name matching the label", () => {

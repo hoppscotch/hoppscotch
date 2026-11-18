@@ -235,8 +235,12 @@ export function createTooltipEditableValueRow(
   // The value is only ever set as a property so that a secret never shows
   // up in serialized HTML.
   input.value = value
+  // Read the value back: text inputs strip line breaks, so the input may not
+  // hold `value` exactly. Comparing against what it actually holds means
+  // opening and closing the row without an edit never saves.
+  const initial = input.value
 
-  let committed = value
+  let committed = initial
   const commit = (v: string) => {
     if (v === committed) return
     onSave(v)
@@ -261,8 +265,8 @@ export function createTooltipEditableValueRow(
       commit(input.value)
       input.blur()
     } else if (ev.key === "Escape") {
-      input.value = value
-      commit(value)
+      input.value = initial
+      commit(initial)
     }
   }
   const detachKeydown = () =>
@@ -276,7 +280,13 @@ export function createTooltipEditableValueRow(
     commit(input.value)
   })
   if (saveOn === "input") {
-    input.addEventListener("input", () => commit(input.value))
+    // While an IME composition is in progress the value holds an unconfirmed
+    // candidate, so save once the composition ends instead.
+    input.addEventListener("input", (ev) => {
+      if ((ev as InputEvent).isComposing) return
+      commit(input.value)
+    })
+    input.addEventListener("compositionend", () => commit(input.value))
   }
 
   row.appendChild(labelEl)

@@ -4,6 +4,7 @@
 import { describe, expect, test } from "vitest"
 import { makeRESTRequest, rawKeyValueEntriesToString } from "@hoppscotch/data"
 import { parseCurlToHoppRESTReq } from ".."
+import { parseCurlCommand } from "../curlparser"
 
 const samples = [
   {
@@ -1184,4 +1185,30 @@ describe("Parse curl command to Hopp REST Request", () => {
       expect(stripRefId(actual)).toEqual(stripRefId(response))
     })
   }
+
+  test("cookies from one import do not leak into the next import", () => {
+    const withCookie = parseCurlToHoppRESTReq(
+      `curl https://example.com/a -b 'session=secret'`
+    )
+    expect(withCookie.headers).toEqual([
+      {
+        key: "Cookie",
+        value: "session=secret",
+        active: true,
+        description: "",
+      },
+    ])
+
+    const plain = parseCurlToHoppRESTReq(`curl https://example.com/b`)
+    expect(plain.headers).toEqual([])
+  })
+
+  test("each parse starts from its own default request", () => {
+    const first = parseCurlCommand(`curl https://example.com/a`)
+    const second = parseCurlCommand(`curl https://example.com/b`)
+
+    expect(second.headers).not.toBe(first.headers)
+    expect(second.body).not.toBe(first.body)
+    expect(second.requestVariables).not.toBe(first.requestVariables)
+  })
 })

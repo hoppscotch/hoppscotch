@@ -98,6 +98,13 @@ function initCollectionsSync() {
 
     if (event.event == "logout") {
       collectionsSyncer.stopListeningToSubscriptions()
+      // The local list is shared by every account in this browser. Drop it on
+      // logout so the next account does not inherit it. Skipping sync keeps
+      // this from deleting the signed-out account's collections on the server.
+      runDispatchWithOutSyncing(() => {
+        setRESTCollections([])
+        setGraphqlCollections([])
+      })
     }
   })
 }

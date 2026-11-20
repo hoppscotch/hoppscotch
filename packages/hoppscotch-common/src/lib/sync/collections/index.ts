@@ -76,6 +76,10 @@ import { Store } from "~/kernel/store"
 import { runDispatchWithOutSyncing } from ".."
 import { gqlCollectionsSyncer } from "./gqlCollections.sync"
 import { importToPersonalWorkspace } from "./import"
+import {
+  pauseCollectionPersistenceWrites,
+  resumeCollectionPersistenceWrites,
+} from "./persistence-gate"
 
 // Same namespace the shared collection list uses. Per-account copies live
 // under their own keys so logout can clear the shared list without deleting
@@ -362,28 +366,46 @@ function sameCollectionLists(left: HoppCollection[], right: HoppCollection[]) {
 // Writes the lists currently in memory. After logout those are empty unless a
 // guest created a collection while the account snapshot was still saving.
 async function persistSharedListsFromStore() {
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const rest = copyCollections(restCollectionStore.value.state)
-    const gql = copyCollections(graphqlCollectionStore.value.state)
-    const restSaved = await Store.set(
-      COLLECTION_STORE_NAMESPACE,
-      SHARED_REST_COLLECTIONS_KEY,
-      rest
-    )
-    const gqlSaved = await Store.set(
-      COLLECTION_STORE_NAMESPACE,
-      SHARED_GQL_COLLECTIONS_KEY,
-      gql
-    )
-    if (E.isLeft(restSaved) || E.isLeft(gqlSaved)) continue
-    if (
-      sameCollectionLists(rest, restCollectionStore.value.state) &&
-      sameCollectionLists(gql, graphqlCollectionStore.value.state)
-    ) {
-      return true
+  // Stop the persistence subscribers, including writes already started when
+  // logout cleared the lists, so they cannot replace this write afterward.
+  await pauseCollectionPersistenceWrites()
+  try {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const rest = copyCollections(restCollectionStore.value.state)
+      const gql = copyCollections(graphqlCollectionStore.value.state)
+      const restSaved = await Store.set(
+        COLLECTION_STORE_NAMESPACE,
+        SHARED_REST_COLLECTIONS_KEY,
+        rest
+      )
+      const gqlSaved = await Store.set(
+        COLLECTION_STORE_NAMESPACE,
+        SHARED_GQL_COLLECTIONS_KEY,
+        gql
+      )
+      if (E.isLeft(restSaved) || E.isLeft(gqlSaved)) continue
+      const storedRest = await Store.get<HoppCollection[]>(
+        COLLECTION_STORE_NAMESPACE,
+        SHARED_REST_COLLECTIONS_KEY
+      )
+      const storedGql = await Store.get<HoppCollection[]>(
+        COLLECTION_STORE_NAMESPACE,
+        SHARED_GQL_COLLECTIONS_KEY
+      )
+      if (E.isLeft(storedRest) || E.isLeft(storedGql)) continue
+      if (
+        sameCollectionLists(rest, storedRest.right ?? []) &&
+        sameCollectionLists(gql, storedGql.right ?? []) &&
+        sameCollectionLists(rest, restCollectionStore.value.state) &&
+        sameCollectionLists(gql, graphqlCollectionStore.value.state)
+      ) {
+        return true
+      }
     }
+    return false
+  } finally {
+    resumeCollectionPersistenceWrites()
   }
-  return false
 }
 
 async function persistAppliedLists(
@@ -513,9 +535,17 @@ function queueOwnedCollectionSave(
         // created after sign-out is written instead of being erased.
         const persisted = await persistSharedListsFromStore()
         if (!persisted) {
-          throw new Error("Failed to persist shared collection lists after logout")
+          throw new Error(
+            "Failed to persist shared collection lists after logout"
+          )
         }
       }
+    })
+    .catch((error: unknown) => {
+      console.error(
+        "Failed to persist shared collection lists after logout",
+        error
+      )
     })
 }
 

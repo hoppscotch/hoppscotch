@@ -26,6 +26,10 @@ import {
 import { useToast } from "~/composables/toast"
 
 import {
+  areCollectionPersistenceWritesPaused,
+  trackCollectionPersistenceWrite,
+} from "~/lib/sync/collections/persistence-gate"
+import {
   graphqlCollectionStore,
   restCollectionStore,
   setGraphqlCollections,
@@ -642,8 +646,11 @@ export class PersistenceService extends Service {
       )
     }
 
-    restCollectionStore.subject$.subscribe(async ({ state }) => {
-      await Store.set(STORE_NAMESPACE, STORE_KEYS.REST_COLLECTIONS, state)
+    restCollectionStore.subject$.subscribe(({ state }) => {
+      if (areCollectionPersistenceWritesPaused()) return
+      trackCollectionPersistenceWrite(
+        Store.set(STORE_NAMESPACE, STORE_KEYS.REST_COLLECTIONS, state)
+      )
     })
   }
 
@@ -676,8 +683,11 @@ export class PersistenceService extends Service {
       console.error(`Failed parsing persisted GQL_COLLECTIONS:`, gqlLoadResult)
     }
 
-    graphqlCollectionStore.subject$.subscribe(async ({ state }) => {
-      await Store.set(STORE_NAMESPACE, STORE_KEYS.GQL_COLLECTIONS, state)
+    graphqlCollectionStore.subject$.subscribe(({ state }) => {
+      if (areCollectionPersistenceWritesPaused()) return
+      trackCollectionPersistenceWrite(
+        Store.set(STORE_NAMESPACE, STORE_KEYS.GQL_COLLECTIONS, state)
+      )
     })
   }
 

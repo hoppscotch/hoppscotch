@@ -97,6 +97,10 @@ type OwnedCollectionRecovery = OwnedCollectionSnapshot & {
   ownerId: string
 }
 
+// Used only when neither disk write succeeds. It stays private until that
+// owner signs in, and it is never written on the logged-out shared lists.
+let memoryRecovery: OwnedCollectionRecovery | null = null
+
 function ownedCollectionKey(userId: string) {
   return `collections.user.${userId}`
 }
@@ -274,23 +278,30 @@ function queueOwnedCollectionSave(
         saved = false
       }
       if (saved) {
-        // A leftover recovery record is older than this snapshot. If it cannot
-        // be removed, overwrite it so the next sign-in does not restore it.
+        if (memoryRecovery?.ownerId === userId) memoryRecovery = null
+        // This queued save is the fresh snapshot. Drop the older recovery
+        // only after it succeeds. If the delete fails, store the same fresh
+        // copy so sign-in cannot restore the older one.
         if (!(await removeRecovery(userId))) {
           await saveRecovery(userId, rest, gql)
         }
         return
       }
 
-      // The shared lists stay cleared. A failed snapshot is stored under this
-      // account's own key, with the owner in the record, so a reload cannot
-      // hand it to the next account through the shared lists.
+      // The shared lists stay cleared. Prefer a disk record the owner can
+      // read after a reload. If that write fails too, keep the copy in
+      // memory for this session without publishing it to the shared lists.
+      let recovered = false
       try {
-        await saveRecovery(userId, rest, gql)
+        recovered = await saveRecovery(userId, rest, gql)
       } catch {
-        // Storage could not hold the copy. Leaving the shared lists empty
-        // keeps the collections from becoming the next account's.
+        recovered = false
       }
+      if (recovered) {
+        if (memoryRecovery?.ownerId === userId) memoryRecovery = null
+        return
+      }
+      memoryRecovery = { ownerId: userId, rest, gql }
     })
 }
 
@@ -298,21 +309,23 @@ async function restoreOwnedCollections(userId: string, generation: number) {
   await ownedCollectionSave
   if (!isActiveCollectionSession(userId, generation)) return
 
-  const recovery = await readRecovery(userId)
+  const recovery =
+    memoryRecovery?.ownerId === userId
+      ? memoryRecovery
+      : await readRecovery(userId)
   if (!isActiveCollectionSession(userId, generation)) return
   if (recovery) {
-    runDispatchWithOutSyncing(() => {
-      setRESTCollections(recovery.rest)
-      setGraphqlCollections(recovery.gql)
-    })
-    if (!isActiveCollectionSession(userId, generation)) return
-    const promoted = await saveOwnedCollections(
-      userId,
-      recovery.rest,
-      recovery.gql
-    )
-    if (promoted && isActiveCollectionSession(userId, generation)) {
-      await removeRecovery(userId)
+    // Lists already persisted for this session are newer than the recovery
+    // record. Filling them is only for the empty store left by logout.
+    // The record stays until a later queued snapshot succeeds.
+    if (
+      restCollectionStore.value.state.length === 0 &&
+      graphqlCollectionStore.value.state.length === 0
+    ) {
+      runDispatchWithOutSyncing(() => {
+        setRESTCollections(recovery.rest)
+        setGraphqlCollections(recovery.gql)
+      })
     }
     return
   }
@@ -320,6 +333,12 @@ async function restoreOwnedCollections(userId: string, generation: number) {
   const snapshot = await readOwnedCollections(userId)
   if (!isActiveCollectionSession(userId, generation)) return
   if (!snapshot) return
+  if (
+    restCollectionStore.value.state.length > 0 ||
+    graphqlCollectionStore.value.state.length > 0
+  ) {
+    return
+  }
 
   runDispatchWithOutSyncing(() => {
     setRESTCollections(snapshot.rest)

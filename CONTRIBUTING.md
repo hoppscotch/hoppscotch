@@ -26,8 +26,12 @@ Please note we have a code of conduct, please follow it in all your interactions
 
 1. Clone and install dependencies: `pnpm install`
 2. Create your local environment file: `cp .env.example .env` at the repository root, then set
-   `VITE_BACKEND_API_URL` to the backend the web app should talk to (the local dev backend
-   `http://localhost:3170`, or `https://api.hoppscotch.io` for the hosted one). Without this file
+   the three backend URLs so they all point at the same backend (see `.env.example`):
+   `VITE_BACKEND_API_URL=http://localhost:3170/v1`, `VITE_BACKEND_GQL_URL=http://localhost:3170/graphql` and
+   `VITE_BACKEND_WS_URL=ws://localhost:3170/graphql` for the local dev backend (or
+   `https://api.hoppscotch.io/v1`, `https://api.hoppscotch.io/graphql` and `wss://api.hoppscotch.io/graphql`
+   for the hosted one — note the `/v1` suffix on the API URL). Without this file
    the sign-in links resolve to `undefined/auth/github`.
-3. Start the dev servers (this also generates the Prisma client): `pnpm dev`
+3. Start the dev servers: `pnpm dev`. (The Prisma client is generated during `pnpm install` via the backend
+   package's `postinstall` script, not by `pnpm dev`.)
 4. Run the test suites, including the CLI tests (see [#4136](https://github.com/hoppscotch/hoppscotch/issues/4136)): `pnpm test`

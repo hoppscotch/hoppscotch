@@ -72,9 +72,93 @@ import {
   updateRESTRequestOrder,
 } from "~/newstore/collections"
 import { platform } from "~/platform"
+import { Store } from "~/kernel/store"
 import { runDispatchWithOutSyncing } from ".."
 import { gqlCollectionsSyncer } from "./gqlCollections.sync"
 import { importToPersonalWorkspace } from "./import"
+
+// Same namespace the shared collection list uses. Per-account copies live
+// under their own keys so logout can clear the shared list without deleting
+// the only copy of unsynced work.
+const COLLECTION_STORE_NAMESPACE = "persistence.v1"
+
+let signedInUserId: string | null = null
+let collectionLoadGeneration = 0
+let ownedCollectionSave: Promise<void> = Promise.resolve()
+
+function ownedCollectionKey(kind: "rest" | "gql", userId: string) {
+  return kind === "rest"
+    ? `restCollections.user.${userId}`
+    : `gqlCollections.user.${userId}`
+}
+
+function isActiveCollectionSession(userId: string, generation: number) {
+  return signedInUserId === userId && collectionLoadGeneration === generation
+}
+
+function copyCollections(collections: HoppCollection[]) {
+  return JSON.parse(JSON.stringify(collections)) as HoppCollection[]
+}
+
+async function readOwnedCollections(userId: string, kind: "rest" | "gql") {
+  const result = await Store.get<HoppCollection[]>(
+    COLLECTION_STORE_NAMESPACE,
+    ownedCollectionKey(kind, userId)
+  )
+  if (E.isLeft(result) || !Array.isArray(result.right)) return undefined
+  return result.right
+}
+
+async function saveOwnedCollections(
+  userId: string,
+  rest: HoppCollection[],
+  gql: HoppCollection[]
+) {
+  await Store.set(
+    COLLECTION_STORE_NAMESPACE,
+    ownedCollectionKey("rest", userId),
+    rest
+  )
+  await Store.set(
+    COLLECTION_STORE_NAMESPACE,
+    ownedCollectionKey("gql", userId),
+    gql
+  )
+}
+
+function clearSharedCollectionLists() {
+  runDispatchWithOutSyncing(() => {
+    setRESTCollections([])
+    setGraphqlCollections([])
+  })
+}
+
+function queueOwnedCollectionSave(
+  userId: string,
+  rest: HoppCollection[],
+  gql: HoppCollection[]
+) {
+  ownedCollectionSave = ownedCollectionSave
+    .catch(() => undefined)
+    .then(() => saveOwnedCollections(userId, rest, gql))
+}
+
+async function restoreOwnedCollections(userId: string, generation: number) {
+  await ownedCollectionSave
+  if (!isActiveCollectionSession(userId, generation)) return
+
+  const [rest, gql] = await Promise.all([
+    readOwnedCollections(userId, "rest"),
+    readOwnedCollections(userId, "gql"),
+  ])
+  if (!isActiveCollectionSession(userId, generation)) return
+  if (rest === undefined && gql === undefined) return
+
+  runDispatchWithOutSyncing(() => {
+    if (rest !== undefined) setRESTCollections(rest)
+    if (gql !== undefined) setGraphqlCollections(gql)
+  })
+}
 
 function initCollectionsSync() {
   const authEvents$ = platform.auth.getAuthEventsStream()
@@ -84,11 +168,19 @@ function initCollectionsSync() {
 
   gqlCollectionsSyncer.startStoreSync()
 
-  currentUser$.subscribe(async (user) => {
-    if (user) {
-      loadUserCollections("REST")
-      loadUserCollections("GQL")
-    }
+  currentUser$.subscribe((user) => {
+    if (!user?.uid) return
+
+    signedInUserId = user.uid
+    const generation = ++collectionLoadGeneration
+    const userId = user.uid
+
+    void (async () => {
+      await restoreOwnedCollections(userId, generation)
+      if (!isActiveCollectionSession(userId, generation)) return
+      void loadUserCollections("REST")
+      void loadUserCollections("GQL")
+    })()
   })
 
   authEvents$.subscribe((event) => {
@@ -97,14 +189,18 @@ function initCollectionsSync() {
     }
 
     if (event.event == "logout") {
+      const userId = signedInUserId
+      const rest = copyCollections(restCollectionStore.value.state)
+      const gql = copyCollections(graphqlCollectionStore.value.state)
+      collectionLoadGeneration++
+      signedInUserId = null
       collectionsSyncer.stopListeningToSubscriptions()
-      // The local list is shared by every account in this browser. Drop it on
-      // logout so the next account does not inherit it. Skipping sync keeps
-      // this from deleting the signed-out account's collections on the server.
-      runDispatchWithOutSyncing(() => {
-        setRESTCollections([])
-        setGraphqlCollections([])
-      })
+
+      // Hide this account's lists from the next one immediately. The saved
+      // copy is written afterward and is not synced, so the server keeps the
+      // account's collections and unsynced local work can be restored.
+      clearSharedCollectionLists()
+      if (userId) queueOwnedCollectionSave(userId, rest, gql)
     }
   })
 }
@@ -371,10 +467,17 @@ function mergeCollections(
 }
 
 async function loadUserCollections(collectionType: "REST" | "GQL") {
+  const userId = signedInUserId
+  const generation = collectionLoadGeneration
+  if (!userId) return
+
   const res = await exportUserCollectionsToJSON(
     undefined,
     collectionType == "REST" ? ReqType.Rest : ReqType.Gql
   )
+  // The account may have signed out, or another account signed in, while this
+  // export was in flight. Drop the response so it cannot refill the store.
+  if (!isActiveCollectionSession(userId, generation)) return
   if (E.isRight(res)) {
     const collectionsJSONString =
       res.right.exportUserCollectionsToJSON.exportedCollection

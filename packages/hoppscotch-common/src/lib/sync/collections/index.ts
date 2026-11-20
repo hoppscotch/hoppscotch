@@ -85,10 +85,6 @@ const COLLECTION_STORE_NAMESPACE = "persistence.v1"
 let signedInUserId: string | null = null
 let collectionLoadGeneration = 0
 let ownedCollectionSave: Promise<void> = Promise.resolve()
-// Set when a logout save fails and that account's lists were put back into
-// the shared store. The next sign-in for that same account keeps the
-// recovered copy. A different account does not.
-let recoveredListsUserId: string | null = null
 
 const LOCAL_ONLY_COLLECTION_ID_SUFFIX = "-duplicate-collection"
 
@@ -97,12 +93,49 @@ type OwnedCollectionSnapshot = {
   gql: HoppCollection[]
 }
 
+type OwnedCollectionRecovery = OwnedCollectionSnapshot & {
+  ownerId: string
+}
+
 function ownedCollectionKey(userId: string) {
   return `collections.user.${userId}`
 }
 
+function recoveryKey(userId: string) {
+  return `collections.user.${userId}.recovery`
+}
+
 function isUnsyncedCollectionId(id: string | undefined) {
   return id == null || id === "" || id.endsWith(LOCAL_ONLY_COLLECTION_ID_SUFFIX)
+}
+
+function serverBackedId(id: string | undefined): id is string {
+  return !isUnsyncedCollectionId(id)
+}
+
+function collectServerBackedIds(collections: HoppCollection[]) {
+  const ids = new Set<string>()
+  const walk = (list: HoppCollection[]) => {
+    for (const collection of list) {
+      if (serverBackedId(collection.id)) ids.add(collection.id)
+      for (const request of collection.requests) {
+        if (serverBackedId(request.id)) ids.add(request.id)
+      }
+      walk(collection.folders)
+    }
+  }
+  walk(collections)
+  return ids
+}
+
+function keepLocalItemMissingFromExport(
+  id: string,
+  serverIdsAtStart: Set<string>
+) {
+  // An id assigned while the export was in flight is not proof the server
+  // deleted that item. Only ids that were already saved when the load began
+  // can be dropped.
+  return isUnsyncedCollectionId(id) || !serverIdsAtStart.has(id)
 }
 
 function isActiveCollectionSession(userId: string, generation: number) {
@@ -180,6 +213,45 @@ async function saveOwnedCollections(
   )
 }
 
+async function readRecovery(userId: string) {
+  const result = await Store.get<unknown>(
+    COLLECTION_STORE_NAMESPACE,
+    recoveryKey(userId)
+  )
+  if (E.isLeft(result)) return undefined
+  const record = result.right as OwnedCollectionRecovery | undefined
+  if (!record || record.ownerId !== userId) return undefined
+  return snapshotFromValue(record)
+}
+
+async function saveRecovery(
+  userId: string,
+  rest: HoppCollection[],
+  gql: HoppCollection[]
+) {
+  const saved = await Store.set(
+    COLLECTION_STORE_NAMESPACE,
+    recoveryKey(userId),
+    { ownerId: userId, rest, gql } satisfies OwnedCollectionRecovery
+  )
+  if (E.isLeft(saved)) return false
+
+  const stored = await readRecovery(userId)
+  return (
+    stored !== undefined &&
+    stored.rest.length === rest.length &&
+    stored.gql.length === gql.length
+  )
+}
+
+async function removeRecovery(userId: string) {
+  const removed = await Store.remove(
+    COLLECTION_STORE_NAMESPACE,
+    recoveryKey(userId)
+  )
+  return E.isRight(removed)
+}
+
 function clearSharedCollectionLists() {
   runDispatchWithOutSyncing(() => {
     setRESTCollections([])
@@ -202,19 +274,23 @@ function queueOwnedCollectionSave(
         saved = false
       }
       if (saved) {
-        recoveredListsUserId = null
+        // A leftover recovery record is older than this snapshot. If it cannot
+        // be removed, overwrite it so the next sign-in does not restore it.
+        if (!(await removeRecovery(userId))) {
+          await saveRecovery(userId, rest, gql)
+        }
         return
       }
 
-      // The shared lists were already cleared. Put this account's copy back
-      // only while nobody else has signed in. A later sign-in for this
-      // account keeps that copy; a different account replaces it.
-      if (signedInUserId !== null) return
-      recoveredListsUserId = userId
-      runDispatchWithOutSyncing(() => {
-        setRESTCollections(rest)
-        setGraphqlCollections(gql)
-      })
+      // The shared lists stay cleared. A failed snapshot is stored under this
+      // account's own key, with the owner in the record, so a reload cannot
+      // hand it to the next account through the shared lists.
+      try {
+        await saveRecovery(userId, rest, gql)
+      } catch {
+        // Storage could not hold the copy. Leaving the shared lists empty
+        // keeps the collections from becoming the next account's.
+      }
     })
 }
 
@@ -222,23 +298,33 @@ async function restoreOwnedCollections(userId: string, generation: number) {
   await ownedCollectionSave
   if (!isActiveCollectionSession(userId, generation)) return
 
-  const recoveredFor = recoveredListsUserId
-  recoveredListsUserId = null
-  if (recoveredFor === userId) return
-
-  const snapshot = await readOwnedCollections(userId)
+  const recovery = await readRecovery(userId)
   if (!isActiveCollectionSession(userId, generation)) return
-  if (snapshot) {
+  if (recovery) {
     runDispatchWithOutSyncing(() => {
-      setRESTCollections(snapshot.rest)
-      setGraphqlCollections(snapshot.gql)
+      setRESTCollections(recovery.rest)
+      setGraphqlCollections(recovery.gql)
     })
+    if (!isActiveCollectionSession(userId, generation)) return
+    const promoted = await saveOwnedCollections(
+      userId,
+      recovery.rest,
+      recovery.gql
+    )
+    if (promoted && isActiveCollectionSession(userId, generation)) {
+      await removeRecovery(userId)
+    }
     return
   }
 
-  // A failed save left another account's lists in the shared store, and
-  // this account has nothing of its own to put in their place.
-  if (recoveredFor) clearSharedCollectionLists()
+  const snapshot = await readOwnedCollections(userId)
+  if (!isActiveCollectionSession(userId, generation)) return
+  if (!snapshot) return
+
+  runDispatchWithOutSyncing(() => {
+    setRESTCollections(snapshot.rest)
+    setGraphqlCollections(snapshot.gql)
+  })
 }
 
 function initCollectionsSync() {
@@ -450,7 +536,8 @@ export function exportedCollectionToHoppCollection(
 
 function mergeTwoCollections(
   local: HoppCollection,
-  fetched: HoppCollection
+  fetched: HoppCollection,
+  serverIdsAtStart: Set<string>
 ): HoppCollection {
   const mergedFolders: HoppCollection[] = []
   const fetchedFoldersMap = new Map<string, HoppCollection>()
@@ -463,9 +550,13 @@ function mergeTwoCollections(
     if (localFolder.id) {
       const fetchedFolder = fetchedFoldersMap.get(localFolder.id)
       if (fetchedFolder) {
-        mergedFolders.push(mergeTwoCollections(localFolder, fetchedFolder))
+        mergedFolders.push(
+          mergeTwoCollections(localFolder, fetchedFolder, serverIdsAtStart)
+        )
         processedFetchedFolderIds.add(localFolder.id)
-      } else if (isUnsyncedCollectionId(localFolder.id)) {
+      } else if (
+        keepLocalItemMissingFromExport(localFolder.id, serverIdsAtStart)
+      ) {
         mergedFolders.push(localFolder)
       }
     } else {
@@ -492,7 +583,7 @@ function mergeTwoCollections(
       if (fetchedReq) {
         mergedRequests.push(fetchedReq)
         processedFetchedRequestIds.add(localReq.id)
-      } else if (isUnsyncedCollectionId(localReq.id)) {
+      } else if (keepLocalItemMissingFromExport(localReq.id, serverIdsAtStart)) {
         mergedRequests.push(localReq)
       }
     } else {
@@ -515,7 +606,8 @@ function mergeTwoCollections(
 
 function mergeCollections(
   localCollections: HoppCollection[],
-  fetchedCollections: HoppCollection[]
+  fetchedCollections: HoppCollection[],
+  serverIdsAtStart: Set<string>
 ): HoppCollection[] {
   const fetchedMap = new Map<string, HoppCollection>()
   for (const col of fetchedCollections) {
@@ -531,11 +623,11 @@ function mergeCollections(
     if (localCol.id) {
       const fetchedCol = fetchedMap.get(localCol.id)
       if (fetchedCol) {
-        merged.push(mergeTwoCollections(localCol, fetchedCol))
+        merged.push(
+          mergeTwoCollections(localCol, fetchedCol, serverIdsAtStart)
+        )
         processedFetchedIds.add(localCol.id)
-      } else if (isUnsyncedCollectionId(localCol.id)) {
-        // A server id missing from the export was deleted. Keep only work
-        // that never reached the server.
+      } else if (keepLocalItemMissingFromExport(localCol.id, serverIdsAtStart)) {
         merged.push(localCol)
       }
     } else {
@@ -556,6 +648,14 @@ async function loadUserCollections(collectionType: "REST" | "GQL") {
   const userId = signedInUserId
   const generation = collectionLoadGeneration
   if (!userId) return
+
+  // Ids already on the server when this export starts. Anything assigned
+  // after this point must survive a response that does not contain it yet.
+  const serverIdsAtStart = collectServerBackedIds(
+    collectionType == "REST"
+      ? restCollectionStore.value.state
+      : graphqlCollectionStore.value.state
+  )
 
   const res = await exportUserCollectionsToJSON(
     undefined,
@@ -588,7 +688,8 @@ async function loadUserCollections(collectionType: "REST" | "GQL") {
 
     const mergedCollections = mergeCollections(
       localCollections,
-      fetchedCollections
+      fetchedCollections,
+      serverIdsAtStart
     )
 
     runDispatchWithOutSyncing(() => {

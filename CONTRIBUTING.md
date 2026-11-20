@@ -47,7 +47,7 @@ Please note we have a code of conduct, please follow it in all your interactions
      `envFilePath`, so the backend only reads settings present in its process environment — a
      fresh clone that just runs the command below fails with
      `DATABASE_URL environment variable is not set`. Run
-     `set -a; source ../../.env; set +a` from `packages/hoppscotch-backend` (or copy the
+     `set -a; source ../../.env; rc=$?; set +a; [ "$rc" -eq 0 ]` from `packages/hoppscotch-backend` (or copy the
      variables in your shell first) so the backend process inherits the root `.env`.
    - **Use a host-reachable database URL *only for the backend process on your host*.**
      The committed `.env.example` uses the Docker-internal host `hoppscotch-db`

@@ -27,8 +27,10 @@ Please note we have a code of conduct, please follow it in all your interactions
 1. Clone the repository: `git clone https://github.com/hoppscotch/hoppscotch.git`
    then enter it: `cd hoppscotch`
 2. Install dependencies: `pnpm install`
-3. Create your local environment file: `cp .env.example .env` at the repository root, then set
-   the three backend URLs so they all point at the same backend (see `.env.example`):
+3. Create your local environment file: `cp .env.example .env` at the repository root. This file
+   holds both the frontend backend URLs and the backend settings (`DATABASE_URL`,
+   `DATA_ENCRYPTION_KEY`, `WHITELISTED_ORIGINS`, …), so set the three backend URLs so they all
+   point at the same backend (see `.env.example`):
    `VITE_BACKEND_API_URL=http://localhost:3170/v1`, `VITE_BACKEND_GQL_URL=http://localhost:3170/graphql` and
    `VITE_BACKEND_WS_URL=ws://localhost:3170/graphql` for the local dev backend (or
    `https://api.hoppscotch.io/v1`, `https://api.hoppscotch.io/graphql` and `wss://api.hoppscotch.io/graphql`
@@ -39,8 +41,27 @@ Please note we have a code of conduct, please follow it in all your interactions
    `hoppscotch-selfhost-web` package's `do-dev` script); it does not start the backend, so the
    `localhost:3170` URLs above would have no server to connect to.
    To run the local backend and database, start PostgreSQL first (e.g.
-   `docker compose up -d hoppscotch-db`, which uses the `DATABASE_URL` from `.env.example`),
-   then run the backend dev server: `pnpm --filter hoppscotch-backend start:dev`
+   `docker compose up -d hoppscotch-db`, which maps the database port to `localhost:5432` on your
+   host and uses the credentials from `.env.example`). Important:
+   - **Export your `.env` before starting the backend.** `ConfigModule.forRoot()` does not set
+     `envFilePath`, so the backend only reads settings present in its process environment — a
+     fresh clone that just runs the command below fails with
+     `DATABASE_URL environment variable is not set`. Run
+     `set -a && source ../../.env && set +a` from `packages/hoppscotch-backend` (or copy the
+     variables in your shell first) so the backend process inherits the root `.env`.
+   - **Use a host-reachable database URL.** The committed `.env.example` uses the Docker-internal
+     host `hoppscotch-db` (`postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch`),
+     which only resolves *inside* the compose network. From the host, point `DATABASE_URL` at
+     `localhost` instead: `postgresql://postgres:testpass@localhost:5432/hoppscotch`. If you run
+     the backend *inside* Docker instead, keep the service name — either way the value must match
+     where the process runs.
+   - **Apply the migrations on a fresh database before starting the backend.** Starting
+     `hoppscotch-db` creates an empty PostgreSQL instance; neither `start:dev` nor `postinstall`
+     creates the application's tables. Run
+     `pnpm --filter hoppscotch-backend exec prisma migrate deploy`
+     (equivalently `docker compose up -d hoppscotch-migrate`), which applies
+     `packages/hoppscotch-backend/prisma/migrations/*` — otherwise you'll hit missing-table errors.
+   Then run the backend dev server: `pnpm --filter hoppscotch-backend start:dev`
    (listens on port 3170). If you don't want a local backend, point the three URLs above at
    the hosted API instead and skip the backend command entirely.
 5. Run the test suites, including the CLI tests (see [#4136](https://github.com/hoppscotch/hoppscotch/issues/4136)): `pnpm test`

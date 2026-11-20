@@ -97,9 +97,9 @@ type OwnedCollectionRecovery = OwnedCollectionSnapshot & {
   ownerId: string
 }
 
-// Used only when neither disk write succeeds. It stays private until that
-// owner signs in, and it is never written on the logged-out shared lists.
-let memoryRecovery: OwnedCollectionRecovery | null = null
+// Used only when neither disk write succeeds. Keyed by owner so one account
+// cannot replace another's copy. Entries stay private until that owner signs in.
+const memoryRecoveryByOwner = new Map<string, OwnedCollectionSnapshot>()
 
 function ownedCollectionKey(userId: string) {
   return `collections.user.${userId}`
@@ -130,6 +130,77 @@ function collectServerBackedIds(collections: HoppCollection[]) {
   }
   walk(collections)
   return ids
+}
+
+function localItemKey(item: { id?: string; _ref_id?: string }) {
+  if (item._ref_id) return `ref:${item._ref_id}`
+  if (item.id) return `id:${item.id}`
+  return undefined
+}
+
+function containsUnsyncedWork(collection: HoppCollection): boolean {
+  if (isUnsyncedCollectionId(collection.id)) return true
+  if (
+    collection.requests.some((request) => isUnsyncedCollectionId(request.id))
+  ) {
+    return true
+  }
+  return collection.folders.some(containsUnsyncedWork)
+}
+
+function mergeUnsyncedRequests(
+  current: HoppCollection["requests"],
+  saved: HoppCollection["requests"]
+): HoppCollection["requests"] {
+  const seen = new Set(
+    current.flatMap((request) => {
+      const key = localItemKey(request)
+      return key ? [key] : []
+    })
+  )
+  const merged = current.slice()
+  for (const request of saved) {
+    if (!isUnsyncedCollectionId(request.id)) continue
+    const key = localItemKey(request)
+    if (key && seen.has(key)) continue
+    if (key) seen.add(key)
+    merged.push(request)
+  }
+  return merged
+}
+
+function mergeUnsyncedCollections(
+  current: HoppCollection[],
+  saved: HoppCollection[]
+): HoppCollection[] {
+  const merged = current.map((collection) => ({ ...collection }))
+  for (const savedCollection of saved) {
+    const savedKey = localItemKey(savedCollection)
+    const match = savedKey
+      ? merged.find((collection) => localItemKey(collection) === savedKey)
+      : undefined
+    if (match) {
+      match.folders = mergeUnsyncedCollections(
+        match.folders,
+        savedCollection.folders
+      )
+      match.requests = mergeUnsyncedRequests(
+        match.requests,
+        savedCollection.requests
+      )
+      continue
+    }
+    if (containsUnsyncedWork(savedCollection)) merged.push(savedCollection)
+  }
+  return merged
+}
+
+function restoreCollectionList(
+  current: HoppCollection[],
+  saved: HoppCollection[]
+) {
+  if (current.length === 0) return saved
+  return mergeUnsyncedCollections(current, saved)
 }
 
 function keepLocalItemMissingFromExport(
@@ -278,12 +349,12 @@ function queueOwnedCollectionSave(
         saved = false
       }
       if (saved) {
-        if (memoryRecovery?.ownerId === userId) memoryRecovery = null
-        // This queued save is the fresh snapshot. Drop the older recovery
-        // only after it succeeds. If the delete fails, store the same fresh
-        // copy so sign-in cannot restore the older one.
-        if (!(await removeRecovery(userId))) {
-          await saveRecovery(userId, rest, gql)
+        // Keep the in-memory copy until the disk recovery record is gone or
+        // replaced with this snapshot. Clearing it first would let the next
+        // sign-in read an older recovery record.
+        const removed = await removeRecovery(userId)
+        if (removed || (await saveRecovery(userId, rest, gql))) {
+          memoryRecoveryByOwner.delete(userId)
         }
         return
       }
@@ -298,10 +369,10 @@ function queueOwnedCollectionSave(
         recovered = false
       }
       if (recovered) {
-        if (memoryRecovery?.ownerId === userId) memoryRecovery = null
+        memoryRecoveryByOwner.delete(userId)
         return
       }
-      memoryRecovery = { ownerId: userId, rest, gql }
+      memoryRecoveryByOwner.set(userId, { rest, gql })
     })
 }
 
@@ -309,40 +380,27 @@ async function restoreOwnedCollections(userId: string, generation: number) {
   await ownedCollectionSave
   if (!isActiveCollectionSession(userId, generation)) return
 
-  const recovery =
-    memoryRecovery?.ownerId === userId
-      ? memoryRecovery
-      : await readRecovery(userId)
-  if (!isActiveCollectionSession(userId, generation)) return
-  if (recovery) {
-    // Lists already persisted for this session are newer than the recovery
-    // record. Filling them is only for the empty store left by logout.
-    // The record stays until a later queued snapshot succeeds.
-    if (
-      restCollectionStore.value.state.length === 0 &&
-      graphqlCollectionStore.value.state.length === 0
-    ) {
-      runDispatchWithOutSyncing(() => {
-        setRESTCollections(recovery.rest)
-        setGraphqlCollections(recovery.gql)
-      })
-    }
-    return
-  }
+  const saved =
+    memoryRecoveryByOwner.get(userId) ??
+    (await readRecovery(userId)) ??
+    (await readOwnedCollections(userId))
+  if (!isActiveCollectionSession(userId, generation) || !saved) return
 
-  const snapshot = await readOwnedCollections(userId)
+  // Each list is restored on its own. A guest collection in one list must
+  // not block the other, and local-only work from the saved copy is merged
+  // into whatever is already there.
+  const rest = restoreCollectionList(
+    restCollectionStore.value.state,
+    saved.rest
+  )
+  const gql = restoreCollectionList(
+    graphqlCollectionStore.value.state,
+    saved.gql
+  )
   if (!isActiveCollectionSession(userId, generation)) return
-  if (!snapshot) return
-  if (
-    restCollectionStore.value.state.length > 0 ||
-    graphqlCollectionStore.value.state.length > 0
-  ) {
-    return
-  }
-
   runDispatchWithOutSyncing(() => {
-    setRESTCollections(snapshot.rest)
-    setGraphqlCollections(snapshot.gql)
+    setRESTCollections(rest)
+    setGraphqlCollections(gql)
   })
 }
 

@@ -49,18 +49,26 @@ Please note we have a code of conduct, please follow it in all your interactions
      `DATABASE_URL environment variable is not set`. Run
      `set -a && source ../../.env && set +a` from `packages/hoppscotch-backend` (or copy the
      variables in your shell first) so the backend process inherits the root `.env`.
-   - **Use a host-reachable database URL.** The committed `.env.example` uses the Docker-internal
-     host `hoppscotch-db` (`postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch`),
-     which only resolves *inside* the compose network. From the host, point `DATABASE_URL` at
-     `localhost` instead: `postgresql://postgres:testpass@localhost:5432/hoppscotch`. If you run
-     the backend *inside* Docker instead, keep the service name — either way the value must match
-     where the process runs.
+   - **Use a host-reachable database URL *only for the backend process on your host*.**
+     The committed `.env.example` uses the Docker-internal host `hoppscotch-db`
+     (`postgresql://postgres:testpass@hoppscotch-db:5432/hoppscotch`), which only resolves
+     *inside* the compose network. Do **not** rewrite `DATABASE_URL` to `localhost` in the
+     root `.env` file: `hoppscotch-migrate` also reads that same file from inside its
+     container, where `localhost` points at the container itself, not at `hoppscotch-db` —
+     so the Docker migration command would fail to connect. Instead, keep the committed
+     `hoppscotch-db` value in the root `.env` and override it just for the host backend
+     process, e.g. `DATABASE_URL=postgresql://postgres:testpass@localhost:5432/hoppscotch
+     pnpm --filter hoppscotch-backend start:dev`. If you run the backend *inside* Docker
+     instead, keep the service name — either way the value must match where the process
+     runs.
    - **Apply the migrations on a fresh database before starting the backend.** Starting
      `hoppscotch-db` creates an empty PostgreSQL instance; neither `start:dev` nor `postinstall`
      creates the application's tables. Run
-     `pnpm --filter hoppscotch-backend exec prisma migrate deploy`
-     (equivalently `docker compose up -d hoppscotch-migrate`), which applies
-     `packages/hoppscotch-backend/prisma/migrations/*` — otherwise you'll hit missing-table errors.
+     `pnpm --filter hoppscotch-backend exec prisma migrate deploy` on the host (with the
+     host-reachable override above), or `docker compose up -d hoppscotch-migrate` inside
+     Docker (which uses the committed `hoppscotch-db` URL from the root `.env`). This
+     applies `packages/hoppscotch-backend/prisma/migrations/*` — otherwise you'll hit
+     missing-table errors.
    Then run the backend dev server: `pnpm --filter hoppscotch-backend start:dev`
    (listens on port 3170). If you don't want a local backend, point the three URLs above at
    the hosted API instead and skip the backend command entirely.

@@ -355,18 +355,35 @@ async function appliedRevisionMatches(userId: string, revision: number) {
   return marker === revision && applied === revision
 }
 
-async function clearSharedCollectionStorage() {
-  const restCleared = await Store.set(
-    COLLECTION_STORE_NAMESPACE,
-    SHARED_REST_COLLECTIONS_KEY,
-    []
-  )
-  const gqlCleared = await Store.set(
-    COLLECTION_STORE_NAMESPACE,
-    SHARED_GQL_COLLECTIONS_KEY,
-    []
-  )
-  return E.isRight(restCleared) && E.isRight(gqlCleared)
+function sameCollectionLists(left: HoppCollection[], right: HoppCollection[]) {
+  return JSON.stringify(left) === JSON.stringify(right)
+}
+
+// Writes the lists currently in memory. After logout those are empty unless a
+// guest created a collection while the account snapshot was still saving.
+async function persistSharedListsFromStore() {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const rest = copyCollections(restCollectionStore.value.state)
+    const gql = copyCollections(graphqlCollectionStore.value.state)
+    const restSaved = await Store.set(
+      COLLECTION_STORE_NAMESPACE,
+      SHARED_REST_COLLECTIONS_KEY,
+      rest
+    )
+    const gqlSaved = await Store.set(
+      COLLECTION_STORE_NAMESPACE,
+      SHARED_GQL_COLLECTIONS_KEY,
+      gql
+    )
+    if (E.isLeft(restSaved) || E.isLeft(gqlSaved)) continue
+    if (
+      sameCollectionLists(rest, restCollectionStore.value.state) &&
+      sameCollectionLists(gql, graphqlCollectionStore.value.state)
+    ) {
+      return true
+    }
+  }
+  return false
 }
 
 async function persistAppliedLists(
@@ -384,7 +401,7 @@ async function persistAppliedLists(
   // Logout can clear the shared keys while this write is in flight. Do not
   // start the next write, and put the empty lists back if this one landed.
   if (signedInUserId !== userId) {
-    await clearSharedCollectionStorage()
+    await persistSharedListsFromStore()
     return false
   }
   if (E.isLeft(restSaved)) return false
@@ -394,7 +411,7 @@ async function persistAppliedLists(
     gql
   )
   if (signedInUserId !== userId) {
-    await clearSharedCollectionStorage()
+    await persistSharedListsFromStore()
     return false
   }
   if (E.isLeft(gqlSaved)) return false
@@ -491,15 +508,19 @@ function queueOwnedCollectionSave(
         }
         memoryRecoveryByOwner.set(userId, { rest, gql, revision })
       } finally {
-        // Runs after any restore write queued ahead of this logout, so a
-        // shared-key write that landed during the sign-out is emptied again.
-        await clearSharedCollectionStorage()
+        // Runs after any restore write queued ahead of this logout. Empty
+        // lists replace that stale account data, while a guest collection
+        // created after sign-out is written instead of being erased.
+        const persisted = await persistSharedListsFromStore()
+        if (!persisted) {
+          throw new Error("Failed to persist shared collection lists after logout")
+        }
       }
     })
 }
 
 async function restoreOwnedCollections(userId: string, generation: number) {
-  await ownedCollectionSave
+  await ownedCollectionSave.catch(() => undefined)
   if (!isActiveCollectionSession(userId, generation)) return
 
   const saved = newerSnapshot(

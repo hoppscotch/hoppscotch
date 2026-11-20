@@ -91,6 +91,7 @@ const LOCAL_ONLY_COLLECTION_ID_SUFFIX = "-duplicate-collection"
 type OwnedCollectionSnapshot = {
   rest: HoppCollection[]
   gql: HoppCollection[]
+  revision?: number
 }
 
 type OwnedCollectionRecovery = OwnedCollectionSnapshot & {
@@ -107,6 +108,30 @@ function ownedCollectionKey(userId: string) {
 
 function recoveryKey(userId: string) {
   return `collections.user.${userId}.recovery`
+}
+
+function restoredKey(userId: string) {
+  return `collections.user.${userId}.restored`
+}
+
+let snapshotRevision = 0
+
+function nextSnapshotRevision() {
+  snapshotRevision = Math.max(Date.now(), snapshotRevision + 1)
+  return snapshotRevision
+}
+
+function newerSnapshot(
+  ...candidates: Array<OwnedCollectionSnapshot | undefined>
+) {
+  let best: OwnedCollectionSnapshot | undefined
+  for (const candidate of candidates) {
+    if (!candidate) continue
+    if (!best || (candidate.revision ?? 0) >= (best.revision ?? 0)) {
+      best = candidate
+    }
+  }
+  return best
 }
 
 function isUnsyncedCollectionId(id: string | undefined) {
@@ -266,12 +291,13 @@ async function readOwnedCollections(userId: string) {
 async function saveOwnedCollections(
   userId: string,
   rest: HoppCollection[],
-  gql: HoppCollection[]
+  gql: HoppCollection[],
+  revision: number
 ) {
   const saved = await Store.set(
     COLLECTION_STORE_NAMESPACE,
     ownedCollectionKey(userId),
-    { rest, gql } satisfies OwnedCollectionSnapshot
+    { rest, gql, revision } satisfies OwnedCollectionSnapshot
   )
   if (E.isLeft(saved)) return false
 
@@ -299,15 +325,33 @@ async function readRecovery(userId: string) {
   return snapshotFromValue(record)
 }
 
+async function setSnapshotRestored(userId: string, restored: boolean) {
+  const result = await Store.set(
+    COLLECTION_STORE_NAMESPACE,
+    restoredKey(userId),
+    restored
+  )
+  return E.isRight(result)
+}
+
+async function isSnapshotRestored(userId: string) {
+  const result = await Store.get<boolean>(
+    COLLECTION_STORE_NAMESPACE,
+    restoredKey(userId)
+  )
+  return E.isRight(result) && result.right === true
+}
+
 async function saveRecovery(
   userId: string,
   rest: HoppCollection[],
-  gql: HoppCollection[]
+  gql: HoppCollection[],
+  revision: number
 ) {
   const saved = await Store.set(
     COLLECTION_STORE_NAMESPACE,
     recoveryKey(userId),
-    { ownerId: userId, rest, gql } satisfies OwnedCollectionRecovery
+    { ownerId: userId, rest, gql, revision } satisfies OwnedCollectionRecovery
   )
   if (E.isLeft(saved)) return false
 
@@ -342,20 +386,22 @@ function queueOwnedCollectionSave(
   ownedCollectionSave = ownedCollectionSave
     .catch(() => undefined)
     .then(async () => {
+      // The next sign-in should merge this snapshot. A later reload should
+      // not: the persisted lists are the owner's edits after that merge.
+      await setSnapshotRestored(userId, false)
+      const revision = nextSnapshotRevision()
       let saved = false
       try {
-        saved = await saveOwnedCollections(userId, rest, gql)
+        saved = await saveOwnedCollections(userId, rest, gql, revision)
       } catch {
         saved = false
       }
       if (saved) {
-        // Keep the in-memory copy until the disk recovery record is gone or
-        // replaced with this snapshot. Clearing it first would let the next
-        // sign-in read an older recovery record.
         const removed = await removeRecovery(userId)
-        if (removed || (await saveRecovery(userId, rest, gql))) {
-          memoryRecoveryByOwner.delete(userId)
-        }
+        const replaced =
+          removed || (await saveRecovery(userId, rest, gql, revision))
+        if (replaced) memoryRecoveryByOwner.delete(userId)
+        else memoryRecoveryByOwner.set(userId, { rest, gql, revision })
         return
       }
 
@@ -364,7 +410,7 @@ function queueOwnedCollectionSave(
       // memory for this session without publishing it to the shared lists.
       let recovered = false
       try {
-        recovered = await saveRecovery(userId, rest, gql)
+        recovered = await saveRecovery(userId, rest, gql, revision)
       } catch {
         recovered = false
       }
@@ -372,7 +418,7 @@ function queueOwnedCollectionSave(
         memoryRecoveryByOwner.delete(userId)
         return
       }
-      memoryRecoveryByOwner.set(userId, { rest, gql })
+      memoryRecoveryByOwner.set(userId, { rest, gql, revision })
     })
 }
 
@@ -380,10 +426,16 @@ async function restoreOwnedCollections(userId: string, generation: number) {
   await ownedCollectionSave
   if (!isActiveCollectionSession(userId, generation)) return
 
-  const saved =
-    memoryRecoveryByOwner.get(userId) ??
-    (await readRecovery(userId)) ??
-    (await readOwnedCollections(userId))
+  // A snapshot already applied for this stay should not be merged again.
+  // Otherwise a local-only collection deleted after sign-in comes back on reload.
+  if (await isSnapshotRestored(userId)) return
+  if (!isActiveCollectionSession(userId, generation)) return
+
+  const saved = newerSnapshot(
+    await readOwnedCollections(userId),
+    await readRecovery(userId),
+    memoryRecoveryByOwner.get(userId)
+  )
   if (!isActiveCollectionSession(userId, generation) || !saved) return
 
   // Each list is restored on its own. A guest collection in one list must
@@ -402,6 +454,9 @@ async function restoreOwnedCollections(userId: string, generation: number) {
     setRESTCollections(rest)
     setGraphqlCollections(gql)
   })
+  if (isActiveCollectionSession(userId, generation)) {
+    await setSnapshotRestored(userId, true)
+  }
 }
 
 function initCollectionsSync() {

@@ -363,47 +363,84 @@ function sameCollectionLists(left: HoppCollection[], right: HoppCollection[]) {
   return JSON.stringify(left) === JSON.stringify(right)
 }
 
+async function writeSharedLists(
+  rest: HoppCollection[],
+  gql: HoppCollection[]
+) {
+  const restSaved = await Store.set(
+    COLLECTION_STORE_NAMESPACE,
+    SHARED_REST_COLLECTIONS_KEY,
+    rest
+  )
+  const gqlSaved = await Store.set(
+    COLLECTION_STORE_NAMESPACE,
+    SHARED_GQL_COLLECTIONS_KEY,
+    gql
+  )
+  if (E.isLeft(restSaved) || E.isLeft(gqlSaved)) return false
+  const storedRest = await Store.get<HoppCollection[]>(
+    COLLECTION_STORE_NAMESPACE,
+    SHARED_REST_COLLECTIONS_KEY
+  )
+  const storedGql = await Store.get<HoppCollection[]>(
+    COLLECTION_STORE_NAMESPACE,
+    SHARED_GQL_COLLECTIONS_KEY
+  )
+  if (E.isLeft(storedRest) || E.isLeft(storedGql)) return false
+  return (
+    sameCollectionLists(rest, storedRest.right ?? []) &&
+    sameCollectionLists(gql, storedGql.right ?? [])
+  )
+}
+
+function currentSharedLists() {
+  return {
+    rest: copyCollections(restCollectionStore.value.state),
+    gql: copyCollections(graphqlCollectionStore.value.state),
+  }
+}
+
+function sharedListsMatchMemory(rest: HoppCollection[], gql: HoppCollection[]) {
+  return (
+    sameCollectionLists(rest, restCollectionStore.value.state) &&
+    sameCollectionLists(gql, graphqlCollectionStore.value.state)
+  )
+}
+
 // Writes the lists currently in memory. After logout those are empty unless a
 // guest created a collection while the account snapshot was still saving.
 async function persistSharedListsFromStore() {
   // Stop the persistence subscribers, including writes already started when
   // logout cleared the lists, so they cannot replace this write afterward.
   await pauseCollectionPersistenceWrites()
+  let savedRest: HoppCollection[] | undefined
+  let savedGql: HoppCollection[] | undefined
   try {
     for (let attempt = 0; attempt < 3; attempt++) {
-      const rest = copyCollections(restCollectionStore.value.state)
-      const gql = copyCollections(graphqlCollectionStore.value.state)
-      const restSaved = await Store.set(
-        COLLECTION_STORE_NAMESPACE,
-        SHARED_REST_COLLECTIONS_KEY,
-        rest
-      )
-      const gqlSaved = await Store.set(
-        COLLECTION_STORE_NAMESPACE,
-        SHARED_GQL_COLLECTIONS_KEY,
-        gql
-      )
-      if (E.isLeft(restSaved) || E.isLeft(gqlSaved)) continue
-      const storedRest = await Store.get<HoppCollection[]>(
-        COLLECTION_STORE_NAMESPACE,
-        SHARED_REST_COLLECTIONS_KEY
-      )
-      const storedGql = await Store.get<HoppCollection[]>(
-        COLLECTION_STORE_NAMESPACE,
-        SHARED_GQL_COLLECTIONS_KEY
-      )
-      if (E.isLeft(storedRest) || E.isLeft(storedGql)) continue
-      if (
-        sameCollectionLists(rest, storedRest.right ?? []) &&
-        sameCollectionLists(gql, storedGql.right ?? []) &&
-        sameCollectionLists(rest, restCollectionStore.value.state) &&
-        sameCollectionLists(gql, graphqlCollectionStore.value.state)
-      ) {
-        return true
-      }
+      const { rest, gql } = currentSharedLists()
+      if (!(await writeSharedLists(rest, gql))) continue
+      savedRest = rest
+      savedGql = gql
+      if (sharedListsMatchMemory(rest, gql)) return true
     }
-    return false
+    // The paused subscriber skipped an edit during the last attempt. Save
+    // that state before giving up.
+    const { rest, gql } = currentSharedLists()
+    if (!(await writeSharedLists(rest, gql))) return false
+    savedRest = rest
+    savedGql = gql
+    return true
   } finally {
+    if (
+      savedRest &&
+      savedGql &&
+      !sharedListsMatchMemory(savedRest, savedGql)
+    ) {
+      const { rest, gql } = currentSharedLists()
+      const flushed = await writeSharedLists(rest, gql)
+      resumeCollectionPersistenceWrites()
+      return flushed
+    }
     resumeCollectionPersistenceWrites()
   }
 }

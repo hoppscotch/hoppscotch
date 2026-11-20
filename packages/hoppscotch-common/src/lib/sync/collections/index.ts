@@ -355,6 +355,20 @@ async function appliedRevisionMatches(userId: string, revision: number) {
   return marker === revision && applied === revision
 }
 
+async function clearSharedCollectionStorage() {
+  const restCleared = await Store.set(
+    COLLECTION_STORE_NAMESPACE,
+    SHARED_REST_COLLECTIONS_KEY,
+    []
+  )
+  const gqlCleared = await Store.set(
+    COLLECTION_STORE_NAMESPACE,
+    SHARED_GQL_COLLECTIONS_KEY,
+    []
+  )
+  return E.isRight(restCleared) && E.isRight(gqlCleared)
+}
+
 async function persistAppliedLists(
   userId: string,
   rest: HoppCollection[],
@@ -367,13 +381,23 @@ async function persistAppliedLists(
     SHARED_REST_COLLECTIONS_KEY,
     rest
   )
+  // Logout can clear the shared keys while this write is in flight. Do not
+  // start the next write, and put the empty lists back if this one landed.
+  if (signedInUserId !== userId) {
+    await clearSharedCollectionStorage()
+    return false
+  }
+  if (E.isLeft(restSaved)) return false
   const gqlSaved = await Store.set(
     COLLECTION_STORE_NAMESPACE,
     SHARED_GQL_COLLECTIONS_KEY,
     gql
   )
-  if (E.isLeft(restSaved) || E.isLeft(gqlSaved)) return false
-  if (signedInUserId !== userId) return false
+  if (signedInUserId !== userId) {
+    await clearSharedCollectionStorage()
+    return false
+  }
+  if (E.isLeft(gqlSaved)) return false
   if (!(await writeRevision(appliedKey(userId), revision))) return false
   if (signedInUserId !== userId) return false
   let marked = await writeRevision(restoredKey(userId), revision)
@@ -429,42 +453,48 @@ function queueOwnedCollectionSave(
   ownedCollectionSave = ownedCollectionSave
     .catch(() => undefined)
     .then(async () => {
-      // A failed reset must not leave the old marker able to hide this save.
-      const revision = nextSnapshotRevision()
-      if (await writeRevision(restoredKey(userId), 0)) {
-        forceRestoreUserIds.delete(userId)
-      } else {
-        forceRestoreUserIds.add(userId)
-      }
-      let saved = false
       try {
-        saved = await saveOwnedCollections(userId, rest, gql, revision)
-      } catch {
-        saved = false
-      }
-      if (saved) {
-        const removed = await removeRecovery(userId)
-        const replaced =
-          removed || (await saveRecovery(userId, rest, gql, revision))
-        if (replaced) memoryRecoveryByOwner.delete(userId)
-        else memoryRecoveryByOwner.set(userId, { rest, gql, revision })
-        return
-      }
+        // A failed reset must not leave the old marker able to hide this save.
+        const revision = nextSnapshotRevision()
+        if (await writeRevision(restoredKey(userId), 0)) {
+          forceRestoreUserIds.delete(userId)
+        } else {
+          forceRestoreUserIds.add(userId)
+        }
+        let saved = false
+        try {
+          saved = await saveOwnedCollections(userId, rest, gql, revision)
+        } catch {
+          saved = false
+        }
+        if (saved) {
+          const removed = await removeRecovery(userId)
+          const replaced =
+            removed || (await saveRecovery(userId, rest, gql, revision))
+          if (replaced) memoryRecoveryByOwner.delete(userId)
+          else memoryRecoveryByOwner.set(userId, { rest, gql, revision })
+          return
+        }
 
-      // The shared lists stay cleared. Prefer a disk record the owner can
-      // read after a reload. If that write fails too, keep the copy in
-      // memory for this session without publishing it to the shared lists.
-      let recovered = false
-      try {
-        recovered = await saveRecovery(userId, rest, gql, revision)
-      } catch {
-        recovered = false
+        // The shared lists stay cleared. Prefer a disk record the owner can
+        // read after a reload. If that write fails too, keep the copy in
+        // memory for this session without publishing it to the shared lists.
+        let recovered = false
+        try {
+          recovered = await saveRecovery(userId, rest, gql, revision)
+        } catch {
+          recovered = false
+        }
+        if (recovered) {
+          memoryRecoveryByOwner.delete(userId)
+          return
+        }
+        memoryRecoveryByOwner.set(userId, { rest, gql, revision })
+      } finally {
+        // Runs after any restore write queued ahead of this logout, so a
+        // shared-key write that landed during the sign-out is emptied again.
+        await clearSharedCollectionStorage()
       }
-      if (recovered) {
-        memoryRecoveryByOwner.delete(userId)
-        return
-      }
-      memoryRecoveryByOwner.set(userId, { rest, gql, revision })
     })
 }
 

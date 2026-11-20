@@ -101,6 +101,11 @@ type OwnedCollectionRecovery = OwnedCollectionSnapshot & {
 // Used only when neither disk write succeeds. Keyed by owner so one account
 // cannot replace another's copy. Entries stay private until that owner signs in.
 const memoryRecoveryByOwner = new Map<string, OwnedCollectionSnapshot>()
+// Set when logout cannot clear the restored marker. Sign-in must still
+// apply this account's copy even if the old marker remains on disk.
+const forceRestoreUserIds = new Set<string>()
+const SHARED_REST_COLLECTIONS_KEY = "restCollections"
+const SHARED_GQL_COLLECTIONS_KEY = "gqlCollections"
 
 function ownedCollectionKey(userId: string) {
   return `collections.user.${userId}`
@@ -112,6 +117,10 @@ function recoveryKey(userId: string) {
 
 function restoredKey(userId: string) {
   return `collections.user.${userId}.restored`
+}
+
+function appliedKey(userId: string) {
+  return `collections.user.${userId}.appliedRevision`
 }
 
 let snapshotRevision = 0
@@ -325,21 +334,55 @@ async function readRecovery(userId: string) {
   return snapshotFromValue(record)
 }
 
-async function setSnapshotRestored(userId: string, restored: boolean) {
-  const result = await Store.set(
-    COLLECTION_STORE_NAMESPACE,
-    restoredKey(userId),
-    restored
-  )
+async function readRevision(key: string) {
+  const result = await Store.get<number>(COLLECTION_STORE_NAMESPACE, key)
+  if (E.isLeft(result) || typeof result.right !== "number" || result.right <= 0) {
+    return undefined
+  }
+  return result.right
+}
+
+async function writeRevision(key: string, revision: number) {
+  const result = await Store.set(COLLECTION_STORE_NAMESPACE, key, revision)
   return E.isRight(result)
 }
 
-async function isSnapshotRestored(userId: string) {
-  const result = await Store.get<boolean>(
+async function appliedRevisionMatches(userId: string, revision: number) {
+  const [marker, applied] = await Promise.all([
+    readRevision(restoredKey(userId)),
+    readRevision(appliedKey(userId)),
+  ])
+  return marker === revision && applied === revision
+}
+
+async function persistAppliedLists(
+  userId: string,
+  rest: HoppCollection[],
+  gql: HoppCollection[],
+  revision: number
+) {
+  if (signedInUserId !== userId) return false
+  const restSaved = await Store.set(
     COLLECTION_STORE_NAMESPACE,
-    restoredKey(userId)
+    SHARED_REST_COLLECTIONS_KEY,
+    rest
   )
-  return E.isRight(result) && result.right === true
+  const gqlSaved = await Store.set(
+    COLLECTION_STORE_NAMESPACE,
+    SHARED_GQL_COLLECTIONS_KEY,
+    gql
+  )
+  if (E.isLeft(restSaved) || E.isLeft(gqlSaved)) return false
+  if (signedInUserId !== userId) return false
+  if (!(await writeRevision(appliedKey(userId), revision))) return false
+  if (signedInUserId !== userId) return false
+  let marked = await writeRevision(restoredKey(userId), revision)
+  if (!marked && signedInUserId === userId) {
+    marked = await writeRevision(restoredKey(userId), revision)
+  }
+  if (!marked || signedInUserId !== userId) return false
+  forceRestoreUserIds.delete(userId)
+  return true
 }
 
 async function saveRecovery(
@@ -386,10 +429,13 @@ function queueOwnedCollectionSave(
   ownedCollectionSave = ownedCollectionSave
     .catch(() => undefined)
     .then(async () => {
-      // The next sign-in should merge this snapshot. A later reload should
-      // not: the persisted lists are the owner's edits after that merge.
-      await setSnapshotRestored(userId, false)
+      // A failed reset must not leave the old marker able to hide this save.
       const revision = nextSnapshotRevision()
+      if (await writeRevision(restoredKey(userId), 0)) {
+        forceRestoreUserIds.delete(userId)
+      } else {
+        forceRestoreUserIds.add(userId)
+      }
       let saved = false
       try {
         saved = await saveOwnedCollections(userId, rest, gql, revision)
@@ -426,17 +472,25 @@ async function restoreOwnedCollections(userId: string, generation: number) {
   await ownedCollectionSave
   if (!isActiveCollectionSession(userId, generation)) return
 
-  // A snapshot already applied for this stay should not be merged again.
-  // Otherwise a local-only collection deleted after sign-in comes back on reload.
-  if (await isSnapshotRestored(userId)) return
-  if (!isActiveCollectionSession(userId, generation)) return
-
   const saved = newerSnapshot(
     await readOwnedCollections(userId),
     await readRecovery(userId),
     memoryRecoveryByOwner.get(userId)
   )
   if (!isActiveCollectionSession(userId, generation) || !saved) return
+
+  const revision = saved.revision ?? 0
+  // Skip only when this exact snapshot was already merged and the shared
+  // lists were stored first. A failed logout reset, or a newer memory copy,
+  // must still be applied.
+  if (
+    !forceRestoreUserIds.has(userId) &&
+    revision > 0 &&
+    (await appliedRevisionMatches(userId, revision))
+  ) {
+    return
+  }
+  if (!isActiveCollectionSession(userId, generation)) return
 
   // Each list is restored on its own. A guest collection in one list must
   // not block the other, and local-only work from the saved copy is merged
@@ -454,9 +508,20 @@ async function restoreOwnedCollections(userId: string, generation: number) {
     setRESTCollections(rest)
     setGraphqlCollections(gql)
   })
-  if (isActiveCollectionSession(userId, generation)) {
-    await setSnapshotRestored(userId, true)
-  }
+  if (!isActiveCollectionSession(userId, generation) || revision <= 0) return
+  // The marker is written only after the shared lists, and only while this
+  // account is still signed in. Logout is queued behind this write.
+  ownedCollectionSave = ownedCollectionSave
+    .catch(() => undefined)
+    .then(async () => {
+      if (signedInUserId !== userId) return
+      await persistAppliedLists(
+        userId,
+        copyCollections(restCollectionStore.value.state),
+        copyCollections(graphqlCollectionStore.value.state),
+        revision
+      )
+    })
 }
 
 function initCollectionsSync() {

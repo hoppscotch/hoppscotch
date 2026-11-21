@@ -1301,7 +1301,7 @@ export class TeamCollectionService {
       const collectionParentTree = this.generateParentTree(res);
       return E.right(collectionParentTree);
     } catch (error) {
-      E.left(TEAM_COLL_PARENT_TREE_GEN_FAILED);
+      return E.left(TEAM_COLL_PARENT_TREE_GEN_FAILED);
     }
   }
 

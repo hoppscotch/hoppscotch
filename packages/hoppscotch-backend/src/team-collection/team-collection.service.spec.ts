@@ -1,3 +1,4 @@
+import { HttpStatus } from '@nestjs/common';
 import {
   Team,
   TeamCollection as DBTeamCollection,
@@ -11,6 +12,7 @@ import {
   TEAM_COLL_NOT_FOUND,
   TEAM_COLL_NOT_SAME_PARENT,
   TEAM_COLL_NOT_SAME_TEAM,
+  TEAM_COLL_PARENT_TREE_GEN_FAILED,
   TEAM_COLL_SHORT_TITLE,
   TEAM_COL_ALREADY_ROOT,
   TEAM_COL_REORDERING_FAILED,
@@ -482,6 +484,30 @@ const childTeamCollectionListCasted: TeamCollection[] = [
 beforeEach(() => {
   mockReset(mockPrisma);
   mockPubSub.publish.mockClear();
+});
+
+describe('searchByTitle', () => {
+  it('returns an error when the collection parent-tree query fails', async () => {
+    mockPrisma.$queryRaw
+      .mockResolvedValueOnce([
+        {
+          id: rootTeamCollection.id,
+          title: rootTeamCollection.title,
+          type: 'collection',
+        },
+      ])
+      .mockResolvedValueOnce([])
+      .mockRejectedValueOnce(new Error('Parent-tree query failed'));
+
+    await expect(
+      teamCollectionService.searchByTitle(rootTeamCollection.title, team.id),
+    ).resolves.toEqual(
+      E.left({
+        message: TEAM_COLL_PARENT_TREE_GEN_FAILED,
+        statusCode: HttpStatus.NOT_FOUND,
+      }),
+    );
+  });
 });
 
 describe('getTeamOfCollection', () => {

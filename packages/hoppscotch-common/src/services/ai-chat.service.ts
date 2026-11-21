@@ -4294,6 +4294,9 @@ export class AIChatService extends Service {
     if (!name) return "What should the team be called?"
     const decoded = TeamNameCodec.decode(name)
     if (E.isLeft(decoded)) return `⚠️ "${name}" isn't a valid team name.`
+    if (platform.organization?.beforeCreateTeam?.() === false) {
+      return "⚠️ This app creates teams through its own flow — nothing was created."
+    }
     const res = await createTeam(decoded.right)()
     if (E.isLeft(res)) {
       return `⚠️ Couldn't create the team: ${this.describeGQLError(res.left)}.`

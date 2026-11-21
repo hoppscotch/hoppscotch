@@ -1,4 +1,5 @@
 import type { Component } from "vue"
+import type { GQLError } from "~/helpers/backend/GQLClient"
 
 export type OrganizationPlatformDef = {
   isDefaultCloudInstance: boolean
@@ -27,4 +28,22 @@ export type OrganizationPlatformDef = {
    * @param orgDomain - The organization domain (null for default cloud instance)
    */
   switchToInstance?: (orgDomain: string | null) => void | Promise<void>
+
+  /**
+   * Called before the create workspace flow opens. Return `false` to stop it,
+   * e.g. when the platform shows its own UI instead.
+   */
+  beforeCreateTeam?: () => boolean
+
+  /**
+   * Return `true` for a team workspace error the platform shows its own UI
+   * for. Team data loaders then stay empty instead of failing.
+   */
+  isExpectedTeamError?: (error: GQLError<string>) => boolean
+
+  /**
+   * A message for a team workspace error that only this platform's backend
+   * sends. Team actions show it in place of a generic one.
+   */
+  describeTeamError?: (error: GQLError<string>) => string | undefined
 }

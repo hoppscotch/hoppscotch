@@ -231,9 +231,12 @@ const joinTeam = () => {
   pipe(
     acceptTeamInvitation(inviteID.value),
     TE.matchW(
-      () => {
+      (err) => {
         loading.value = false
-        toast.error(`${t("error.something_went_wrong")}`)
+        toast.error(
+          platform.organization?.describeTeamError?.(err) ??
+            t("error.something_went_wrong")
+        )
       },
       () => {
         joinTeamSuccess.value = true

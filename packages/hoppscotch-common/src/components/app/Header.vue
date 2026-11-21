@@ -613,7 +613,10 @@ const deleteTeam = () => {
     TE.match(
       (err) => {
         // TODO: Better errors ? We know the possible errors now
-        toast.error(`${t("error.something_went_wrong")}`)
+        toast.error(
+          platform.organization?.describeTeamError?.(err) ??
+            t("error.something_went_wrong")
+        )
         console.error(err)
       },
       () => {

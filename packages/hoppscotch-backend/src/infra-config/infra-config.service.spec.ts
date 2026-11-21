@@ -3,6 +3,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { InfraConfigService } from './infra-config.service';
 import { InfraConfigEnum } from 'src/types/InfraConfig';
 import {
+  AUTH_PROVIDER_NOT_SPECIFIED,
+  INFRA_CONFIG_FETCH_FAILED,
   INFRA_CONFIG_INVALID_INPUT,
   INFRA_CONFIG_NOT_FOUND,
   INFRA_CONFIG_OPERATION_NOT_ALLOWED,
@@ -10,7 +12,10 @@ import {
 } from 'src/errors';
 import { ConfigService } from '@nestjs/config';
 import * as helper from './helper';
-import { InfraConfig as dbInfraConfig } from 'src/generated/prisma/client';
+import {
+  InfraConfig as dbInfraConfig,
+  Prisma,
+} from 'src/generated/prisma/client';
 import { InfraConfig } from './infra-config.model';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { ServiceStatus } from './helper';
@@ -271,6 +276,107 @@ describe('InfraConfigService', () => {
         'infra_config/GOOGLE_CLIENT_ID/updated',
         configStatus,
       );
+    });
+  });
+
+  describe('enableAndDisableSMTP', () => {
+    const smtpSetting = InfraConfigEnum.MAILER_SMTP_ENABLE;
+    const providerSetting = InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS;
+
+    beforeEach(() => {
+      jest.spyOn(helper, 'stopApp').mockImplementation(() => {});
+    });
+
+    afterEach(() => jest.restoreAllMocks());
+
+    function mockProviders(providers: string, githubConfigured = false) {
+      const configRows = [{ ...dbInfraConfigs[1], value: providers }];
+      if (githubConfigured) {
+        const githubKeys = [
+          InfraConfigEnum.GITHUB_CLIENT_ID,
+          InfraConfigEnum.GITHUB_CLIENT_SECRET,
+          InfraConfigEnum.GITHUB_CALLBACK_URL,
+          InfraConfigEnum.GITHUB_SCOPE,
+        ];
+        configRows.push(
+          ...githubKeys.map((name) => ({
+            ...dbInfraConfigs[0],
+            name,
+            value: 'configured',
+          })),
+        );
+      }
+      mockPrisma.infraConfig.findMany.mockResolvedValue(configRows);
+    }
+
+    it.each(['EMAIL', 'EMAIL,GITHUB'])(
+      'should reject disabling SMTP when %s has no configured non-email provider',
+      async (providers) => {
+        mockProviders(providers);
+
+        expect(
+          await infraConfigService.enableAndDisableSMTP(ServiceStatus.DISABLE),
+        ).toEqualLeft(AUTH_PROVIDER_NOT_SPECIFIED);
+        expect(mockPrisma.infraConfig.update).not.toHaveBeenCalled();
+        expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+        expect(mockPubsub.publish).not.toHaveBeenCalled();
+        expect(helper.stopApp).not.toHaveBeenCalled();
+      },
+    );
+
+    it('should save SMTP and the provider list in one transaction before restarting', async () => {
+      mockProviders('EMAIL,GITHUB', true);
+      const transaction = mockDeep<Prisma.TransactionClient>();
+      mockPrisma.$transaction.mockImplementationOnce(async (run) => {
+        const result = await run(transaction);
+        expect(helper.stopApp).not.toHaveBeenCalled();
+        return result;
+      });
+
+      expect(
+        await infraConfigService.enableAndDisableSMTP(ServiceStatus.DISABLE),
+      ).toEqualRight(true);
+
+      expect(mockPrisma.infraConfig.update).not.toHaveBeenCalled();
+      expect(mockPrisma.$transaction).toHaveBeenCalledTimes(1);
+      expect(transaction.infraConfig.update).toHaveBeenCalledTimes(2);
+      expect(transaction.infraConfig.update).toHaveBeenCalledWith({
+        where: { name: smtpSetting },
+        data: { value: 'false' },
+      });
+      expect(transaction.infraConfig.update).toHaveBeenCalledWith({
+        where: { name: providerSetting },
+        data: { value: 'GITHUB' },
+      });
+      expect(helper.stopApp).toHaveBeenCalledTimes(1);
+      expect(mockPubsub.publish).toHaveBeenCalledTimes(1);
+      expect(mockPubsub.publish).toHaveBeenCalledWith(
+        `infra_config/${smtpSetting}/updated`,
+        'false',
+      );
+    });
+
+    it('should return a config read error without restarting', async () => {
+      mockPrisma.infraConfig.findMany.mockRejectedValueOnce(
+        new Error('read failed'),
+      );
+
+      expect(
+        await infraConfigService.enableAndDisableSMTP(ServiceStatus.DISABLE),
+      ).toEqualLeft(INFRA_CONFIG_FETCH_FAILED);
+      expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+      expect(helper.stopApp).not.toHaveBeenCalled();
+    });
+
+    it('should return a transaction error without publishing or restarting', async () => {
+      mockProviders('EMAIL,GITHUB', true);
+      mockPrisma.$transaction.mockRejectedValueOnce(new Error('write failed'));
+
+      expect(
+        await infraConfigService.enableAndDisableSMTP(ServiceStatus.DISABLE),
+      ).toEqualLeft(INFRA_CONFIG_UPDATE_FAILED);
+      expect(mockPubsub.publish).not.toHaveBeenCalled();
+      expect(helper.stopApp).not.toHaveBeenCalled();
     });
   });
 

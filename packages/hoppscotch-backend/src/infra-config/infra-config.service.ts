@@ -368,16 +368,36 @@ export class InfraConfigService implements OnModuleInit, OnModuleDestroy {
    * @returns Either true or an error
    */
   async enableAndDisableSMTP(status: ServiceStatus) {
-    const isUpdated = await this.toggleServiceStatus(
-      InfraConfigEnum.MAILER_SMTP_ENABLE,
-      status,
-      true,
+    const smtpSetting = InfraConfigEnum.MAILER_SMTP_ENABLE;
+    if (status !== ServiceStatus.DISABLE) {
+      return this.toggleServiceStatus(smtpSetting, status, true);
+    }
+
+    const providerSetting = InfraConfigEnum.VITE_ALLOWED_AUTH_PROVIDERS;
+    const config = await this.getInfraConfigsMap().catch(() => undefined);
+    if (!config) return E.left(INFRA_CONFIG_FETCH_FAILED);
+
+    const providers = [
+      ...new Set(config[providerSetting]?.split(',') ?? []),
+    ].filter((provider) => provider && provider !== AuthProvider.EMAIL);
+    if (
+      !providers.some((provider) =>
+        this.isServiceConfigured(provider as AuthProvider, config),
+      )
+    ) {
+      return E.left(AUTH_PROVIDER_NOT_SPECIFIED);
+    }
+
+    const isUpdated = await this.updateMany(
+      [
+        { name: smtpSetting, value: 'false' },
+        { name: providerSetting, value: providers.join(',') },
+      ],
+      false,
     );
     if (E.isLeft(isUpdated)) return E.left(isUpdated.left);
 
-    if (status === ServiceStatus.DISABLE) {
-      this.enableAndDisableSSO([{ provider: AuthProvider.EMAIL, status }]);
-    }
+    this.pubsub.publish(`infra_config/${smtpSetting}/updated`, 'false');
     return E.right(true);
   }
 

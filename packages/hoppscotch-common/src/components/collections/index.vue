@@ -29,7 +29,7 @@
     <CollectionsMyCollections
       v-if="collectionsType.type === 'my-collections'"
       :collections-type="collectionsType"
-      :filtered-collections="filteredCollections"
+      :collections="personalCollections"
       :filter-text="filterTexts"
       :save-request="saveRequest"
       :picked="picked"
@@ -718,56 +718,9 @@ const hasTeamWriteAccess = computed(() => {
   return role === "OWNER" || role === "EDITOR"
 })
 
-const filteredCollections = computed(() => {
-  const collections =
-    collectionsType.value.type === "my-collections" ? myCollections.value : []
-
-  if (filterTexts.value === "") return collections
-
-  if (collectionsType.value.type === "team-collections") return []
-
-  const filterText = filterTexts.value.toLowerCase()
-  const filteredCollections = []
-
-  const isMatch = (text: string) => text.toLowerCase().includes(filterText)
-
-  const isRequestMatch = (request: HoppRESTRequest | HoppGQLRequest) =>
-    isMatch(request.name) ||
-    (!isGQLRequest(request) && isMatch(request.endpoint)) ||
-    (isGQLRequest(request) && isMatch(request.url))
-
-  for (const collection of collections) {
-    const filteredRequests = []
-    const filteredFolders = []
-    for (const request of collection.requests) {
-      if (isRequestMatch(request)) filteredRequests.push(request)
-    }
-    for (const folder of collection.folders) {
-      if (isMatch(folder.name)) filteredFolders.push(folder)
-      const filteredFolderRequests = []
-      for (const request of folder.requests) {
-        if (isRequestMatch(request)) filteredFolderRequests.push(request)
-      }
-      if (filteredFolderRequests.length > 0) {
-        const filteredFolder = Object.assign({}, folder)
-        filteredFolder.requests = filteredFolderRequests
-        filteredFolders.push(filteredFolder)
-      }
-    }
-
-    if (
-      filteredRequests.length + filteredFolders.length > 0 ||
-      isMatch(collection.name)
-    ) {
-      const filteredCollection = Object.assign({}, collection)
-      filteredCollection.requests = filteredRequests
-      filteredCollection.folders = filteredFolders
-      filteredCollections.push(filteredCollection)
-    }
-  }
-
-  return filteredCollections
-})
+const personalCollections = computed(() =>
+  collectionsType.value.type === "my-collections" ? myCollections.value : []
+)
 
 const isSelected = ({
   collectionIndex,

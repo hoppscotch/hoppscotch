@@ -42,7 +42,10 @@ export class MailerModule {
           },
           template: {
             dir: __dirname + '/templates',
-            adapter: new HandlebarsAdapter(),
+            // Helpers run on every render, so `{{currentYear}}` stays current without a restart
+            adapter: new HandlebarsAdapter({
+              currentYear: () => new Date().getFullYear(),
+            }),
           },
         }),
       ],

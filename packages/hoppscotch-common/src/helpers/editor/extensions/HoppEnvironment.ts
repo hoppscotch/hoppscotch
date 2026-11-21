@@ -1,3 +1,4 @@
+import { syntaxTree } from "@codemirror/language"
 import { Compartment } from "@codemirror/state"
 import {
   Decoration,
@@ -350,7 +351,12 @@ export const environmentHighlightStyle = (
     (view) => ({
       decorations: decorator.createDeco(view),
       update(u) {
-        this.decorations = decorator.updateDeco(u, this.decorations)
+        // A change can comment out text on other lines, which `updateDeco`
+        // doesn't look at, so start over whenever the syntax tree changes
+        this.decorations =
+          syntaxTree(u.state) === syntaxTree(u.startState)
+            ? decorator.updateDeco(u, this.decorations)
+            : decorator.createDeco(u.view)
       },
     }),
     { decorations: (v) => v.decorations }
@@ -386,10 +392,12 @@ export class HoppEnvironmentPlugin {
       return
     }
 
-    // Watch the current active tab to update the variables accordingly
+    // Watch only the variables of the current active tab, so that edits to the
+    // rest of the tab don't rebuild the variables and reconfigure the editor
     watch(
-      () => workspaceTabs.currentActiveTab.value,
-      (currentTab) => {
+      () => {
+        const currentTab = workspaceTabs.currentActiveTab.value
+
         const request =
           currentTab.document.type === "example-response"
             ? currentTab.document.response.originalRequest
@@ -397,18 +405,21 @@ export class HoppEnvironmentPlugin {
 
         const inheritedProperties = currentTab.document.inheritedProperties
 
-        // Extract collection variables safely, handling undefined or non-inherited-property types
-        const collectionVariables =
-          inheritedProperties && "variables" in inheritedProperties
-            ? inheritedProperties.variables
-            : []
+        return {
+          // Extract collection variables safely, handling undefined or non-inherited-property types
+          collectionVariables:
+            inheritedProperties && "variables" in inheritedProperties
+              ? inheritedProperties.variables
+              : [],
 
-        // Get request variables if available, otherwise use empty array
-        const requestVariables =
-          request && "requestVariables" in request
-            ? request.requestVariables
-            : []
-
+          // Get request variables if available, otherwise use empty array
+          requestVariables:
+            request && "requestVariables" in request
+              ? request.requestVariables
+              : [],
+        }
+      },
+      ({ collectionVariables, requestVariables }) => {
         this.envs = getEffectiveVariablesForRequest(
           requestVariables,
           collectionVariables,

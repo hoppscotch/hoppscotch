@@ -313,7 +313,44 @@ describe("Postman importer", () => {
       expect(auth).toMatchObject({ authType: "jwt", algorithm: "HS256" })
     })
 
-    it("imports the auth set on a folder", async () => {
+    it("defaults the AWS Signature region and service like Postman", async () => {
+      const auth = await importAuth(
+        pmAuth("awsv4", { accessKey: "AKIA", secretKey: "secret" })
+      )
+
+      expect(auth).toMatchObject({
+        authType: "aws-signature",
+        region: "us-east-1",
+        serviceName: "execute-api",
+      })
+    })
+
+    it("imports the auth set on a nested folder", async () => {
+      const result = await hoppPostmanImporter([
+        JSON.stringify({
+          info: { name: "Nested Folder Auth", schema: POSTMAN_SCHEMA },
+          item: [
+            {
+              name: "Folder",
+              auth: pmAuth("digest", { username: "user", password: "pass" }),
+              item: [],
+            },
+          ],
+        }),
+      ])()
+
+      if (E.isLeft(result)) {
+        throw new Error("Expected Postman import to succeed")
+      }
+
+      expect(result.right[0].folders[0].auth).toMatchObject({
+        authType: "digest",
+        username: "user",
+        password: "pass",
+      })
+    })
+
+    it("imports the auth set on a collection", async () => {
       const result = await hoppPostmanImporter([
         JSON.stringify({
           info: { name: "Folder Auth", schema: POSTMAN_SCHEMA },

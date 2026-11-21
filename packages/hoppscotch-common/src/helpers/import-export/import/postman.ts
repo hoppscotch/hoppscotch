@@ -421,10 +421,10 @@ const getHoppReqAuth = (
         getVariableValue(auth.awsv4, "secretKey") ?? ""
       ),
       region: replacePMVarTemplating(
-        getVariableValue(auth.awsv4, "region") ?? ""
+        getVariableValue(auth.awsv4, "region") || "us-east-1"
       ),
       serviceName: replacePMVarTemplating(
-        getVariableValue(auth.awsv4, "service") ?? ""
+        getVariableValue(auth.awsv4, "service") || "execute-api"
       ),
       ...(sessionToken ? { serviceToken: sessionToken } : {}),
       addTo: getBooleanVariableValue(auth.awsv4, "addAuthDataToQuery")

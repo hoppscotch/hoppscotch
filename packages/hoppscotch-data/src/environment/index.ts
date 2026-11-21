@@ -1,4 +1,5 @@
 import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 import { InferredEntity, createVersionedEntity } from "verzod"
 
@@ -66,6 +67,57 @@ const getResolvedVariableValue = (variable: {
   initialValue?: string
 }): string => variable.currentValue || variable.initialValue || ""
 
+/**
+ * Runs one pass of `<<var>>` substitution over a request body
+ */
+const expandBodyEnvVariablesOnce = (
+  body: string,
+  env: Environment["variables"],
+  keepMissingAsKey: boolean
+) =>
+  body.replace(REGEX_ENV_VAR, (key) => {
+    const variableName = key.replace(/[<>]/g, "")
+
+    // Prioritise predefined variable values over normal environment variables processing.
+    const foundPredefinedVar = HOPP_SUPPORTED_PREDEFINED_VARIABLES.find(
+      (preVar) => preVar.key === variableName
+    )
+
+    if (foundPredefinedVar) {
+      return foundPredefinedVar.getValue()
+    }
+
+    const foundEnv = env.find((envVar) => envVar.key === variableName)
+
+    if (foundEnv && "currentValue" in foundEnv) {
+      return getResolvedVariableValue(foundEnv)
+    }
+    return keepMissingAsKey ? key : ""
+  })
+
+/**
+ * Expands body variables until a pass changes nothing. Returns `None` when
+ * the body keeps changing past `ENV_MAX_EXPAND_LIMIT` (variables that
+ * reference each other in a loop)
+ */
+const expandBodyEnvVariables = (
+  body: string,
+  env: Environment["variables"],
+  keepMissingAsKey: boolean
+): O.Option<string> => {
+  let result = body
+
+  for (let depth = 0; depth <= ENV_MAX_EXPAND_LIMIT; depth++) {
+    const next = expandBodyEnvVariablesOnce(result, env, keepMissingAsKey)
+
+    if (next === result) return O.some(result)
+
+    result = next
+  }
+
+  return O.none
+}
+
 export function parseBodyEnvVariablesE(
   body: string,
   env: Environment["variables"],
@@ -73,39 +125,20 @@ export function parseBodyEnvVariablesE(
   // behavior); pass false to resolve them to "" like parseTemplateStringE
   keepMissingAsKey = true
 ) {
-  let result = body
-  let depth = 0
-
-  while (result.match(REGEX_ENV_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
-    result = result.replace(REGEX_ENV_VAR, (key) => {
-      const variableName = key.replace(/[<>]/g, "")
-
-      // Prioritise predefined variable values over normal environment variables processing.
-      const foundPredefinedVar = HOPP_SUPPORTED_PREDEFINED_VARIABLES.find(
-        (preVar) => preVar.key === variableName
-      )
-
-      if (foundPredefinedVar) {
-        return foundPredefinedVar.getValue()
-      }
-
-      const foundEnv = env.find((envVar) => envVar.key === variableName)
-
-      if (foundEnv && "currentValue" in foundEnv) {
-        return getResolvedVariableValue(foundEnv)
-      }
-      return keepMissingAsKey ? key : ""
-    })
-
-    depth++
-  }
-
-  return depth > ENV_MAX_EXPAND_LIMIT
-    ? E.left(ENV_EXPAND_LOOP)
-    : E.right(result)
+  // Strict: anything left unresolved (a missing var kept as `<<key>>`, or a
+  // loop) is reported as ENV_EXPAND_LOOP
+  return pipe(
+    expandBodyEnvVariables(body, env, keepMissingAsKey),
+    O.filter((result) => result.match(REGEX_ENV_VAR) == null),
+    E.fromOption(() => ENV_EXPAND_LOOP)
+  )
 }
 
 /**
+ * Resolves body variables, keeping missing ones as `<<key>>` (unless
+ * `keepMissingAsKey` is false) while still resolving the rest of the body.
+ * Returns the body unchanged when variables reference each other in a loop.
+ *
  * @deprecated Use `parseBodyEnvVariablesE` instead.
  */
 export const parseBodyEnvVariables = (
@@ -114,8 +147,8 @@ export const parseBodyEnvVariables = (
   keepMissingAsKey = true
 ) =>
   pipe(
-    parseBodyEnvVariablesE(body, env, keepMissingAsKey),
-    E.getOrElse(() => body)
+    expandBodyEnvVariables(body, env, keepMissingAsKey),
+    O.getOrElse(() => body)
   )
 
 export function parseTemplateStringE(

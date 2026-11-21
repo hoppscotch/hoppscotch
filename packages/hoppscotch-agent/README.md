@@ -3,7 +3,7 @@
    <h1 align="center"><b>Hoppscotch Agent</b></h1>
    <h2 align="center">
       <a href="https://github.com/hoppscotch/agent-releases">Download</a> |
-      <a href="https://docs.hoppscotch.io/documentation/clients/agent">Official Docs</a>
+      <a href="https://docs.hoppscotch.io/documentation/features/interceptor#hoppscotch-agent">Official Docs</a>
    </h2>
 </div>
 
@@ -158,7 +158,7 @@ The standard installation includes auto-start functionality. The portable versio
 - [Node.js](https://nodejs.org/) (v18 or later)
 - [pnpm](https://pnpm.io/) package manager
 - [Rust](https://rustup.rs/) (latest stable)
-- [Tauri CLI](https://tauri.app/v1/guides/getting-started/prerequisites)
+- [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/)
 
 ### Development
 

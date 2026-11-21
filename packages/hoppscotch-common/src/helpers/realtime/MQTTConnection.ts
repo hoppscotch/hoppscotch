@@ -42,6 +42,19 @@ export type ConnectionState = "CONNECTING" | "CONNECTED" | "DISCONNECTED"
 
 export const QOS_VALUES = [2, 1, 0] as const
 
+/**
+ * Resolves the port to connect to for an MQTT over WebSocket URL.
+ *
+ * `URL` leaves `port` empty when it matches the scheme default, so an
+ * explicit `wss://broker:443` (or `ws://broker:80`) has no port either.
+ * Fall back to the scheme default in that case.
+ */
+export const getMQTTPort = ({ port, protocol }: URL): number => {
+  if (port !== "") return Number(port)
+
+  return protocol === "ws:" ? 80 : 443
+}
+
 export class MQTTConnection {
   subscribing$ = new BehaviorSubject(false)
   subscriptionState$ = new BehaviorSubject<boolean>(false)
@@ -66,10 +79,10 @@ export class MQTTConnection {
       })
 
       const parseUrl = new URL(url)
-      const { hostname, pathname, port } = parseUrl
+      const { hostname, pathname } = parseUrl
       this.mqttClient = new Paho.Client(
         `${hostname + (pathname !== "/" ? pathname : "")}`,
-        port !== "" ? Number(port) : 8081,
+        getMQTTPort(parseUrl),
         clientID ?? "hoppscotch"
       )
       const connectOptions: ConnectionOptions = {

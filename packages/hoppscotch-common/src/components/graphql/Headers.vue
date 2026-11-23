@@ -48,7 +48,14 @@
       />
     </div>
   </div>
-  <div v-if="bulkMode" ref="bulkEditor" class="flex flex-1 flex-col"></div>
+  <div v-if="bulkMode" class="h-full relative w-full flex flex-col flex-1">
+    <div
+      ref="bulkEditor"
+      :class="
+        isCollectionProperty ? 'flex flex-1 flex-col' : 'absolute inset-0'
+      "
+    ></div>
+  </div>
   <div v-else>
     <draggable
       v-model="workingHeaders"

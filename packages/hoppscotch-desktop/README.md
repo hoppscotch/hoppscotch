@@ -48,7 +48,15 @@ brew install --cask hoppscotch
 > [!Note]
 > To enable desktop app support for your self-hosted Hoppscotch instance, make sure to update the `WHITELISTED_ORIGINS` environment variable in your `.env` file with your deployment URL.
 >
-> e.g. to allow connection to `https://hoppscotch.mydomain.com` you need to add `app://hoppscotch_mydomain_com` (MacOS, Linux) and `http://app.hoppscotch_mydomain_com` (Windows) to the `WHITELISTED_ORIGINS` environment variable.
+> **As of this version, the Tauri v2 desktop app origin (`https://app.hoppscotch_<domain>`) is automatically derived from each `https://` or `http://` entry in `WHITELISTED_ORIGINS` — you no longer need to add it manually.**
+>
+> For example, if you set:
+> ```bash
+> WHITELISTED_ORIGINS=https://hoppscotch.mydomain.com,hopp_auth://token
+> ```
+> The backend will automatically also whitelist `https://app.hoppscotch_hoppscotch_mydomain_com`, which is the origin the Desktop App (Tauri v2) sends when making API requests.
+>
+> If you are on an older version or self-hosting without this fix, you can still add it manually:
 > ```bash
 > WHITELISTED_ORIGINS=...existing_origins,app://hoppscotch_mydomain_com,http://app.hoppscotch_mydomain_com
 > ```

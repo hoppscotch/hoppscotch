@@ -199,6 +199,55 @@ export type CodegenName = (typeof CodegenDefinitions)[number]["name"]
 export type CodegenLang = (typeof CodegenDefinitions)[number]["lang"]
 
 /**
+ * Protects 64-bit / large integers in JSON request bodies from IEEE-754 precision loss
+ * during codegen JSON serialization. Replaces unquoted large integers with temporary
+ * string placeholders before passing to HTTPSnippet, and restores the unquoted literal
+ * integers in the generated snippet output.
+ */
+export function protectLargeIntegers(bodyStr: string): {
+  processed: string
+  restore: (code: string) => string
+} {
+  const map = new Map<string, string>()
+  let id = 0
+
+  const processed = bodyStr.replace(
+    /("(?:\\.|[^"\\])*")|(-?\b\d+\b)/g,
+    (match, stringLiteral, numberLiteral) => {
+      if (stringLiteral) return stringLiteral
+      if (numberLiteral) {
+        try {
+          const big = BigInt(numberLiteral)
+          if (
+            big > BigInt(Number.MAX_SAFE_INTEGER) ||
+            big < BigInt(Number.MIN_SAFE_INTEGER)
+          ) {
+            const placeholder = `__HOPP_BIGINT_${id++}__`
+            map.set(placeholder, numberLiteral)
+            return `"${placeholder}"`
+          }
+        } catch {
+          // not a valid BigInt, leave as is
+        }
+      }
+      return match
+    }
+  )
+
+  const restore = (code: string) => {
+    if (map.size === 0) return code
+    let result = code
+    for (const [placeholder, original] of map.entries()) {
+      const regex = new RegExp(`(\\\\*["'])?${placeholder}(\\\\*["'])?`, "g")
+      result = result.replace(regex, () => original)
+    }
+    return result
+  }
+
+  return { processed, restore }
+}
+
+/**
  * Generates Source Code for the given codgen
  * @param codegen The codegen to apply
  * @param req The request to generate using
@@ -211,14 +260,37 @@ export const generateCode = (
   // Since the Type contract guarantees a match in the array, we are enforcing non-null
   const codegenInfo = CodegenDefinitions.find((v) => v.name === codegen)!
 
+  let modifiedReq = req
+  let restore = (code: string) => code
+
+  if (
+    req.body.contentType &&
+    typeof req.body.body === "string" &&
+    req.body.body.length > 0
+  ) {
+    const protection = protectLargeIntegers(req.body.body)
+    if (protection.processed !== req.body.body) {
+      modifiedReq = {
+        ...req,
+        body: {
+          ...req.body,
+          body: protection.processed,
+        },
+      }
+      restore = protection.restore
+    }
+  }
+
   return pipe(
     E.tryCatch(
-      () =>
-        new HTTPSnippet({
-          ...buildHarRequest(req),
+      () => {
+        const generated = new HTTPSnippet({
+          ...buildHarRequest(modifiedReq),
         }).convert(codegenInfo.lang, codegenInfo.mode, {
           indent: "  ",
-        }),
+        })
+        return typeof generated === "string" ? restore(generated) : generated
+      },
       (e) => {
         console.error(e)
         return e

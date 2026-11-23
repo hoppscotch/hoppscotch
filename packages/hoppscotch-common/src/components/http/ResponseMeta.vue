@@ -122,15 +122,30 @@
         </div>
       </div>
     </div>
-    <AppInspection
-      v-if="response?.type !== 'loading'"
-      :inspection-results="tabResults"
+    <div
+      class="flex items-center space-x-2"
       :class="[
         response === null || response?.type === 'network_fail'
           ? 'absolute right-2 top-2'
           : '-m-2 ml-2',
       ]"
-    />
+    >
+      <AppInspection
+        v-if="response?.type !== 'loading'"
+        :inspection-results="tabResults"
+      />
+      <HoppButtonSecondary
+        v-if="!isEmbed"
+        v-tippy="{ theme: 'tooltip' }"
+        :title="
+          isFullscreen
+            ? t('response.exit_fullscreen')
+            : t('response.fullscreen')
+        "
+        :icon="isFullscreen ? IconMinimize2 : IconMaximize2"
+        @click="emit('toggle-fullscreen')"
+      />
+    </div>
   </div>
 </template>
 
@@ -145,6 +160,8 @@ import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
 import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import IconExternalLink from "~icons/lucide/external-link"
+import IconMaximize2 from "~icons/lucide/maximize-2"
+import IconMinimize2 from "~icons/lucide/minimize-2"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -155,11 +172,17 @@ const props = withDefaults(
     response: HoppRESTResponse | null | undefined
     isEmbed?: boolean
     isLoading?: boolean
+    isFullscreen?: boolean
   }>(),
   {
     isLoading: false,
+    isFullscreen: false,
   }
 )
+
+const emit = defineEmits<{
+  (e: "toggle-fullscreen"): void
+}>()
 
 /**
  * Gives the response size in a human readable format

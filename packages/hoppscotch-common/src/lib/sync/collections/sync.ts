@@ -270,6 +270,8 @@ const recursivelySyncCollections = async (
             variables: [],
             _ref_id: generateUniqueRefId("coll"),
             description: null,
+            preRequestScript: "",
+            testScript: "",
           }
 
       collection.id = parentCollectionID
@@ -278,6 +280,8 @@ const recursivelySyncCollections = async (
       collection.headers = returnedData.headers
       collection.variables = returnedData.variables
       collection.description = returnedData.description ?? null
+      collection.preRequestScript = returnedData.preRequestScript ?? ""
+      collection.testScript = returnedData.testScript ?? ""
       removeDuplicateRESTCollectionOrFolder(
         parentCollectionID,
         `${collectionPath}`
@@ -321,6 +325,8 @@ const recursivelySyncCollections = async (
             variables: [],
             _ref_id: generateUniqueRefId("coll"),
             description: null,
+            preRequestScript: "",
+            testScript: "",
           }
 
       collection.id = childCollectionId
@@ -330,6 +336,8 @@ const recursivelySyncCollections = async (
       parentCollectionID = childCollectionId
       collection.variables = returnedData.variables
       collection.description = returnedData.description ?? null
+      collection.preRequestScript = returnedData.preRequestScript ?? ""
+      collection.testScript = returnedData.testScript ?? ""
 
       removeDuplicateRESTCollectionOrFolder(
         childCollectionId,

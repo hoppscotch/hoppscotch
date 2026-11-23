@@ -177,19 +177,19 @@ impl AppState {
         tracing::debug!(req_id, "Cancellation token added successfully");
     }
 
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip(self, auth_key))]
     pub fn validate_access(&self, auth_key: &str) -> bool {
-        tracing::debug!(auth_key, "Validating access");
+        tracing::debug!("Validating access");
         let is_valid = self.registrations.get(auth_key).is_some();
         if is_valid {
-            tracing::info!(auth_key, "Access validated successfully");
+            tracing::info!("Access validated successfully");
         } else {
-            tracing::warn!(auth_key, "Invalid access attempt");
+            tracing::warn!("Invalid access attempt");
         }
         is_valid
     }
 
-    #[tracing::instrument(skip(self, data))]
+    #[tracing::instrument(skip(self, auth_key, data))]
     pub fn validate_access_and_get_data<T>(
         &self,
         auth_key: &str,
@@ -200,7 +200,6 @@ impl AppState {
         T: DeserializeOwned,
     {
         tracing::debug!(
-            auth_key,
             nonce_len = nonce.len(),
             "Validating access and decrypting data"
         );
@@ -208,7 +207,7 @@ impl AppState {
         let registration = match self.registrations.get(auth_key) {
             Some(reg) => reg,
             None => {
-                tracing::warn!(auth_key, "Registration not found");
+                tracing::warn!("Registration not found");
                 return None;
             }
         };
@@ -219,7 +218,7 @@ impl AppState {
         {
             Some(k) => k,
             None => {
-                tracing::error!(auth_key, "Failed to decode shared secret");
+                tracing::error!("Failed to decode shared secret");
                 return None;
             }
         };
@@ -227,7 +226,7 @@ impl AppState {
         let nonce: [u8; 12] = match base16::decode(nonce).ok()?[0..12].try_into().ok() {
             Some(n) => n,
             None => {
-                tracing::error!(auth_key, "Failed to decode nonce");
+                tracing::error!("Failed to decode nonce");
                 return None;
             }
         };
@@ -238,38 +237,35 @@ impl AppState {
         let plain_data = match cipher.decrypt(&nonce.into(), data.as_slice()) {
             Ok(d) => d,
             Err(e) => {
-                tracing::error!(auth_key, error = ?e, "Decryption failed");
+                tracing::error!(error = ?e, "Decryption failed");
                 return None;
             }
         };
 
         match serde_json::from_reader(plain_data.as_slice()) {
             Ok(result) => {
-                tracing::info!(auth_key, "Data successfully decrypted and parsed");
+                tracing::info!("Data successfully decrypted and parsed");
                 Some(result)
             }
             Err(e) => {
-                tracing::error!(auth_key, error = ?e, "Failed to parse decrypted data");
+                tracing::error!(error = ?e, "Failed to parse decrypted data");
                 None
             }
         }
     }
 
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip(self, auth_key))]
     pub fn get_registration(&self, auth_key: &str) -> Option<Registration> {
-        tracing::debug!(auth_key, "Retrieving registration tracing::info");
+        tracing::debug!("Retrieving registration tracing::info");
         let result = self
             .registrations
             .get(auth_key)
             .map(|reference| reference.value().clone());
 
         if result.is_some() {
-            tracing::info!(
-                auth_key,
-                "Registration tracing::info retrieved successfully"
-            );
+            tracing::info!("Registration tracing::info retrieved successfully");
         } else {
-            tracing::debug!(auth_key, "No registration tracing::info found");
+            tracing::debug!("No registration tracing::info found");
         }
 
         result

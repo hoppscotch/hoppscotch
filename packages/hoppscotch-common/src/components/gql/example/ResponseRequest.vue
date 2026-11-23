@@ -51,6 +51,7 @@ import { cloneDeep } from "lodash-es"
 import IconGraphql from "~icons/hopp/graphql"
 import IconSave from "~icons/lucide/save"
 import * as E from "fp-ts/Either"
+import { getTeamRequestSaveErrorMessage } from "~/helpers/error-messages"
 
 import {
   HoppGQLRequest,
@@ -161,7 +162,7 @@ const saveExample = async () => {
       },
     })().then((result) => {
       if (E.isLeft(result)) {
-        toast.error(`${t("profile.no_permission")}`)
+        toast.error(t(getTeamRequestSaveErrorMessage(result.left)))
       } else {
         tab.value.document.isDirty = false
         toast.success(`${t("response.saved")}`)

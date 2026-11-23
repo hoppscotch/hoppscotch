@@ -1057,6 +1057,105 @@ data2: {"type":"test2","typeId":"123"}`,
       description: null,
     }),
   },
+  {
+    command: `curl 'https://example.com/api' --data-urlencode 'query=100% free'`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled",
+      endpoint: "https://example.com/api",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      body: {
+        contentType: "application/x-www-form-urlencoded",
+        body: "query: 100% free",
+      },
+      params: [],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+      description: null,
+    }),
+  },
+  {
+    command: `curl 'https://example.com/api' --data-urlencode 'query=100%25' --data-urlencode 'other=a%20b'`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled",
+      endpoint: "https://example.com/api",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      body: {
+        contentType: "application/x-www-form-urlencoded",
+        body: "query: 100%25\nother: a%20b",
+      },
+      params: [],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+      description: null,
+    }),
+  },
+  {
+    command: `curl -G 'https://example.com/api' --data-urlencode 'query=a%20b'`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled",
+      endpoint: "https://example.com/api",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [
+        {
+          active: true,
+          key: "query",
+          value: "a%20b",
+          description: "",
+        },
+      ],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+      description: null,
+    }),
+  },
+  {
+    command: `curl 'https://example.com/api' --data-urlencode 'my%20key=value' --data-urlencode 'my+key2=value2'`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled",
+      endpoint: "https://example.com/api",
+      auth: {
+        authType: "inherit",
+        authActive: true,
+      },
+      body: {
+        contentType: "application/x-www-form-urlencoded",
+        body: "my key: value\nmy key2: value2",
+      },
+      params: [],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+      requestVariables: [],
+      responses: {},
+      description: null,
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

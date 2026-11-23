@@ -8,7 +8,7 @@
       <div
         v-if="queryType"
         class="hopp-doc-explorer-root-wrapper"
-        @click="handleTypeClick(queryType)"
+        @click="handleTypeClick(queryType, 'Query')"
       >
         <span class="hopp-doc-explorer-root-type">
           {{ t("graphql.query") }}
@@ -19,7 +19,7 @@
       <div
         v-if="mutationType"
         class="hopp-doc-explorer-root-wrapper"
-        @click="handleTypeClick(mutationType)"
+        @click="handleTypeClick(mutationType, 'Mutation')"
       >
         <span class="hopp-doc-explorer-root-type">
           {{ t("graphql.mutation") }}
@@ -30,7 +30,7 @@
       <div
         v-if="subscriptionType"
         class="hopp-doc-explorer-root-wrapper"
-        @click="handleTypeClick(subscriptionType)"
+        @click="handleTypeClick(subscriptionType, 'Subscription')"
       >
         <span class="hopp-doc-explorer-root-type">
           {{ t("graphql.subscription") }}
@@ -74,8 +74,11 @@ const schemaDescription = computed(
 
 const { push } = useExplorer()
 
-const handleTypeClick = (namedType: GraphQLNamedType) => {
-  push({ name: namedType.name, def: namedType })
+const handleTypeClick = (
+  namedType: GraphQLNamedType,
+  operation: "Query" | "Mutation" | "Subscription"
+) => {
+  push({ name: operation, def: namedType })
 }
 
 const ignoreTypesInAllSchema = computed(() => [

@@ -215,12 +215,12 @@ const isEnvironmentSelected = (index: number) => {
 defineActionHandler(
   "modals.my.environment.edit",
   ({ envName, variableName, isSecret }) => {
-    if (variableName) editingVariableName.value = variableName
-    const env = filteredAndAlphabetizedPersonalEnvs.value.find(
-      ({ env }) => env.name === envName
+    const environmentIndex = environments.value.findIndex(
+      (env) => env.name === envName
     )
-    if (envName !== "Global" && env) {
-      editEnvironment(env.index)
+    if (envName !== "Global" && environmentIndex !== -1) {
+      if (variableName) editingVariableName.value = variableName
+      editEnvironment(environmentIndex)
       secretOptionSelected.value = isSecret ?? false
     }
   }

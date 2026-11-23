@@ -109,6 +109,7 @@
           <RealtimeCommunication
             :show-event-field="true"
             :is-connected="connectionState === 'CONNECTED'"
+            :parse-json-payload="true"
             event-field-styles="top-upperSecondaryStickyFold"
             sticky-header-styles="top-upperTertiaryStickyFold"
             @send-message="sendMessage($event)"
@@ -445,7 +446,7 @@ const toggleConnection = () => {
   // Otherwise, it's disconnecting.
   socket.disconnect()
 }
-const sendMessage = (event: { message: string; eventName: string }) => {
+const sendMessage = (event: { message: unknown; eventName: string }) => {
   socket.sendMessage(event)
 }
 const onSelectVersion = (version: SIOClientVersion) => {

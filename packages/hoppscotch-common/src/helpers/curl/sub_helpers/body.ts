@@ -17,6 +17,16 @@ import {
   objHasArrayProperty,
 } from "~/helpers/functional/object"
 
+/**
+ * Splits a cURL -F / --form argument on the first `=` only, so that values
+ * containing `=` (base64 padding, JWT-shaped tokens, URL-encoded bodies)
+ * are preserved in full. A bare key with no `=` resolves to an empty value.
+ */
+const splitFArgOnFirstEquals = (arg: string): [string, string] => {
+  const idx = arg.indexOf("=")
+  return idx === -1 ? [arg, ""] : [arg.slice(0, idx), arg.slice(idx + 1)]
+}
+
 type BodyReturnType =
   | { type: "FORMDATA"; body: Record<string, string> }
   | {
@@ -141,8 +151,8 @@ export function getFArgumentMultipartData(
     ),
     O.chain(
       flow(
-        A.map(S.split("=")),
-        // can only have a key and no value
+        A.map(splitFArgOnFirstEquals),
+        // guard: the list of -F arguments must be non-empty
         O.fromPredicate((fArgs) => fArgs.length > 0),
         O.map(
           flow(

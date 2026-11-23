@@ -9,6 +9,13 @@
       </label>
       <div class="flex items-center">
         <HoppButtonSecondary
+          v-if="isEditable"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.prettify')"
+          :icon="prettifyIcon"
+          @click="prettifyBody"
+        />
+        <HoppButtonSecondary
           v-if="showResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
@@ -267,21 +274,28 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconNetwork from "~icons/lucide/network"
 import IconSave from "~icons/lucide/save"
 import IconEraser from "~icons/lucide/eraser"
+import IconWand from "~icons/lucide/wand"
+import IconCheck from "~icons/lucide/check"
+import IconInfo from "~icons/lucide/info"
 import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import { computed, ref, reactive } from "vue"
-import { computedAsync, refDebounced } from "@vueuse/core"
+import { computedAsync, refAutoReset, refDebounced } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import jsonParse, { JSONObjectMember, JSONValue } from "~/helpers/jsonParse"
+import jsoncParse from "~/helpers/jsoncParse"
+import jsoncLinter from "~/helpers/editor/linting/jsonc"
+import { prettifyJSONCWithValidation } from "~/helpers/editor/linting/jsoncPretty"
 import { getJSONOutlineAtPos } from "~/helpers/newOutline"
 import {
   convertIndexToLineCh,
   convertLineChToIndex,
 } from "~/helpers/editor/utils"
 import { useI18n } from "@composables/i18n"
+import { useToast } from "@composables/toast"
 import {
   useCopyResponse,
   useResponseBody,
@@ -295,6 +309,7 @@ import { HoppRESTRequestResponse } from "@hoppscotch/data"
 import { useScrollerRef } from "~/composables/useScrollerRef"
 
 const t = useI18n()
+const toast = useToast()
 
 // `jq-wasm` bundles a sizeable (1MB+) WASM/Emscripten payload that's only
 // ever needed when the user actively filters a JSON response with a jq
@@ -384,7 +399,9 @@ const responseName = computed(() => {
   return props.response.name
 })
 
-const { responseBodyText } = useResponseBody(props.response)
+const responseBodyText = computed(
+  () => useResponseBody(props.response).responseBodyText.value
+)
 
 const jsonResponseBodyText = computedAsync(
   async (): Promise<E.Either<BodyParseError, string | object>> => {
@@ -423,47 +440,53 @@ const jsonResponseBodyText = computedAsync(
   E.right(responseBodyText.value)
 )
 
-const jsonBodyText = computed(() => {
-  const { responseBodyText } = useResponseBody(
-    props.response as HoppRESTResponse
-  )
+const jsonBodyText = computed({
+  get: () => {
+    // Saved examples must retain comments and incomplete edits verbatim.
+    if (props.isEditable) return responseBodyText.value
 
-  const rawValue = pipe(
-    jsonResponseBodyText.value,
-    E.getOrElse(() => responseBodyText.value)
-  )
+    const rawValue = pipe(
+      jsonResponseBodyText.value,
+      E.getOrElse(() => responseBodyText.value)
+    )
 
-  // If the rawValue is already an object (from JSON filtering), stringify it directly
-  if (typeof rawValue === "object" && rawValue !== null) {
-    return JSON.stringify(rawValue, null, 2)
-  }
+    // If the rawValue is already an object (from JSON filtering), stringify it directly
+    if (typeof rawValue === "object" && rawValue !== null) {
+      return JSON.stringify(rawValue, null, 2)
+    }
 
-  // If it's a string, we need to parse and re-stringify
-  const stringValue = rawValue as string
+    // If it's a string, we need to parse and re-stringify
+    const stringValue = rawValue as string
 
-  // If we're filtering, the string should already be clean JSON (no lossless numbers)
-  if (debouncedFilterQuery.value.length > 0) {
+    // If we're filtering, the string should already be clean JSON (no lossless numbers)
+    if (debouncedFilterQuery.value.length > 0) {
+      return pipe(
+        stringValue,
+        O.tryCatchK(JSON.parse),
+        O.map((val) => JSON.stringify(val, null, 2)),
+        O.getOrElse(() => stringValue)
+      )
+    }
+
+    // For unfiltered responses, use LJSON for lossless parsing
     return pipe(
       stringValue,
-      O.tryCatchK(JSON.parse),
-      O.map((val) => JSON.stringify(val, null, 2)),
+      O.tryCatchK(LJSON.parse),
+      O.map((val) => LJSON.stringify(val, undefined, 2)),
       O.getOrElse(() => stringValue)
     )
-  }
-
-  // For unfiltered responses, use LJSON for lossless parsing
-  return pipe(
-    stringValue,
-    O.tryCatchK(LJSON.parse),
-    O.map((val) => LJSON.stringify(val, undefined, 2)),
-    O.getOrElse(() => stringValue)
-  )
+  },
+  set: (body: string) => {
+    if (props.isEditable && !("type" in props.response)) {
+      emit("update:response", { ...props.response, body })
+    }
+  },
 })
 
 const ast = computed(() =>
   pipe(
     jsonBodyText.value,
-    O.tryCatchK(jsonParse),
+    O.tryCatchK(props.isEditable ? jsoncParse : jsonParse),
     O.getOrElseW(() => null)
   )
 )
@@ -504,6 +527,20 @@ const saveAsExample = () => {
   emit("save-as-example")
 }
 
+const prettifyIcon = refAutoReset<
+  typeof IconWand | typeof IconCheck | typeof IconInfo
+>(IconWand, 1000)
+
+const prettifyBody = () => {
+  try {
+    jsonBodyText.value = prettifyJSONCWithValidation(jsonBodyText.value)
+    prettifyIcon.value = IconCheck
+  } catch {
+    prettifyIcon.value = IconInfo
+    toast.error(`${t("error.json_prettify_invalid_body")}`)
+  }
+}
+
 const { copyIcon, copyResponse } = useCopyResponse(jsonBodyText)
 
 /**
@@ -538,15 +575,11 @@ const { cursor } = useCodemirror(
       readOnly: !props.isEditable,
       lineWrapping: WRAP_LINES,
     },
-    linter: null,
+    linter: computed(() =>
+      props.isEditable && jsonBodyText.value.length > 0 ? jsoncLinter : null
+    ),
     completer: null,
     environmentHighlights: true,
-    onChange: (update: string) => {
-      emit("update:response", {
-        ...props.response,
-        body: update,
-      } as HoppRESTRequestResponse)
-    },
   })
 )
 

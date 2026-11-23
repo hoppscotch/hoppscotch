@@ -89,6 +89,56 @@ export class CurrentValueService extends Service {
   }
 
   /**
+   * Update the current value of a single environment variable.
+   *
+   * `key` seeds a missing entry, which the `watchCurrentEnvironments` cleanup
+   * otherwise drops.
+   *
+   * @param id ID of the environment
+   * @param varIndex Index of the variable in the environment
+   * @param value New current value
+   * @param key Key of the variable, used only when creating a missing entry
+   */
+  public setEnvironmentVariableValue(
+    id: string,
+    varIndex: number,
+    value: string,
+    key = ""
+  ) {
+    const vars = this.getEnvironment(id)
+    const newVars = cloneDeep(vars ?? [])
+    const variable = newVars.find((v) => v.varIndex === varIndex)
+
+    if (variable) {
+      variable.currentValue = value
+    } else {
+      newVars.push({ key, currentValue: value, varIndex, isSecret: false })
+    }
+
+    this.environments.set(id, newVars)
+  }
+
+  /**
+   * Rename an entry so key-based lookups keep resolving after a rename.
+   * No-op when there is no entry for `varIndex`.
+   *
+   * @param id ID of the environment
+   * @param varIndex Index of the variable in the environment
+   * @param key New key of the variable
+   */
+  public setEnvironmentVariableKey(id: string, varIndex: number, key: string) {
+    const vars = this.getEnvironment(id)
+    if (!vars) return
+
+    const variable = vars.find((v) => v.varIndex === varIndex)
+    if (!variable || variable.key === key) return
+
+    const newVars = cloneDeep(vars)
+    newVars.find((v) => v.varIndex === varIndex)!.key = key
+    this.environments.set(id, newVars)
+  }
+
+  /**
    *
    * @param environments Used to load environments from persisted state.
    */

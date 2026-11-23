@@ -27,6 +27,17 @@ import { listen } from "@tauri-apps/api/event"
 let keybindingsEnabled = true
 
 /**
+ * Set while a workspace overlay covers the app, so shortcuts can't act on the
+ * workspace behind it. Kept apart from `keybindingsEnabled`, which modals
+ * toggle on open and close.
+ */
+let keybindingsSuspended = false
+
+export const setKeybindingsSuspended = (suspended: boolean) => {
+  keybindingsSuspended = suspended
+}
+
+/**
  * Unlisten function for Tauri event
  */
 let unlistenTauriEvent: (() => void) | null = null
@@ -185,7 +196,7 @@ export function hookKeybindingsListener() {
 
 function handleKeyDown(ev: KeyboardEvent) {
   // Do not check keybinds if the mode is disabled
-  if (!keybindingsEnabled) return
+  if (!keybindingsEnabled || keybindingsSuspended) return
 
   // Skip during IME composition (CJK input). Modern browsers report
   // `isComposing`. Older ones use the sentinel `keyCode === 229`.
@@ -284,7 +295,7 @@ function handleTauriShortcut(shortcut: string) {
   console.info("Tauri shortcut:", shortcut)
 
   // Do not check keybinds if the mode is disabled
-  if (!keybindingsEnabled) return
+  if (!keybindingsEnabled || keybindingsSuspended) return
 
   const activeBindings = getActiveBindings()
   const boundAction = activeBindings[shortcut as ShortcutKey]

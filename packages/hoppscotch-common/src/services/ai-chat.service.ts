@@ -17,6 +17,7 @@ import type {
   HoppRESTRequest,
 } from "@hoppscotch/data"
 import { populateValuesInInheritedCollectionVars } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import { truncateForHistory } from "~/helpers/aichat/history-truncation"
 import {
   Environment,
   EnvironmentSchemaVersion,
@@ -418,32 +419,6 @@ const MAX_HISTORY_MESSAGES = 12
 const MAX_HISTORY_CHARS = 8_000
 const MAX_OLD_ASSISTANT_CHARS = 800
 const MAX_OLD_USER_CHARS = 4_000
-
-/**
- * Moves a cut index off the middle of a surrogate pair: a lone surrogate makes
- * the provider reject the whole request body.
- */
-const surrogateSafeCut = (text: string, cut: number): number => {
-  const code = text.charCodeAt(cut - 1)
-  return code >= 0xd800 && code <= 0xdbff ? cut - 1 : cut
-}
-
-/** A cut at or before `max` that splits no `<<local-ref:…>>` token. */
-const refSafeCut = (text: string, max: number): number => {
-  let cut = max
-  const open = text.lastIndexOf("<<", cut)
-  // The token ends after its `>>`: a cut between the two splits it too.
-  const close = open === -1 ? -1 : text.indexOf(">>", open)
-  if (close !== -1 && close + 2 > cut) cut = open
-  return surrogateSafeCut(text, cut)
-}
-
-/** Cuts `text` at `max` without splitting a `<<local-ref:…>>` token. */
-const truncateForHistory = (text: string, max: number): string => {
-  if (text.length <= max) return text
-  const cut = refSafeCut(text, max)
-  return `${text.slice(0, cut)}\n[… ${text.length - cut} more characters from this earlier message were omitted — ask the user to re-send them if needed]`
-}
 
 /** Longest line per tool in a note to the model on what ran. */
 const MAX_RAN_LINE_CHARS = 160

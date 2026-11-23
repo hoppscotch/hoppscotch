@@ -106,11 +106,15 @@ export class SecretEnvironmentService extends Service {
    * @param id ID of the environment
    * @param varIndex Index of the variable in the environment
    */
-  public removeSecretEnvironmentVariable(id: string, varIndex: number) {
+    public removeSecretEnvironmentVariable(id: string, varIndex: number) {
     const secretVars = this.getSecretEnvironment(id)
-    const newSecretVars = secretVars?.filter(
-      (secretVar) => secretVar.varIndex !== varIndex
-    )
+    const newSecretVars = secretVars
+      ?.filter((secretVar) => secretVar.varIndex !== varIndex)
+      .map((secretVar) =>
+        secretVar.varIndex > varIndex
+          ? { ...secretVar, varIndex: secretVar.varIndex - 1 }
+          : secretVar
+      )
     this.secretEnvironments.set(id, newSecretVars || [])
   }
 

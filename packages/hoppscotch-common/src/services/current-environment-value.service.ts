@@ -119,7 +119,11 @@ export class CurrentValueService extends Service {
    */
   public removeEnvironmentVariable(id: string, varIndex: number) {
     const vars = this.getEnvironment(id)
-    const newVars = vars?.filter((v) => v.varIndex !== varIndex)
+    const newVars = vars
+      ?.filter((v) => v.varIndex !== varIndex)
+      .map((v) =>
+        v.varIndex > varIndex ? { ...v, varIndex: v.varIndex - 1 } : v
+      )
     this.environments.set(id, newVars || [])
   }
 

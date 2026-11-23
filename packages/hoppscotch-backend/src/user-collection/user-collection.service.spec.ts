@@ -2451,6 +2451,19 @@ describe('importCollectionsFromJSON — collection-level script fields', () => {
       updatedOn: currentTime,
       data: rootDataAtCreate,
     });
+    // The child folder is now created in its own `userCollection.create` call
+    // (sequential parent-before-child), so it needs its own resolved value.
+    mockPrisma.userCollection.create.mockResolvedValueOnce({
+      id: folderRowId,
+      orderIndex: 1,
+      parentID: rootRowId,
+      title: 'child-folder',
+      userUid: user.uid,
+      type: ReqType.REST,
+      createdOn: currentTime,
+      updatedOn: currentTime,
+      data: folderDataAtCreate,
+    });
 
     // Export-side mocks: root resolves once, then its child folder resolves.
     mockPrisma.userCollection.findUniqueOrThrow
@@ -2506,17 +2519,19 @@ describe('importCollectionsFromJSON — collection-level script fields', () => {
 
     expect(E.isRight(result)).toBe(true);
 
-    // Import side: `userCollection.create` must receive script fields inside
-    // its `data` payload (root) and inside `children.create[0].data` (folder).
-    // Asserting against the create call args proves import preserved scripts;
-    // export-side mocks alone would only round-trip the values we pre-loaded.
+    // Import side: each collection now gets its own `userCollection.create`
+    // call (sequential parent-before-child). Root is calls[0], the child
+    // folder is calls[1]; both must carry the script fields in their `data`
+    // payload. Asserting against the create call args proves import preserved
+    // scripts; export-side mocks alone would only round-trip the pre-loaded values.
     const createCallArg = mockPrisma.userCollection.create.mock.calls[0][0]
       .data as any;
     expect(createCallArg.data.preRequestScript).toBe(
       'pw.env.set("ROOT_RAN", "yes");',
     );
     expect(createCallArg.data.testScript).toBe('pw.test("root", () => {});');
-    const childCreateArg = createCallArg.children.create[0];
+    const childCreateArg = mockPrisma.userCollection.create.mock.calls[1][0]
+      .data as any;
     expect(childCreateArg.data.preRequestScript).toBe(
       'pw.env.set("FOLDER_RAN", "yes");',
     );

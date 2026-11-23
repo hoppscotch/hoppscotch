@@ -163,7 +163,7 @@ describe("SecretEnvironmentService", () => {
       service.removeSecretEnvironmentVariable(id, 1)
 
       expect(service.secretEnvironments.get(id)).toEqual([
-        { key: "key2", value: "value2", varIndex: 2 },
+        { key: "key2", value: "value2", varIndex: 1 },
       ])
     })
 
@@ -176,6 +176,25 @@ describe("SecretEnvironmentService", () => {
       service.removeSecretEnvironmentVariable(id, 2)
 
       expect(service.secretEnvironments.get(id)).toEqual(secretVars)
+    })
+    it("should reindex remaining secret variables after a row is deleted", () => {
+      const id = "testEnvironment"
+      const secretVars = [
+        { key: "API_KEY", value: "first", varIndex: 0 },
+        { key: "API_KEY", value: "second", varIndex: 1 },
+      ]
+
+      service.secretEnvironments.set(id, secretVars)
+
+      service.removeSecretEnvironmentVariable(id, 0)
+
+      expect(service.secretEnvironments.get(id)).toEqual([
+        { key: "API_KEY", value: "second", varIndex: 0 },
+      ])
+      expect(service.getSecretEnvironmentVariableValue(id, 0)).toEqual({
+        value: "second",
+        initialValue: "",
+      })
     })
   })
 

@@ -20,3 +20,20 @@ export const getEnvActionErrorMessage = (err: GQLError<string>) => {
       return "error.something_went_wrong"
   }
 }
+
+/**
+ * The message for a team request that failed to save. The save showed no
+ * permission for every error, so the legacy workspace codes get their own
+ * message and every other error keeps that one.
+ */
+export const getTeamRequestSaveErrorMessage = (err: GQLError<string>) => {
+  if (err.type === "gql_error") {
+    switch (err.error) {
+      case "team/legacy_workspace_blocked":
+        return "team.legacy_workspace_blocked"
+      case "legacy_workspace/migration_in_progress":
+        return "team.migration_in_progress"
+    }
+  }
+  return "profile.no_permission"
+}

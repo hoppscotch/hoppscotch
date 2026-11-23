@@ -39,6 +39,7 @@ import { useI18n } from "@composables/i18n"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import * as E from "fp-ts/Either"
+import { getTeamRequestSaveErrorMessage } from "~/helpers/error-messages"
 
 const t = useI18n()
 const toast = useToast()
@@ -156,7 +157,7 @@ const onSaveAsExample = () => {
         },
       })().then((result) => {
         if (E.isLeft(result)) {
-          toast.error(`${t("profile.no_permission")}`)
+          toast.error(t(getTeamRequestSaveErrorMessage(result.left)))
           responseName.value = ""
         } else {
           doc.value.isDirty = false

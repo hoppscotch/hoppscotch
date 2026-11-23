@@ -1,0 +1,3 @@
+mutation UpdateUserEmailByAdmin($userUID: ID!, $email: String!) {
+  updateUserEmailByAdmin(userUID: $userUID, email: $email)
+}

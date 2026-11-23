@@ -82,7 +82,7 @@ pub async fn receive_registration(
     }
 }
 
-#[tracing::instrument(skip(state, _app_handle))]
+#[tracing::instrument(skip(state, _app_handle, auth_header))]
 pub async fn registration(
     State((state, _app_handle)): State<(Arc<AppState>, AppHandle)>,
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
@@ -112,7 +112,7 @@ pub async fn registration(
     })
 }
 
-#[tracing::instrument(skip(state, app_handle), fields(auth_key))]
+#[tracing::instrument(skip(state, app_handle, confirmed_registration))]
 pub async fn verify_registration(
     State((state, app_handle)): State<(Arc<AppState>, AppHandle)>,
     Json(confirmed_registration): Json<ConfirmedRegistrationRequest>,
@@ -129,8 +129,6 @@ pub async fn verify_registration(
 
     let auth_key = Uuid::new_v4().to_string();
     let created_at = Utc::now();
-
-    tracing::Span::current().record("auth_key", &auth_key.as_str());
 
     let auth_key_copy = auth_key.clone();
     let secret_key = EphemeralSecret::random();
@@ -181,7 +179,7 @@ pub async fn verify_registration(
     }))
 }
 
-#[tracing::instrument(skip(state, app_handle), fields(auth_key = %auth_key))]
+#[tracing::instrument(skip(state, app_handle, auth_header, auth_key))]
 pub async fn delete_registration(
     State((state, app_handle)): State<(Arc<AppState>, AppHandle)>,
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
@@ -201,7 +199,7 @@ pub async fn delete_registration(
     Ok(Json(json!({ "message": message })))
 }
 
-#[tracing::instrument(skip(state, body, _app_handle), fields(req_id))]
+#[tracing::instrument(skip(state, auth_header, headers, body, _app_handle), fields(req_id))]
 pub async fn execute(
     State((state, _app_handle)): State<(Arc<AppState>, AppHandle)>,
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
@@ -261,7 +259,7 @@ pub async fn execute(
 /// registration, the client also needs the shared secret to verify
 /// if the read fails, or the auth_key didn't validate and this route returns
 /// undefined, we can count on the registration not being valid anymore.
-#[tracing::instrument(skip(state, _app_handle))]
+#[tracing::instrument(skip(state, _app_handle, auth_header))]
 pub async fn registered_handshake(
     State((state, _app_handle)): State<(Arc<AppState>, AppHandle)>,
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,
@@ -283,7 +281,7 @@ pub async fn registered_handshake(
     }
 }
 
-#[tracing::instrument(skip(state, _app_handle), fields(request_id = %request_id))]
+#[tracing::instrument(skip(state, _app_handle, auth_header), fields(request_id = %request_id))]
 pub async fn cancel(
     State((state, _app_handle)): State<(Arc<AppState>, AppHandle)>,
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,

@@ -103,7 +103,9 @@ describe("CurrentValueService", () => {
       ]
       service.environments.set(id, vars)
       service.removeEnvironmentVariable(id, 1)
-      expect(service.environments.get(id)).toEqual([vars[1]])
+      expect(service.environments.get(id)).toEqual([
+        { key: "key2", currentValue: "value2", varIndex: 1, isSecret: false },
+      ])
     })
 
     it("should not fail if variable does not exist", () => {
@@ -114,6 +116,20 @@ describe("CurrentValueService", () => {
       service.environments.set(id, vars)
       service.removeEnvironmentVariable(id, 999)
       expect(service.environments.get(id)).toEqual(vars)
+    })
+
+    it("should reindex remaining variables after a row is deleted", () => {
+      const id = "env1"
+      const vars = [
+        { key: "API_KEY", currentValue: "first", varIndex: 0, isSecret: true },
+        { key: "API_KEY", currentValue: "second", varIndex: 1, isSecret: true },
+      ]
+      service.environments.set(id, vars)
+      service.removeEnvironmentVariable(id, 0)
+      expect(service.environments.get(id)).toEqual([
+        { key: "API_KEY", currentValue: "second", varIndex: 0, isSecret: true },
+      ])
+      expect(service.getEnvironmentVariableValue(id, 0)).toBe("second")
     })
   })
 

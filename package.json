@@ -5,7 +5,7 @@
   "author": "Hoppscotch (support@hoppscotch.io)",
   "private": true,
   "license": "MIT",
-  "packageManager": "pnpm@10.34.5",
+  "packageManager": "pnpm@10.34.9",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "prepare": "husky",
@@ -69,7 +69,7 @@
       "mjml@<5.0.0-alpha.9": "5.4.0",
       "multer@<2.5.0": "2.5.0",
       "mysql2@<3.22.0": "3.23.1",
-      "nodemailer@<10.0.16": "10.0.16",
+      "nodemailer@<10.6.0": "10.6.0",
       "postcss@<=8.5.22": "8.5.26",
       "proxy-addr@<2.0.8": "2.0.8",
       "qs@>=6.11.1 <6.16.0": "6.16.0",

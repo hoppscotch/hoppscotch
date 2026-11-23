@@ -415,6 +415,17 @@ export const runAuthOnlyGQLSubscription = flow(
 export const parseGQLErrorString = (s: string) =>
   s.startsWith("[GraphQL] ") ? s.split("[GraphQL] ")[1] : s
 
+/**
+ * Whether the platform shows its own UI for this team workspace error
+ * (see `OrganizationPlatformDef.isExpectedTeamError`). Takes `unknown` since
+ * team subscriptions report their errors untyped.
+ */
+export const isExpectedTeamError = (error: unknown) =>
+  typeof error === "object" &&
+  error !== null &&
+  (platform.organization?.isExpectedTeamError?.(error as GQLError<string>) ??
+    false)
+
 export const runMutation = <
   DocType,
   DocVariables extends object | undefined,

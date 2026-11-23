@@ -1,18 +1,18 @@
 # Base Go builder with Go lang installation
 # This stage is used to build both Caddy and the webapp server,
 # preventing vulnerable packages on the dependency chain
-FROM alpine:3.24.1 AS go_builder
+FROM alpine:3.24.4 AS go_builder
 RUN apk add --no-cache curl git openssh-client
 
 ARG TARGETARCH
-ENV GOLANG_VERSION=1.26.7
+ENV GOLANG_VERSION=1.26.11
 # Download Go tarball
 RUN case "${TARGETARCH}" in amd64) GOARCH=amd64 ;; arm64) GOARCH=arm64 ;; *) echo "Unsupported arch: ${TARGETARCH}" && exit 1 ;; esac && \
   curl -fsSL "https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz" -o go.tar.gz
 # Checksum verification of Go tarball
 RUN case "${TARGETARCH}" in \
-  amd64) expected="ffb5f8de10c62550dfddab66b36b57030721e0a44a3218e9e1181d7b59f121ca" ;; \
-  arm64) expected="5a4ec883379d51ee9ce1040d5e87f8d35e20387574dd8c947feb01eabc3c1b37" ;; \
+  amd64) expected="9849f4e04ee35303714e34fbc3ac8ab44ea3e448a95aa182f91e3b9b79c710ec" ;; \
+  arm64) expected="6c2f29b458b5add0835f18b776f69c8881a6d88428f1484a6da55755e620757e" ;; \
   esac && \
   actual=$(sha256sum go.tar.gz | cut -d' ' -f1) && \
   [ "$actual" = "$expected" ] && \
@@ -30,25 +30,27 @@ ENV PATH="/usr/local/go/bin:${PATH}" \
 # Build Caddy from the Go base
 FROM go_builder AS caddy_builder
 RUN mkdir -p /tmp/caddy-build && \
-  curl -fsSL -o /tmp/caddy-build/src.tar.gz https://github.com/caddyserver/caddy/releases/download/v2.11.4/caddy_2.11.4_src.tar.gz
+  curl -fsSL -o /tmp/caddy-build/src.tar.gz https://github.com/caddyserver/caddy/releases/download/v2.11.9/caddy_2.11.9_src.tar.gz
 # Checksum verification of caddy source
-RUN expected="e44e457ba3f2b5b8447952d2de0ae0a91b09d1a013e2521527e08b6f52acc9eb" && \
+RUN expected="b4d7ff3f58e9b87d8af06167577a0d57a6bd2567b28f5a6d39d32472d2b7a3d8" && \
   actual=$(sha256sum /tmp/caddy-build/src.tar.gz | cut -d' ' -f1) && \
   [ "$actual" = "$expected" ] && \
   echo "✅ Caddy Source Checksum OK" || \
   (echo "❌ Caddy Source Checksum failed!" && exit 1)
 WORKDIR /tmp/caddy-build
+# NOTE: `go get mod@vX` also downgrades. Keep each pin >= the version in Caddy's own
+# go.mod (2.11.9 ships x/crypto v0.57.0, x/net v0.60.0, x/text v0.42.0).
 RUN tar -xzf /tmp/caddy-build/src.tar.gz && \
-  # Fix CVE-2026-84304, CVE-2026-84445: upgrade grpc v1.83.2 (HIGH)
-  go get google.golang.org/grpc@v1.83.2 && \
-  # Fix CVE-2026-56854: upgrade golang.org/x/crypto v0.56.0 (HIGH - SSH auth bypass)
-  go get golang.org/x/crypto@v0.56.0 && \
+  # Fix CVE-2026-84304, CVE-2026-84445: upgrade grpc >= v1.83.2 (HIGH)
+  go get google.golang.org/grpc@v1.85.0 && \
+  # Fix CVE-2026-56854: upgrade golang.org/x/crypto >= v0.56.0 (HIGH - SSH auth bypass)
+  go get golang.org/x/crypto@v0.59.0 && \
   # Fix CVE-2026-34986: upgrade go-jose v3 (HIGH - DoS via crafted JWE)
   go get github.com/go-jose/go-jose/v3@v3.0.5 && \
-  # Fix CVE-2026-46600: upgrade golang.org/x/net v0.58.0 (HIGH - panic on invalid DNS RR)
-  go get golang.org/x/net@v0.58.0 && \
-  # Fix CVE-2026-56852: upgrade golang.org/x/text v0.41.0 (HIGH - infinite loop on input)
-  go get golang.org/x/text@v0.41.0 && \
+  # Fix CVE-2026-46600: upgrade golang.org/x/net >= v0.58.0 (HIGH - panic on invalid DNS RR)
+  go get golang.org/x/net@v0.63.0 && \
+  # Fix CVE-2026-56852: upgrade golang.org/x/text >= v0.41.0 (HIGH - infinite loop on input)
+  go get golang.org/x/text@v0.44.0 && \
   # Clean up any existing vendor directory and regenerate with updated deps
   rm -rf vendor && \
   go mod tidy && \
@@ -71,7 +73,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o webapp-server .
 
 
 # Shared Node.js base with optimized NPM installation
-FROM alpine:3.24.1 AS node_base
+FROM alpine:3.24.4 AS node_base
 # Install dependencies
 # Version floors for CVE-2026-11856 (curl) and the Node.js October 2026 security
 # release (nodejs 24.22.1-r0). Alpine's nodejs links the system brotli and c-ares
@@ -86,9 +88,9 @@ RUN apk upgrade --no-cache && \
 RUN mkdir -p /tmp/npm-install
 WORKDIR /tmp/npm-install
 # Download NPM tarball
-RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.19.0.tgz -o npm.tgz
+RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.21.3.tgz -o npm.tgz
 # Verify checksum
-RUN expected="31e9770f7dc71119a58509353b27917557aaf0ac9b5ef1a0465ee7d8ec67ae75" \
+RUN expected="ee5fc68e724c4bdba38db9d96d9c661d4e736e4be7001ae44d2fbbaa52159514" \
   && actual=$(sha256sum npm.tgz | cut -d' ' -f1) \
   && [ "$actual" = "$expected" ] \
   && echo "✅ NPM Tarball Checksum OK" \
@@ -100,9 +102,9 @@ RUN tar -xzf npm.tgz && \
   cd / && \
   rm -rf /tmp/npm-install
 RUN mkdir -p /tmp/pnpm-install && cd /tmp/pnpm-install && \
-  curl -fsSL https://registry.npmjs.org/pnpm/-/pnpm-10.34.5.tgz -o pnpm.tgz && \
+  curl -fsSL https://registry.npmjs.org/pnpm/-/pnpm-10.34.9.tgz -o pnpm.tgz && \
   curl -fsSL https://registry.npmjs.org/@import-meta-env/cli/-/cli-0.7.4.tgz -o cli.tgz && \
-  echo "ccb5c479cab1b00621325bfe7d4c9a8a8031e7a525d7249e275ecbec81b08db2  pnpm.tgz" | sha256sum -c - && \
+  echo "7e8a946108e7baab119e51d27c24d6178b46545422643dbc91e34e2f1ee32e0f  pnpm.tgz" | sha256sum -c - && \
   echo "9edada700b616b4224ba69ce713e68c36e22cb2548be9134dd3af00c164d8ca0  cli.tgz" | sha256sum -c - && \
   npm install -g ./pnpm.tgz ./cli.tgz && \
   cd / && rm -rf /tmp/pnpm-install
@@ -129,7 +131,7 @@ RUN mkdir -p /tmp/glob-fix && \
 # Fix CVE: upgrade serialize-javascript in @import-meta-env/cli (ships 6.0.2, fix requires >=7.0.3)
 RUN mkdir -p /tmp/serialize-fix && \
   cd /tmp/serialize-fix && \
-  npm install serialize-javascript@7.0.7 && \
+  npm install serialize-javascript@7.1.4 && \
   rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/serialize-javascript && \
   cp -r node_modules/serialize-javascript /usr/lib/node_modules/@import-meta-env/cli/node_modules/ && \
   rm -rf /tmp/serialize-fix
@@ -139,10 +141,10 @@ RUN mkdir -p /tmp/serialize-fix && \
 # uncontrolled-recursion advisories GHSA-6j4f-fj2g-mc7p (<5.0.10) and
 # GHSA-qhr7-859c-m2p7 (<5.0.11). No per-line backport exists, so replace all
 # bundled/transitive copies (npm ships 5.0.7; the @import-meta-env/cli tree pulls an
-# older copy) with the fixed 5.0.12.
+# older copy) with the fixed 5.0.13.
 RUN mkdir -p /tmp/brace-fix && \
   cd /tmp/brace-fix && \
-  npm install brace-expansion@5.0.12 && \
+  npm install brace-expansion@5.0.13 && \
   find /usr/lib/node_modules -type d -name brace-expansion -not -path '*/brace-fix/*' | \
     while read -r dir; do \
       rm -rf "$dir" && \
@@ -153,7 +155,7 @@ RUN mkdir -p /tmp/brace-fix && \
 # Fix CVE-2026-69192: npm and pnpm both bundle ip-address 10.2.0 (affected <=10.3.0)
 RUN mkdir -p /tmp/ip-fix && \
   cd /tmp/ip-fix && \
-  npm install ip-address@10.5.0 && \
+  npm install ip-address@10.7.6 && \
   find /usr/lib/node_modules -type d -name ip-address -not -path '*/ip-fix/*' | \
     while read -r dir; do \
       rm -rf "$dir" && \
@@ -164,11 +166,11 @@ RUN mkdir -p /tmp/ip-fix && \
 # Fix multiple tar advisories (CVE-2026-59873 and the GHSA-r292-9mhp-454m family):
 # every tar <7.5.22 is affected. Both the bundled npm and pnpm copies still ship
 # 7.5.19 and are vulnerable, so replace all bundled copies with the
-# fixed 7.5.22. tar 7.5.x is a patch line (identical deps, pure JS), so the swap
+# fixed 7.5.23. tar 7.5.x is a patch line (identical deps, pure JS), so the swap
 # is a safe drop-in that keeps npm/pnpm working.
 RUN mkdir -p /tmp/tar-fix && \
   cd /tmp/tar-fix && \
-  npm install tar@7.5.22 && \
+  npm install tar@7.5.23 && \
   find /usr/lib/node_modules -type d -path '*/node_modules/tar' -not -path '*/tar-fix/*' | \
     while read -r dir; do \
       rm -rf "$dir" && \

@@ -164,6 +164,7 @@ import IconUserPlus from "~icons/lucide/user-plus"
 import IconTrash2 from "~icons/lucide/trash-2"
 import { useService } from "dioc/vue"
 import { WorkspaceService } from "~/services/workspace.service"
+import { platform } from "~/platform"
 
 const t = useI18n()
 
@@ -195,7 +196,10 @@ const deleteTeam = () => {
     TE.match(
       (err) => {
         // TODO: Better errors ? We know the possible errors now
-        toast.error(`${t("error.something_went_wrong")}`)
+        toast.error(
+          platform.organization?.describeTeamError?.(err) ??
+            t("error.something_went_wrong")
+        )
         console.error(err)
         loading.value = false
         confirmRemove.value = false

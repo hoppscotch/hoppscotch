@@ -10,6 +10,10 @@ import {
   InputDomainSetting,
   convertDomainSetting,
 } from "~/helpers/functional/domain-settings"
+import {
+  type ClientCertEntry,
+  resolveClientCertificate,
+} from "~/helpers/functional/cert-registry"
 
 const STORE_NAMESPACE = "interceptors.agent.v1"
 
@@ -24,6 +28,8 @@ interface StoredData {
     sharedSecret: string | null
   }
   domains: Record<string, InputDomainSetting>
+  /** Multi-certificate registry — each entry maps a hostname pattern to one cert */
+  clientCerts: ClientCertEntry[]
   lastUpdated: string
 }
 
@@ -48,6 +54,9 @@ export class KernelInterceptorAgentStore extends Service {
   }
 
   private domainSettings = new Map<string, InputDomainSetting>()
+
+  /** In-memory multi-certificate registry */
+  private clientCertsRegistry: ClientCertEntry[] = []
 
   public isAgentRunning = ref(false)
   public authKey = ref<string | null>(null)
@@ -82,6 +91,7 @@ export class KernelInterceptorAgentStore extends Service {
       this.domainSettings = new Map(Object.entries(store.domains))
       this.authKey.value = store.auth.key
       this.sharedSecretB16.value = store.auth.sharedSecret
+      this.clientCertsRegistry = store.clientCerts ?? []
     }
 
     if (!this.domainSettings.has(KernelInterceptorAgentStore.GLOBAL_DOMAIN)) {
@@ -101,6 +111,7 @@ export class KernelInterceptorAgentStore extends Service {
         this.domainSettings = new Map(Object.entries(store.domains))
         this.authKey.value = store.auth.key
         this.sharedSecretB16.value = store.auth.sharedSecret
+        this.clientCertsRegistry = store.clientCerts ?? []
       }
     })
   }
@@ -113,6 +124,7 @@ export class KernelInterceptorAgentStore extends Service {
         sharedSecret: this.sharedSecretB16.value,
       },
       domains: Object.fromEntries(this.domainSettings),
+      clientCerts: this.clientCertsRegistry,
       lastUpdated: new Date().toISOString(),
     }
 
@@ -122,7 +134,9 @@ export class KernelInterceptorAgentStore extends Service {
       store
     )
     if (E.isLeft(saveResult)) {
-      console.error("[AgentStore] Failed to save store:", saveResult.left)
+      throw new Error(
+        `Failed to save agent settings: ${String(saveResult.left)}`
+      )
     }
   }
 
@@ -181,11 +195,26 @@ export class KernelInterceptorAgentStore extends Service {
     return { version: "v1", ...result }
   }
 
-  public completeRequest(
+  public async completeRequest(
     request: Omit<PluginRequest, "proxy" | "security" | "meta">
-  ): PluginRequest {
+  ): Promise<PluginRequest> {
     const host = new URL(request.url).host
     const settings = this.getMergedSettings(host)
+
+    const clientCert = await resolveClientCertificate(
+      new URL(request.url).hostname,
+      this.clientCertsRegistry
+    )
+    if (clientCert) {
+      settings.security = {
+        ...settings.security,
+        certificates: {
+          ...settings.security?.certificates,
+          client: clientCert,
+        },
+      }
+    }
+
     const effective = convertDomainSetting(settings)
 
     if (E.isLeft(effective)) {
@@ -357,6 +386,25 @@ export class KernelInterceptorAgentStore extends Service {
     }
   }
 
+  public getClientCerts(): ClientCertEntry[] {
+    return [...this.clientCertsRegistry]
+  }
+
+  public async saveClientCerts(entries: ClientCertEntry[]): Promise<void> {
+    const previous = this.clientCertsRegistry
+    this.clientCertsRegistry = [...entries]
+    try {
+      await this.persistStore()
+    } catch (error) {
+      this.clientCertsRegistry = previous
+      throw error
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Domain Settings
+  // ---------------------------------------------------------------------------
+
   public getDomainSettings(domain: string): InputDomainSetting {
     return (
       this.domainSettings.get(domain) ?? {
@@ -370,13 +418,20 @@ export class KernelInterceptorAgentStore extends Service {
     domain: string,
     settings: Partial<InputDomainSetting>
   ): Promise<void> {
+    const previous = this.domainSettings.get(domain)
     const updatedSettings: InputDomainSetting = {
       ...settings,
       version: "v1",
     }
 
     this.domainSettings.set(domain, updatedSettings)
-    await this.persistStore()
+    try {
+      await this.persistStore()
+    } catch (error) {
+      if (previous) this.domainSettings.set(domain, previous)
+      else this.domainSettings.delete(domain)
+      throw error
+    }
   }
 
   public async clearDomainSettings(domain: string): Promise<void> {

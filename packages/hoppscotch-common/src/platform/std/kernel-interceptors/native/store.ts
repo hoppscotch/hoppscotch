@@ -6,6 +6,10 @@ import {
   InputDomainSetting,
   convertDomainSetting,
 } from "~/helpers/functional/domain-settings"
+import {
+  type ClientCertEntry,
+  resolveClientCertificate,
+} from "~/helpers/functional/cert-registry"
 
 const STORE_NAMESPACE = "interceptors.native.v1"
 
@@ -16,6 +20,8 @@ const STORE_KEYS = {
 interface StoredData {
   version: string
   domains: Record<string, InputDomainSetting>
+  /** Multi-certificate registry — each entry maps a hostname pattern to one cert */
+  clientCerts: ClientCertEntry[]
   lastUpdated: string
 }
 
@@ -41,6 +47,9 @@ export class KernelInterceptorNativeStore extends Service {
 
   private domainSettings = new Map<string, InputDomainSetting>()
 
+  /** In-memory multi-certificate registry */
+  private clientCertsRegistry: ClientCertEntry[] = []
+
   async onServiceInit(): Promise<void> {
     const initResult = await Store.init()
     if (E.isLeft(initResult)) {
@@ -64,6 +73,7 @@ export class KernelInterceptorNativeStore extends Service {
     if (E.isRight(loadResult) && loadResult.right) {
       const storedData = loadResult.right
       this.domainSettings = new Map(Object.entries(storedData.domains))
+      this.clientCertsRegistry = storedData.clientCerts ?? []
     }
 
     if (!this.domainSettings.has(KernelInterceptorNativeStore.GLOBAL_DOMAIN)) {
@@ -77,10 +87,11 @@ export class KernelInterceptorNativeStore extends Service {
 
   private async setupWatchers() {
     const watcher = await Store.watch(STORE_NAMESPACE, STORE_KEYS.SETTINGS)
-    watcher.on("change", async ({ value }) => {
+    watcher.on("change", async ({ value }: { value: unknown }) => {
       if (value) {
         const store = value as StoredData
         this.domainSettings = new Map(Object.entries(store.domains))
+        this.clientCertsRegistry = store.clientCerts ?? []
       }
     })
   }
@@ -89,6 +100,7 @@ export class KernelInterceptorNativeStore extends Service {
     const store: StoredData = {
       version: "v1",
       domains: Object.fromEntries(this.domainSettings),
+      clientCerts: this.clientCertsRegistry,
       lastUpdated: new Date().toISOString(),
     }
 
@@ -98,7 +110,9 @@ export class KernelInterceptorNativeStore extends Service {
       store
     )
     if (E.isLeft(saveResult)) {
-      console.error("[AgentStore] Failed to save store:", saveResult.left)
+      throw new Error(
+        `Failed to save native settings: ${String(saveResult.left)}`
+      )
     }
   }
 
@@ -151,11 +165,25 @@ export class KernelInterceptorNativeStore extends Service {
     return { version: "v1", ...result }
   }
 
-  public completeRequest(
+  public async completeRequest(
     request: Omit<RelayRequest, "proxy" | "security" | "meta">
-  ): RelayRequest {
+  ): Promise<RelayRequest> {
     const host = new URL(request.url).host
     const settings = this.getMergedSettings(host)
+
+    const clientCert = await resolveClientCertificate(
+      new URL(request.url).hostname,
+      this.clientCertsRegistry
+    )
+    if (clientCert) {
+      settings.security = {
+        ...settings.security,
+        certificates: {
+          ...settings.security?.certificates,
+          client: clientCert,
+        },
+      }
+    }
     const effective = convertDomainSetting(settings)
 
     if (E.isLeft(effective)) {
@@ -164,6 +192,25 @@ export class KernelInterceptorNativeStore extends Service {
 
     return { ...request, ...effective.right }
   }
+
+  public getClientCerts(): ClientCertEntry[] {
+    return [...this.clientCertsRegistry]
+  }
+
+  public async saveClientCerts(entries: ClientCertEntry[]): Promise<void> {
+    const previous = this.clientCertsRegistry
+    this.clientCertsRegistry = [...entries]
+    try {
+      await this.persistStore()
+    } catch (error) {
+      this.clientCertsRegistry = previous
+      throw error
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Domain Settings
+  // ---------------------------------------------------------------------------
 
   public getDomainSettings(domain: string): InputDomainSetting {
     return (
@@ -178,13 +225,20 @@ export class KernelInterceptorNativeStore extends Service {
     domain: string,
     settings: Partial<InputDomainSetting>
   ): Promise<void> {
+    const previous = this.domainSettings.get(domain)
     const updatedSettings: InputDomainSetting = {
       ...settings,
       version: "v1",
     }
 
     this.domainSettings.set(domain, updatedSettings)
-    await this.persistStore()
+    try {
+      await this.persistStore()
+    } catch (error) {
+      if (previous) this.domainSettings.set(domain, previous)
+      else this.domainSettings.delete(domain)
+      throw error
+    }
   }
 
   public async clearDomainSettings(domain: string): Promise<void> {

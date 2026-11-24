@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-get-config-dir"
+description = "Enables the get_config_dir command without any pre-configured scope."
+commands.allow = ["get_config_dir"]
+
+[[permission]]
+identifier = "deny-get-config-dir"
+description = "Denies the get_config_dir command without any pre-configured scope."
+commands.deny = ["get_config_dir"]

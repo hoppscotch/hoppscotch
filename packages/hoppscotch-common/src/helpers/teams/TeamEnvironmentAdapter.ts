@@ -2,7 +2,12 @@ import * as E from "fp-ts/Either"
 import { BehaviorSubject, Subscription } from "rxjs"
 import { Subscription as WSubscription } from "wonka"
 import { pipe } from "fp-ts/function"
-import { GQLError, runGQLQuery, runGQLSubscription } from "../backend/GQLClient"
+import {
+  GQLError,
+  isExpectedTeamError,
+  runGQLQuery,
+  runGQLSubscription,
+} from "../backend/GQLClient"
 import {
   GetTeamEnvironmentsDocument,
   TeamEnvironmentCreatedDocument,
@@ -18,6 +23,7 @@ import {
 
 type EntityType = "environment"
 type EntityID = `${EntityType}-${string}`
+
 export default class TeamEnvironmentAdapter {
   error$: BehaviorSubject<GQLError<string> | null>
   loading$: BehaviorSubject<boolean>
@@ -109,8 +115,9 @@ export default class TeamEnvironmentAdapter {
     })
 
     if (E.isLeft(result)) {
-      this.error$.next(result.left)
       this.loading$.next(false)
+      if (isExpectedTeamError(result.left)) return
+      this.error$.next(result.left)
       console.error(result.left)
       throw new Error(`Failed fetching team environments: ${result.left}`)
     }
@@ -202,6 +209,7 @@ export default class TeamEnvironmentAdapter {
     this.teamEnvironmentCreated$ = teamEnvironmentCreated$.subscribe(
       (result) => {
         if (E.isLeft(result)) {
+          if (isExpectedTeamError(result.left)) return
           console.error(result.left)
           throw new Error(`Team Environment Create Error ${result.left}`)
         }
@@ -237,6 +245,7 @@ export default class TeamEnvironmentAdapter {
     this.teamEnvironmentDeleted$ = teamEnvironmentDeleted$.subscribe(
       (result) => {
         if (E.isLeft(result)) {
+          if (isExpectedTeamError(result.left)) return
           console.error(result.left)
           throw new Error(`Team Environment Delete Error ${result.left}`)
         }
@@ -257,6 +266,7 @@ export default class TeamEnvironmentAdapter {
     this.teamEnvironmentUpdated$ = teamEnvironmentUpdated$.subscribe(
       (result) => {
         if (E.isLeft(result)) {
+          if (isExpectedTeamError(result.left)) return
           console.error(result.left)
           throw new Error(`Team Environment Update Error ${result.left}`)
         }

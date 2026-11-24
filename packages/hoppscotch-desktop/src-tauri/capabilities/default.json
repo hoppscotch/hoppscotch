@@ -1,11 +1,11 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Capability for the main window and all app:// origins",
+  "description": "Capability for the main window and every bundle origin",
   "windows": ["*"],
   "webviews": ["*"],
   "remote": {
-    "urls": ["app://*"]
+    "urls": ["app://*", "http://app.:bundle([a-z0-9_-]+)"]
   },
   "permissions": [
     "core:default",
@@ -38,6 +38,26 @@
     },
     "deep-link:default",
     "appload:default",
-    "relay:default"
+    "relay:default",
+    "allow-is-portable",
+    "allow-hopp-auth-port",
+    "allow-quit-app",
+    "allow-check-and-backup-on-version-change",
+    "allow-set-desktop-config",
+    "allow-check-for-updates",
+    "allow-download-and-install-update",
+    "allow-restart-application",
+    "allow-cancel-update",
+    "allow-get-download-progress",
+    "allow-is-portable-mode",
+    "allow-get-config-dir",
+    "allow-get-latest-dir",
+    "allow-get-instance-dir",
+    "allow-get-store-dir",
+    "allow-get-backup-dir",
+    "allow-get-logs-dir",
+    "allow-append-log",
+    "allow-read-log",
+    "allow-get-appload-registry"
   ]
 }

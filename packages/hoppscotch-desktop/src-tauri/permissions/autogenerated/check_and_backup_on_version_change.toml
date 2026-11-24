@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-check-and-backup-on-version-change"
+description = "Enables the check_and_backup_on_version_change command without any pre-configured scope."
+commands.allow = ["check_and_backup_on_version_change"]
+
+[[permission]]
+identifier = "deny-check-and-backup-on-version-change"
+description = "Denies the check_and_backup_on_version_change command without any pre-configured scope."
+commands.deny = ["check_and_backup_on_version_change"]

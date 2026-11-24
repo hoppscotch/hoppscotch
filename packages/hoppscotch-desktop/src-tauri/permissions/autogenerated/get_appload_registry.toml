@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-get-appload-registry"
+description = "Enables the get_appload_registry command without any pre-configured scope."
+commands.allow = ["get_appload_registry"]
+
+[[permission]]
+identifier = "deny-get-appload-registry"
+description = "Denies the get_appload_registry command without any pre-configured scope."
+commands.deny = ["get_appload_registry"]

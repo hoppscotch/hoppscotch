@@ -80,4 +80,12 @@ export type UIPlatformDef = {
    * Sample use case includes bringing embeds behind auth on sub domain based cloud instances
    */
   additionalEmbedsComponent?: Component
+
+  /**
+   * Rendered over the workspace area below the header. It emits
+   * `update:active` with `true` while it covers the area, which makes the
+   * content underneath inert.
+   * Sample use case includes the organization paywall on hoppscotch.io
+   */
+  workspaceOverlayComponent?: Component
 }

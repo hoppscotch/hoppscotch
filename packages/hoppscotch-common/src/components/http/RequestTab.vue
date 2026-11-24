@@ -1,5 +1,5 @@
 <template>
-  <AppPaneLayout layout-id="rest-primary">
+  <AppPaneLayout layout-id="rest-primary" :tab-id="tab.id">
     <template #primary>
       <HttpRequest v-model="tab" />
       <HttpRequestOptions

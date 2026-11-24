@@ -939,10 +939,10 @@ export class DesktopInstanceService
           ),
           TE.map((response) =>
             this.createInstanceFromDownload(response, instanceKind, displayName)
-          )
+          ),
+          TE.orElse((error) => this.failConnectingTE(normalizedUrl, error))
         )
-      ),
-      TE.orElse((error) => this.failConnectingTE(error))
+      )
     )
   }
 
@@ -950,10 +950,17 @@ export class DesktopInstanceService
    * A download sets the "connecting" state, so a download or a load that
    * fails after it replaces that state with an error, and a Switcher that
    * mounts later doesn't read the connection as still in progress.
+   * A second connect can start while this one is pending, so a
+   * `connecting` state is replaced for `target` alone.
    */
-  private failConnectingTE<A>(error: string): TE.TaskEither<string, A> {
+  private failConnectingTE<A>(
+    target: string,
+    error: string
+  ): TE.TaskEither<string, A> {
     const state = this.connectionState$.value
-    if (state.status !== "connecting") return TE.left(error)
+    if (state.status !== "connecting" || state.target !== target) {
+      return TE.left(error)
+    }
 
     return pipe(
       this.setConnectionState({
@@ -1273,10 +1280,12 @@ export class DesktopInstanceService
           TE.map((): OperationResult => ({
             success: true,
             message: `Successfully connected to ${displayName || serverUrl}`,
-          }))
+          })),
+          TE.orElse((error) =>
+            this.failConnectingTE<OperationResult>(normalizedUrl, error)
+          )
         )
-      ),
-      TE.orElse((error) => this.failConnectingTE<OperationResult>(error))
+      )
     )
   }
 

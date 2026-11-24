@@ -256,16 +256,16 @@ impl AppState {
 
     #[tracing::instrument(skip(self, auth_key))]
     pub fn get_registration(&self, auth_key: &str) -> Option<Registration> {
-        tracing::debug!("Retrieving registration tracing::info");
+        tracing::debug!("Retrieving registration info");
         let result = self
             .registrations
             .get(auth_key)
             .map(|reference| reference.value().clone());
 
         if result.is_some() {
-            tracing::info!("Registration tracing::info retrieved successfully");
+            tracing::info!("Registration info retrieved successfully");
         } else {
-            tracing::debug!("No registration tracing::info found");
+            tracing::debug!("No registration info found");
         }
 
         result

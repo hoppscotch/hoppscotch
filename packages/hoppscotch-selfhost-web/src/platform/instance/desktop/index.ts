@@ -70,6 +70,12 @@ export class DesktopInstanceService
     this.getDefaultRecentInstances()
   )
 
+  // A connect or a download is numbered when it starts, and
+  // `connectingAttempt` is the number of the attempt that set the
+  // `connecting` state.
+  private lastAttempt = 0
+  private connectingAttempt = 0
+
   /**
    * Enable instance switching for this platform, adherence to platform def
    */
@@ -212,6 +218,7 @@ export class DesktopInstanceService
     const result = await this.downloadInstanceTE(
       serverUrl,
       instanceKind,
+      ++this.lastAttempt,
       displayName
     )()
 
@@ -833,9 +840,11 @@ export class DesktopInstanceService
   }
 
   private setConnectingStateTE(
-    target: string
+    target: string,
+    attempt: number
   ): TE.TaskEither<string, ConnectionState> {
     console.log(`[InstanceService] Setting connecting state for: ${target}`)
+    this.connectingAttempt = attempt
     return this.setConnectionState({ status: "connecting", target })
   }
 
@@ -926,6 +935,7 @@ export class DesktopInstanceService
   private downloadInstanceTE(
     serverUrl: string,
     instanceKind: InstanceKind,
+    attempt: number,
     displayName?: string
   ): TE.TaskEither<string, Instance> {
     return pipe(
@@ -933,7 +943,7 @@ export class DesktopInstanceService
       TE.fromEither,
       TE.chain((normalizedUrl) =>
         pipe(
-          this.setConnectingStateTE(normalizedUrl),
+          this.setConnectingStateTE(normalizedUrl, attempt),
           TE.chain(() => this.performDownloadTE(normalizedUrl)),
           TE.chain((response) =>
             this.validateDownloadResponseTE(response, normalizedUrl)
@@ -941,7 +951,7 @@ export class DesktopInstanceService
           TE.map((response) =>
             this.createInstanceFromDownload(response, instanceKind, displayName)
           ),
-          TE.orElse((error) => this.failConnectingTE(normalizedUrl, error))
+          TE.orElse((error) => this.failConnectingTE(attempt, error))
         )
       )
     )
@@ -951,15 +961,16 @@ export class DesktopInstanceService
    * A download sets the "connecting" state, so a download or a load that
    * fails after it replaces that state with an error, and a Switcher that
    * mounts later doesn't read the connection as still in progress.
-   * A second connect can start while this one is pending, so a
-   * `connecting` state is replaced for `target` alone.
+   * A second connect can start while this one is pending, even to the
+   * same URL, so a `connecting` state is replaced for the attempt that
+   * set it alone.
    */
   private failConnectingTE<A>(
-    target: string,
+    attempt: number,
     error: string
   ): TE.TaskEither<string, A> {
     const state = this.connectionState$.value
-    if (state.status !== "connecting" || state.target !== target) {
+    if (state.status !== "connecting" || this.connectingAttempt !== attempt) {
       return TE.left(error)
     }
 
@@ -1208,6 +1219,7 @@ export class DesktopInstanceService
   private createOrGetInstanceTE(
     serverUrl: string,
     instanceKind: InstanceKind,
+    attempt: number,
     displayName?: string
   ): TE.TaskEither<string, Instance> {
     return pipe(
@@ -1218,7 +1230,12 @@ export class DesktopInstanceService
             `[InstanceService] Instance not found, downloading new: ${serverUrl}`
           )
           return pipe(
-            this.downloadInstanceTE(serverUrl, instanceKind, displayName),
+            this.downloadInstanceTE(
+              serverUrl,
+              instanceKind,
+              attempt,
+              displayName
+            ),
             TE.chainFirst((newInstance) =>
               this.addToRecentInstancesTE(newInstance)
             )
@@ -1274,19 +1291,25 @@ export class DesktopInstanceService
     return pipe(
       this.normalizeUrlE(serverUrl),
       TE.fromEither,
-      TE.chain((normalizedUrl) =>
-        pipe(
-          this.createOrGetInstanceTE(normalizedUrl, instanceKind, displayName),
+      TE.chain((normalizedUrl) => {
+        const attempt = ++this.lastAttempt
+        return pipe(
+          this.createOrGetInstanceTE(
+            normalizedUrl,
+            instanceKind,
+            attempt,
+            displayName
+          ),
           TE.chain((instance) => this.loadInstanceTE(instance, options)),
           TE.map((): OperationResult => ({
             success: true,
             message: `Successfully connected to ${displayName || serverUrl}`,
           })),
           TE.orElse((error) =>
-            this.failConnectingTE<OperationResult>(normalizedUrl, error)
+            this.failConnectingTE<OperationResult>(attempt, error)
           )
         )
-      )
+      })
     )
   }
 

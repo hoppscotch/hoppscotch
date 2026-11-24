@@ -625,7 +625,9 @@ const getWorkspaceCollections = async (): Promise<{
     toast.error(
       res.left === "team/legacy_workspace_blocked"
         ? t("team.legacy_workspace_blocked")
-        : res.left
+        : res.left === "legacy_workspace/migration_in_progress"
+          ? t("team.migration_in_progress")
+          : res.left
     )
     return null
   }

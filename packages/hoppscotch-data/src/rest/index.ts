@@ -21,13 +21,14 @@ import { HoppRESTReqBody } from "./v/10/body"
 import V11_VERSION from "./v/11"
 import V12_VERSION from "./v/12"
 import V13_VERSION from "./v/13"
-import { HoppRESTAuth } from "./v/15/auth"
+import { HoppRESTAuth } from "./v/18/auth"
 import V14_VERSION from "./v/14"
 import V15_VERSION from "./v/15/index"
 import V16_VERSION from "./v/16"
 import { HoppRESTRequestResponses } from "../rest-request-response"
 import { generateUniqueRefId } from "../utils/collection"
 import V17_VERSION from "./v/17"
+import V18_VERSION from "./v/18"
 
 export * from "./content-types"
 
@@ -56,16 +57,16 @@ export { HoppRESTReqBody } from "./v/10/body"
 
 export { HoppRESTAuthHAWK, HoppRESTAuthAkamaiEdgeGrid } from "./v/12/auth"
 
-export { HoppRESTAuth, HoppRESTAuthJWT } from "./v/15/auth"
-export { AuthCodeGrantTypeParams } from "./v/15/auth"
-export { PasswordGrantTypeParams } from "./v/15/auth"
-export { ImplicitOauthFlowParams } from "./v/15/auth"
+export { HoppRESTAuth, HoppRESTAuthJWT } from "./v/18/auth"
+export { AuthCodeGrantTypeParams } from "./v/18/auth"
+export { PasswordGrantTypeParams } from "./v/18/auth"
+export { ImplicitOauthFlowParams } from "./v/18/auth"
 export {
   HoppRESTAuthOAuth2,
   ClientCredentialsGrantTypeParams,
   OAuth2AdvancedParam,
   OAuth2AuthRequestParam,
-} from "./v/15/auth"
+} from "./v/18/auth"
 
 export {
   HoppRESTRequestResponse,
@@ -78,7 +79,7 @@ const versionedObject = z.object({
 })
 
 export const HoppRESTRequest = createVersionedEntity({
-  latestVersion: 17,
+  latestVersion: 18,
   versionMap: {
     0: V0_VERSION,
     1: V1_VERSION,
@@ -98,6 +99,7 @@ export const HoppRESTRequest = createVersionedEntity({
     15: V15_VERSION,
     16: V16_VERSION,
     17: V17_VERSION,
+    18: V18_VERSION,
   },
   getVersion(data) {
     // For V1 onwards we have the v string storing the number
@@ -142,7 +144,7 @@ const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
   description: lodashIsEqualEq,
 })
 
-export const RESTReqSchemaVersion = "17"
+export const RESTReqSchemaVersion = "18"
 
 export type HoppRESTParam = HoppRESTRequest["params"][number]
 export type HoppRESTHeader = HoppRESTRequest["headers"][number]

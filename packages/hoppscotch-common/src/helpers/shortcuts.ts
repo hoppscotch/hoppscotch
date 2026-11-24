@@ -208,6 +208,7 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
       keys: [getPlatformSpecialKey(), getPlatformShiftKey(), "T"],
       label: t("shortcut.tabs.reopen_tab"),
       section: t("shortcut.tabs.title"),
+      action: "tab.reopen-closed",
     },
     {
       keys: [getPlatformSpecialKey(), getPlatformAlternateKey(), "→"],

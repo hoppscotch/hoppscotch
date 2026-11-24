@@ -4,6 +4,7 @@ vi.mock("@hoppscotch/kernel", () => ({ getKernelMode: () => "desktop" }))
 
 import { bindings } from "../keybindings"
 import { getShortcuts } from "../shortcuts"
+import { getPlatformShiftKey, getPlatformSpecialKey } from "../platformutils"
 
 describe("desktop bindings", () => {
   // The desktop shell sends ctrl-shift-t for Ctrl/Cmd+Shift+T, so the chord
@@ -13,7 +14,13 @@ describe("desktop bindings", () => {
   })
 
   test("the shortcuts list shows the reopen chord", () => {
-    const labels = getShortcuts((x) => x).map((s) => s.label)
-    expect(labels).toContain("shortcut.tabs.reopen_tab")
+    const reopen = getShortcuts((x) => x).find(
+      (s) => s.label === "shortcut.tabs.reopen_tab"
+    )
+    expect(reopen?.keys).toEqual([
+      getPlatformSpecialKey(),
+      getPlatformShiftKey(),
+      "T",
+    ])
   })
 })

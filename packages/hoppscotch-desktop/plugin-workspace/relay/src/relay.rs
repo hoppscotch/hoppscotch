@@ -69,6 +69,9 @@ fn execute_request(request: &Request, cancel_token: &CancellationToken) -> Resul
                 return;
             }
             if let Ok(s) = std::str::from_utf8(data) {
+                if logs_a_secret(s) {
+                    return;
+                }
                 tracing::debug!(info_type = ?info_type, s = ?s, "cURL debug fn");
             }
         })
@@ -174,6 +177,15 @@ pub async fn cancel(request_id: i64) -> Result<()> {
     }
 }
 
+/// Whether a line of curl's `InfoType::Text` output carries a secret. The
+/// cookie engine writes each cookie's value, `Added cookie sid="..." for
+/// domain ...`, and a redirect writes the next URL with its query string,
+/// `Issue another request to this URL: '...'`.
+fn logs_a_secret(line: &str) -> bool {
+    line.to_ascii_lowercase().contains("cookie")
+        || line.starts_with("Issue another request to this URL")
+}
+
 #[cfg(test)]
 mod tests {
     use std::future::Future;
@@ -185,7 +197,7 @@ mod tests {
 
     use http::{Method, Version};
 
-    use super::{cancel, execute, settle};
+    use super::{cancel, execute, logs_a_secret, settle};
     use crate::error::RelayError;
     use crate::interop::Request;
 
@@ -306,5 +318,39 @@ mod tests {
             settle(failed, false),
             Err(RelayError::Network { .. })
         ));
+    }
+
+    #[test]
+    fn a_curl_line_with_a_cookie_or_a_redirect_url_is_not_logged() {
+        assert!(logs_a_secret(
+            "Added cookie sid=\"abc123\" for domain example.com, path /, expire 0\n"
+        ));
+        assert!(logs_a_secret(
+            "Replaced cookie sid=\"def\" for domain example.com, path /, expire 0\n"
+        ));
+        assert!(logs_a_secret(
+            "Issue another request to this URL: 'https://example.com/?token=x'\n"
+        ));
+        assert!(!logs_a_secret(
+            "Connected to example.com (93.184.215.14) port 443\n"
+        ));
+    }
+
+    #[test]
+    fn a_request_debug_shows_header_names_and_no_secret() {
+        let mut request = get(1, 1);
+        request.headers = Some(
+            [("Authorization".to_string(), "Bearer s3cret".to_string())]
+                .into_iter()
+                .collect(),
+        );
+        request.auth = Some(crate::interop::AuthType::Basic {
+            username: "user".into(),
+            password: "hunter2".into(),
+        });
+        let shown = format!("{request:?}");
+        assert!(shown.contains("Authorization"));
+        assert!(!shown.contains("s3cret"));
+        assert!(!shown.contains("hunter2"));
     }
 }

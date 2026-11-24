@@ -40,11 +40,12 @@ import { useDesktopSettings } from "@hoppscotch/common/composables/desktop-setti
 
 const STORE_NAMESPACE = "hoppscotch-desktop.v1"
 
-// tauri-plugin-appload times the bundle request at DOWNLOAD_TIMEOUT_FACTOR
-// times the persisted connection timeout. The race below wraps the whole
-// download, so it uses the same factor and base, or it rejects a bundle
-// the shell is in the middle of receiving.
-const BUNDLE_DOWNLOAD_TIMEOUT_FACTOR = 10
+// tauri-plugin-appload fetches the signing key at the persisted
+// connection timeout, the metadata at the same timeout, then the bundle
+// at DOWNLOAD_TIMEOUT_FACTOR (10) times it. The race below wraps the
+// download from start to end, so it allows 1 + 1 + 10 times the same
+// base, or it rejects a bundle the shell is in the middle of receiving.
+const BUNDLE_DOWNLOAD_TIMEOUT_FACTOR = 12
 
 type RecentInstances = Instance[]
 

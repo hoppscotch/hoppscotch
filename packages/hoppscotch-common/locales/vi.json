@@ -1444,7 +1444,7 @@
     "ca_certificates": "Chứng chỉ CA",
     "ca_certificates_support": "Hoppscotch hỗ trợ tệp .crt, .cer hoặc .pem chứa một hoặc nhiều chứng chỉ.",
     "proxy_capabilities": "Hoppscotch Agent và ứng dụng Desktop hỗ trợ proxy HTTP/HTTPS/SOCKS với xác thực NTLM và Basic.",
-    "proxy_auth": "Xác thực Proxy"
+    "proxy_auth": "Bạn cũng có thể đưa tên người dùng và mật khẩu vào URL."
   },
   "shared_requests": {
     "auth_warning": "Yêu cầu này chứa thông tin xác thực. Bất kỳ ai có liên kết chia sẻ đều có thể đọc chúng — bao gồm token, mật khẩu và khóa API.",

@@ -1592,7 +1592,8 @@ describe("hopp test [options] <file_path_or_id>", { timeout: 100000 }, () => {
         JSON.stringify({ baseURL: `https://127.0.0.1:${port}` })
       );
 
-      validTestArgs = `test ${COLL_PATH} --env ${envPath}`;
+      // Quoted since `runCLI` goes through a shell and the temporary directory may contain spaces
+      validTestArgs = `test "${COLL_PATH}" --env "${envPath}"`;
     });
 
     afterAll(async () => {

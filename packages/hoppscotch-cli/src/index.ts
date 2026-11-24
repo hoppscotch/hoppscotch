@@ -38,7 +38,7 @@ program
   .showHelpAfterError(true);
 
 program.exitOverride().configureOutput({
-  writeErr: (str) => program.help(),
+  writeErr: (str) => process.stderr.write(str),
   outputError: (str, write) =>
     handleError({ code: "INVALID_ARGUMENT", data: E.toError(str) }),
 });
@@ -104,5 +104,9 @@ program
 export const cli = async (args: string[]) => {
   try {
     await program.parseAsync(args);
-  } catch (e) {}
+  } catch (e: any) {
+    if (e && typeof e.exitCode === "number" && e.exitCode !== 0) {
+      process.exitCode = e.exitCode;
+    }
+  }
 };

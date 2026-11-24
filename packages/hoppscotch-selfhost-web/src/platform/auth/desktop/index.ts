@@ -167,7 +167,9 @@ async function setUser(user: HoppUserWithAuthDetail | null) {
   const accessToken = await persistenceService.getLocalConfig("access_token")
   const refreshToken = await persistenceService.getLocalConfig("refresh_token")
 
-  if (!accessToken || !refreshToken) return null
+  // A user is saved with both tokens, and a sign-out clears the user
+  // whatever tokens are left, so a missing token doesn't keep a stale user
+  if (user && (!accessToken || !refreshToken)) return null
 
   const userWithToken =
     user && accessToken && refreshToken

@@ -2,7 +2,6 @@ import { HoppRESTHeader } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
-import * as S from "fp-ts/string"
 import parser from "yargs-parser"
 import {
   objHasArrayProperty,
@@ -10,13 +9,19 @@ import {
 } from "~/helpers/functional/object"
 import { tupleToRecord } from "~/helpers/functional/record"
 
-const getHeaderPair = flow(
-  S.replace(":", ": "),
-  S.split(": "),
-  // must have a key and a value
-  O.fromPredicate((arr) => arr.length === 2),
-  O.map(([k, v]) => [k.trim(), v?.trim() ?? ""] as [string, string])
-)
+const getHeaderPair = (header: string): O.Option<[string, string]> => {
+  // Split on the FIRST colon only. The name is everything before it; the value
+  // (everything after) may itself contain ": " — e.g. "X-Note: hello: world".
+  const separatorIndex = header.indexOf(":")
+
+  // must have a key and a value (a colon separator must be present)
+  if (separatorIndex === -1) return O.none
+
+  return O.some([
+    header.slice(0, separatorIndex).trim(),
+    header.slice(separatorIndex + 1).trim(),
+  ] as [string, string])
+}
 
 export function getHeaders(parsedArguments: parser.Arguments) {
   let headers: Record<string, string> = {}

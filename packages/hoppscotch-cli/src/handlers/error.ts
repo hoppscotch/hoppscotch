@@ -32,6 +32,32 @@ const parseErrorData = (e: unknown) => {
 };
 
 /**
+ * Builds a friendly error message for cross-origin (CORS) request failures,
+ * which commonly affect first-time users running requests against servers that
+ * do not yet allow browser based origins.
+ * @param errorData Error data to parse and potentially augment.
+ * @returns Error message in string format, with CORS guidance if applicable.
+ */
+const getFriendlyRequestErrorMessage = (errorData: unknown): string => {
+  const message = parseErrorData(errorData);
+  const lowerCaseMessage = message.toLowerCase();
+
+  if (
+    lowerCaseMessage.includes("access-control-allow-origin") ||
+    lowerCaseMessage.includes("cors")
+  ) {
+    return [
+      message,
+      "",
+      "The request was blocked by the browser's cross-origin request policy (CORS).",
+      "For first time users: make sure the target server allows requests from the Hoppscotch application origin, or send the request through the Hoppscotch backend proxy instead of directly from the browser.",
+    ].join("\n");
+  }
+
+  return message;
+};
+
+/**
  * Handles HoppError to generate error messages based on data related
  * to error code and exits program with exit code 1.
  * @param error Error object with code of type HoppErrorCode.
@@ -70,9 +96,10 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
       break;
     case "REQUEST_ERROR":
     case "TEST_SCRIPT_ERROR":
-    case "PRE_REQUEST_SCRIPT_ERROR":
-      ERROR_MSG = parseErrorData(error.data);
+    case "PRE_REQUEST_SCRIPT_ERROR": {
+      ERROR_MSG = getFriendlyRequestErrorMessage(error.data);
       break;
+    }
     case "INVALID_ARGUMENT":
     case "UNKNOWN_ERROR":
     case "SYNTAX_ERROR":

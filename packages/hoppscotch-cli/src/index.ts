@@ -79,6 +79,10 @@ program
     "path to a CSV file for data-driven testing"
   )
   .option("--legacy-sandbox", "Opt out from the experimental scripting sandbox")
+  .option(
+    "-k, --insecure",
+    "skip TLS certificate verification, e.g. for servers using self-signed certificates"
+  )
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .description("running hoppscotch collection.json file")

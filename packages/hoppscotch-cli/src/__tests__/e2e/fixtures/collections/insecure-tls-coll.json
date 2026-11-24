@@ -1,0 +1,86 @@
+{
+  "v": 11,
+  "name": "insecure-tls-coll",
+  "folders": [],
+  "requests": [
+    {
+      "v": "17",
+      "name": "collection-request",
+      "method": "GET",
+      "endpoint": "<<baseURL>>/status",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "hopp.test('Request reaches the self-signed server', () => {\n  hopp.expect(hopp.response.statusCode).toBe(200)\n})\n",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {},
+      "description": null
+    },
+    {
+      "v": "17",
+      "name": "script-request",
+      "method": "GET",
+      "endpoint": "<<baseURL>>/status",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "hopp.test('hopp.fetch() reaches the self-signed server', async () => {\n  const response = await hopp.fetch(`${hopp.env.get('baseURL')}/status`)\n  hopp.expect(response.status).toBe(200)\n})\n",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {},
+      "description": null
+    },
+    {
+      "v": "17",
+      "name": "digest-auth-request",
+      "method": "GET",
+      "endpoint": "<<baseURL>>/digest",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "hopp.test('Digest auth handshake reaches the self-signed server', () => {\n  hopp.expect(hopp.response.statusCode).toBe(200)\n})\n",
+      "auth": {
+        "authType": "digest",
+        "authActive": true,
+        "username": "admin",
+        "password": "admin",
+        "realm": "",
+        "nonce": "",
+        "algorithm": "MD5",
+        "qop": "auth",
+        "nc": "",
+        "cnonce": "",
+        "opaque": "",
+        "disableRetry": false
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {},
+      "description": null
+    }
+  ],
+  "auth": {
+    "authType": "none",
+    "authActive": true
+  },
+  "headers": [],
+  "variables": []
+}

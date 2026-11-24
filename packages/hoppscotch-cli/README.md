@@ -117,6 +117,12 @@ hopp [options or commands] arguments
 
     - Opt out from the experimental scripting sandbox.
 
+    #### `-k, --insecure`
+
+    - Skips TLS certificate verification, allowing requests to servers that present self-signed, expired or otherwise untrusted certificates (e.g. internal development environments).
+    - Applies to every HTTPS connection made during the run: requests in the collection, requests sent from scripts and collections/environments fetched from a self-hosted instance via `--server`.
+    - Certificate verification protects against man-in-the-middle attacks, use this flag only against servers you trust.
+
 ## Versioning
 
 The Hoppscotch CLI follows **pre-1.0 semantic versioning** conventions while in alpha (version `< 1.0.0`):

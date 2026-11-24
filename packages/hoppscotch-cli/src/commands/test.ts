@@ -17,6 +17,7 @@ import {
   collectionsRunnerResult,
 } from "../utils/collections";
 import { parseCollectionData } from "../utils/mutators";
+import { disableTLSCertificateVerification } from "../utils/tls";
 
 export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
   try {
@@ -27,7 +28,14 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
       iterationData,
       reporterJunit,
       legacySandbox,
+      insecure,
     } = options;
+
+    // Has to run before anything hits the network, collections and
+    // environments may be fetched from a workspace right below
+    if (insecure) {
+      disableTLSCertificateVerification();
+    }
 
     if (
       iterationCount !== undefined &&

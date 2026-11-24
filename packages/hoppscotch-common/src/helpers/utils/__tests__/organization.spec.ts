@@ -144,4 +144,26 @@ describe("sanitizeLogoUrl", () => {
       "https://example.com/logo.png"
     )
   })
+
+  // browsers strip tabs/newlines out of urls while parsing, so `java\tscript:`
+  // collapses to `javascript:` in the dom. the protocol check has to account
+  // for that or these slip straight through.
+  test("blocks javascript: disguised with an embedded tab", () => {
+    expect(sanitizeLogoUrl("java\tscript:alert(1)")).toBe("")
+  })
+
+  test("blocks javascript: disguised with an embedded newline", () => {
+    expect(sanitizeLogoUrl("java\nscript:alert(1)")).toBe("")
+  })
+
+  test("blocks a dangerous scheme prefixed with a control character", () => {
+    expect(sanitizeLogoUrl("\x01javascript:alert(1)")).toBe("")
+  })
+
+  // C1 controls (U+0080-U+009F) are likewise dropped during browser URL
+  // parsing, so a scheme split by U+0085 (NEXT LINE) would otherwise pass.
+  test("blocks a dangerous scheme disguised with a C1 control character", () => {
+    const nel = String.fromCharCode(0x85)
+    expect(sanitizeLogoUrl(`javas${nel}cript:alert(1)`)).toBe("")
+  })
 })

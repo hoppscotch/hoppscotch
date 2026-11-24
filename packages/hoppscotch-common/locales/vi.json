@@ -1223,7 +1223,7 @@
     "invalid_name": "Vui lòng cung cấp tên cho yêu cầu",
     "method": "Phương thức",
     "moved": "Yêu cầu đã được di chuyển",
-    "name": "Yêu cầu mới của tôi",
+    "name": "Tên yêu cầu",
     "new": "Yêu cầu mới",
     "new_gql": "Yêu cầu GraphQL mới",
     "order_changed": "Đã cập nhật thứ tự yêu cầu",

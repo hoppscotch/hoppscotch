@@ -27,7 +27,11 @@ import {
   TeamRequest,
   normalizeTeamRequestBody,
 } from "~/helpers/teams/TeamRequest"
-import { runGQLQuery, runGQLSubscription } from "~/helpers/backend/GQLClient"
+import {
+  isExpectedTeamError,
+  runGQLQuery,
+  runGQLSubscription,
+} from "~/helpers/backend/GQLClient"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { ref, watch } from "vue"
 import { Service } from "dioc"
@@ -365,6 +369,8 @@ export class TeamCollectionsService extends Service<void> {
         this.loadingCollections.value = this.loadingCollections.value.filter(
           (x) => x !== "root"
         )
+
+        if (isExpectedTeamError(result.left)) return
 
         throw new Error(
           `Error fetching root collections: ${result.left?.error}`
@@ -711,6 +717,7 @@ export class TeamCollectionsService extends Service<void> {
     this.teamCollectionAddedSub = teamCollAddedSub
 
     this.teamCollectionAdded$ = teamCollAdded$.subscribe((result: any) => {
+      if (E.isLeft(result) && isExpectedTeamError(result.left)) return
       if (E.isLeft(result))
         throw new Error(
           `Team Collection Added Error: ${JSON.stringify(result.left)}`
@@ -737,6 +744,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.teamCollectionUpdatedSub = teamCollUpdatedSub
     this.teamCollectionUpdated$ = teamCollUpdated$.subscribe((result: any) => {
+      if (E.isLeft(result) && isExpectedTeamError(result.left)) return
       if (E.isLeft(result))
         throw new Error(
           `Team Collection Updated Error: ${JSON.stringify(result.left)}`
@@ -762,6 +770,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.teamCollectionRemovedSub = teamCollRemovedSub
     this.teamCollectionRemoved$ = teamCollRemoved$.subscribe((result: any) => {
+      if (E.isLeft(result) && isExpectedTeamError(result.left)) return
       if (E.isLeft(result))
         throw new Error(
           `Team Collection Removed Error: ${JSON.stringify(result.left)}`
@@ -779,6 +788,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.teamRequestAddedSub = teamReqAddedSub
     this.teamRequestAdded$ = teamReqAdded$.subscribe((result: any) => {
+      if (E.isLeft(result) && isExpectedTeamError(result.left)) return
       if (E.isLeft(result))
         throw new Error(
           `Team Request Added Error: ${JSON.stringify(result.left)}`
@@ -803,6 +813,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.teamRequestUpdatedSub = teamReqUpdatedSub
     this.teamRequestUpdated$ = teamReqUpdated$.subscribe((result: any) => {
+      if (E.isLeft(result) && isExpectedTeamError(result.left)) return
       if (E.isLeft(result))
         throw new Error(
           `Team Request Updated Error: ${JSON.stringify(result.left)}`
@@ -827,6 +838,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.teamRequestDeletedSub = teamReqDeletedSub
     this.teamRequestDeleted$ = teamReqDeleted$.subscribe((result: any) => {
+      if (E.isLeft(result) && isExpectedTeamError(result.left)) return
       if (E.isLeft(result))
         throw new Error(
           `Team Request Deleted Error ${JSON.stringify(result.left)}`
@@ -844,6 +856,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.teamRequestMovedSub = teamRequestMovedSub
     this.teamRequestMoved$ = teamRequestMoved$.subscribe((result: any) => {
+      if (E.isLeft(result) && isExpectedTeamError(result.left)) return
       if (E.isLeft(result))
         throw new Error(
           `Team Request Move Error ${JSON.stringify(result.left)}`
@@ -871,6 +884,7 @@ export class TeamCollectionsService extends Service<void> {
     this.teamCollectionMovedSub = teamCollectionMovedSub
     this.teamCollectionMoved$ = teamCollectionMoved$.subscribe(
       (result: any) => {
+        if (E.isLeft(result) && isExpectedTeamError(result.left)) return
         if (E.isLeft(result))
           throw new Error(
             `Team Collection Move Error ${JSON.stringify(result.left)}`
@@ -896,6 +910,7 @@ export class TeamCollectionsService extends Service<void> {
     this.teamRequestOrderUpdatedSub = teamRequestOrderUpdatedSub
     this.teamRequestOrderUpdated$ = teamRequestOrderUpdated$.subscribe(
       (result: any) => {
+        if (E.isLeft(result) && isExpectedTeamError(result.left)) return
         if (E.isLeft(result))
           throw new Error(
             `Team Request Order Update Error ${JSON.stringify(result.left)}`
@@ -924,6 +939,7 @@ export class TeamCollectionsService extends Service<void> {
     this.teamCollectionOrderUpdatedSub = teamCollectionOrderUpdatedSub
     this.teamCollectionOrderUpdated$ = teamCollectionOrderUpdated$.subscribe(
       (result: any) => {
+        if (E.isLeft(result) && isExpectedTeamError(result.left)) return
         if (E.isLeft(result))
           throw new Error(
             `Team Collection Order Update Error ${JSON.stringify(result.left)}`
@@ -951,6 +967,7 @@ export class TeamCollectionsService extends Service<void> {
     this.teamRootCollectionSortedSub = teamRootCollectionSortedSub
     this.teamRootCollectionSorted$ = teamRootCollectionSorted$.subscribe(
       (result: any) => {
+        if (E.isLeft(result) && isExpectedTeamError(result.left)) return
         if (E.isLeft(result))
           throw new Error(
             `Team Root Collection Sorted Error ${JSON.stringify(result.left)}`
@@ -971,6 +988,7 @@ export class TeamCollectionsService extends Service<void> {
     this.teamChildCollectionSortedSub = teamChildCollectionSortedSub
     this.teamChildCollectionSorted$ = teamChildCollectionSorted$.subscribe(
       (result: any) => {
+        if (E.isLeft(result) && isExpectedTeamError(result.left)) return
         if (E.isLeft(result))
           throw new Error(
             `Team Child Collection Sorted Error ${JSON.stringify(result.left)}`

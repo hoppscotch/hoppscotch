@@ -30,6 +30,16 @@ export const __resetKeybindingLocksForTest = () => keybindingLocks.clear()
 export const __getKeybindingLockCountForTest = () => keybindingLocks.size
 
 /**
+ * Set while a workspace overlay covers the app, so shortcuts can't act on the
+ * workspace behind it. This suspension is independent of modal locks.
+ */
+let keybindingsSuspended = false
+
+export const setKeybindingsSuspended = (suspended: boolean) => {
+  keybindingsSuspended = suspended
+}
+
+/**
  * Unlisten function for Tauri event
  */
 let unlistenTauriEvent: (() => void) | null = null
@@ -188,7 +198,7 @@ export function hookKeybindingsListener() {
 
 export function handleKeyDown(ev: KeyboardEvent) {
   // Do not check keybinds if the mode is disabled
-  if (keybindingLocks.size > 0) return
+  if (keybindingLocks.size > 0 || keybindingsSuspended) return
 
   // Skip during IME composition (CJK input). Modern browsers report
   // `isComposing`. Older ones use the sentinel `keyCode === 229`.
@@ -287,7 +297,7 @@ function handleTauriShortcut(shortcut: string) {
   console.info("Tauri shortcut:", shortcut)
 
   // Do not check keybinds if the mode is disabled
-  if (keybindingLocks.size > 0) return
+  if (keybindingLocks.size > 0 || keybindingsSuspended) return
 
   const activeBindings = getActiveBindings()
   const boundAction = activeBindings[shortcut as ShortcutKey]

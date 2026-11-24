@@ -8,6 +8,7 @@ import {
   handleKeyDown,
   hookKeybindingsListener,
   resolvePressedKey,
+  setKeybindingsSuspended,
   useKeybindingDisabler,
 } from "../keybindings"
 
@@ -37,6 +38,39 @@ describe("useKeybindingDisabler", () => {
       handleKeyDown(shortcut)
       expect(handler).toHaveBeenCalledOnce()
     } finally {
+      unbindAction("modals.search.toggle", handler)
+    }
+  })
+
+  test("keeps shortcuts disabled while a workspace overlay is open", () => {
+    __resetKeybindingLocksForTest()
+    const handler = vi.fn()
+    const modal = useKeybindingDisabler()
+    const shortcut = new KeyboardEvent("keydown", {
+      key: "k",
+      code: "KeyK",
+      ctrlKey: true,
+    })
+    bindAction("modals.search.toggle", handler)
+
+    try {
+      setKeybindingsSuspended(true)
+      modal.disableKeybindings()
+      modal.enableKeybindings()
+      handleKeyDown(shortcut)
+      expect(handler).not.toHaveBeenCalled()
+
+      modal.disableKeybindings()
+      setKeybindingsSuspended(false)
+      handleKeyDown(shortcut)
+      expect(handler).not.toHaveBeenCalled()
+
+      modal.enableKeybindings()
+      handleKeyDown(shortcut)
+      expect(handler).toHaveBeenCalledOnce()
+    } finally {
+      modal.enableKeybindings()
+      setKeybindingsSuspended(false)
       unbindAction("modals.search.toggle", handler)
     }
   })

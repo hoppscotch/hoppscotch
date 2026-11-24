@@ -342,7 +342,7 @@ import { useI18n } from "@composables/i18n"
 import { useDocumentationVisibility } from "~/composables/documentationVisibility"
 import { useGqlWorkspaceVisibility } from "~/composables/gqlWorkspaceVisibility"
 import { HoppCollection } from "@hoppscotch/data"
-import { computed, ref, watch } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 import { TippyComponent } from "vue-tippy"
 import { useReadonlyStream } from "~/composables/stream"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
@@ -399,6 +399,11 @@ const props = withDefaults(
     isLastItem?: boolean
     duplicateCollectionLoading?: boolean
     teamLoadingCollections?: string[]
+    /**
+     * Open the folder as soon as it is shown. Search results use it for the
+     * folders that lead to a match.
+     */
+    autoOpen?: boolean
   }>(),
   {
     id: "",
@@ -413,11 +418,13 @@ const props = withDefaults(
     duplicateCollectionLoading: false,
     collectionMoveLoading: () => [],
     teamLoadingCollections: () => [],
+    autoOpen: false,
   }
 )
 
 const emit = defineEmits<{
   (event: "toggle-children"): void
+  (event: "auto-open"): void
   (event: "add-request"): void
   (event: "add-gql-request"): void
   (event: "add-folder"): void
@@ -444,6 +451,15 @@ const emit = defineEmits<{
     }
   ): void
 }>()
+
+const openIfAutoOpen = () => {
+  if (props.autoOpen && !props.isOpen) emit("auto-open")
+}
+
+onMounted(openIfAutoOpen)
+
+// rows already shown before a search can become folders that lead to a match
+watch(() => props.autoOpen, openIfAutoOpen)
 
 const tippyActions = ref<HTMLDivElement | null>(null)
 const requestAction = ref<HTMLButtonElement | null>(null)

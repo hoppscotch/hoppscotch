@@ -743,12 +743,14 @@ export class CookieJarService extends Service {
 
   // Browsers treat loopback origins as secure contexts and send Secure
   // cookies to them over plain http, so a local server that sets a Secure
-  // cookie gets it back on the next request.
+  // cookie gets it back on the next request. The Secure Contexts spec
+  // counts `127.0.0.0/8` as loopback, and `URL` gives an IPv4 host in
+  // dotted decimal, so the first octet decides it.
   private isLoopbackHost(hostname: string): boolean {
     return (
       hostname === "localhost" ||
       hostname.endsWith(".localhost") ||
-      hostname === "127.0.0.1" ||
+      /^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
       hostname === "[::1]"
     )
   }

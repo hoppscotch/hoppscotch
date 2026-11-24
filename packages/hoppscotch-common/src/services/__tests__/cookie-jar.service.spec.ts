@@ -136,6 +136,8 @@ describe("CookieJarService", () => {
       await service.upsertCookies([
         cookie({ name: "a", value: "1", secure: true, domain: "localhost" }),
         cookie({ name: "b", value: "2", secure: true, domain: "127.0.0.1" }),
+        cookie({ name: "c", value: "3", secure: true, domain: "127.0.0.2" }),
+        cookie({ name: "d", value: "4", secure: true, domain: "128.0.0.1" }),
       ])
       expect(
         service.getCookiesForURL(new URL("http://localhost:3000/"))
@@ -143,6 +145,12 @@ describe("CookieJarService", () => {
       expect(
         service.getCookiesForURL(new URL("http://127.0.0.1:8080/"))
       ).toHaveLength(1)
+      expect(
+        service.getCookiesForURL(new URL("http://127.0.0.2/"))
+      ).toHaveLength(1)
+      expect(
+        service.getCookiesForURL(new URL("http://128.0.0.1/"))
+      ).toHaveLength(0)
     })
 
     it("treats a non-finite expires as a session cookie, not expired", async () => {

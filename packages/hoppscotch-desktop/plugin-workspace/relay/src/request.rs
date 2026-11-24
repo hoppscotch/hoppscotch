@@ -20,7 +20,7 @@ impl<'a> CurlRequest<'a> {
     pub(crate) fn new(handle: &'a mut Easy, request: &'a Request) -> Self {
         tracing::debug!(
             request_id = request.id,
-            url = %request.url,
+            url = %crate::util::redact_url(&request.url),
             method = %request.method,
             "Creating new curl request"
         );
@@ -64,7 +64,7 @@ impl<'a> CurlRequest<'a> {
 
                 url.query_pairs_mut().append_pair(key, value);
                 let updated_url = url.to_string();
-                tracing::debug!(url = %updated_url, "Updated URL with API key in query parameters");
+                tracing::debug!(url = %crate::util::redact_url(&updated_url), "Updated URL with API key in query parameters");
 
                 self.handle.url(&updated_url).map_err(|e| {
                     tracing::error!(error = %e, "Failed to set URL with API key");
@@ -232,7 +232,7 @@ impl<'a> CurlRequest<'a> {
         }
 
         if let Some(ref proxy) = self.request.proxy {
-            tracing::trace!(proxy_url = %proxy.url, "Setting up proxy");
+            tracing::trace!(proxy_url = %crate::util::redact_url(&proxy.url), "Setting up proxy");
 
             self.handle
                 .proxy(&proxy.url)

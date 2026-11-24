@@ -4710,7 +4710,7 @@ checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 [[package]]
 name = "relay"
 version = "0.1.1"
-source = "git+https://github.com/CuriousCorrelation/relay.git?rev=d68471bb63c8de8e6b144e43497fef44a3f870e5#d68471bb63c8de8e6b144e43497fef44a3f870e5"
+source = "git+https://github.com/CuriousCorrelation/relay.git?rev=c633a433546b8c5adc20371bb8e682d286efe99f#c633a433546b8c5adc20371bb8e682d286efe99f"
 dependencies = [
  "bytes",
  "cookie",
@@ -6038,7 +6038,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-relay"
 version = "0.1.0"
-source = "git+https://github.com/CuriousCorrelation/tauri-plugin-relay?rev=959383e94748693e7bbc61e526174015d9fe44b0#959383e94748693e7bbc61e526174015d9fe44b0"
+source = "git+https://github.com/CuriousCorrelation/tauri-plugin-relay?rev=85c5f2217f1f202b4d435f870b9ff2f5413b4936#85c5f2217f1f202b4d435f870b9ff2f5413b4936"
 dependencies = [
  "relay",
  "serde",

@@ -358,7 +358,7 @@ impl std::fmt::Debug for Request {
         };
         f.debug_struct("Request")
             .field("id", &self.id)
-            .field("url", &self.url)
+            .field("url", &crate::util::redact_url(&self.url))
             .field("method", &self.method)
             .field("version", &self.version)
             .field("headers", &names(&self.headers))

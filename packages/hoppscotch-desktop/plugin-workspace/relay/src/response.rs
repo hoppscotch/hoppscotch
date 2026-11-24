@@ -113,8 +113,8 @@ impl ResponseHandler {
                     Ok(parsed) => Some(Self::to_interop_cookie(&parsed, now)),
                     Err(e) => {
                         // The cookie value is a session credential, so the
-                        // record names the cookie alone.
-                        let name = line.split_once('=').map(|(name, _)| name.trim());
+                        // record logs the cookie's name alone.
+                        let name = Self::cookie_name(line);
                         tracing::warn!(error = %e, name = ?name, "Skipping unparseable Set-Cookie");
                         None
                     }
@@ -125,25 +125,33 @@ impl ResponseHandler {
         (!cookies.is_empty()).then_some(cookies)
     }
 
+    /// Returns the name of the `name=value` pair a `Set-Cookie` line opens
+    /// with. A line whose first `;` segment has no `=` has no name, so
+    /// `abc123; Path=/` returns `None` and its value isn't logged.
+    fn cookie_name(line: &str) -> Option<&str> {
+        line.split(';')
+            .next()
+            .and_then(|pair| pair.split_once('='))
+            .map(|(name, _)| name.trim())
+    }
+
+    const MAX_AGE_CAP: Duration = Duration::days(400);
+
     fn to_interop_cookie(c: &cookie::Cookie<'_>, now: OffsetDateTime) -> Cookie {
         // RFC 6265 5.2.2, Max-Age takes precedence over Expires when both
-        // are present. `checked_add` so an absurd Max-Age cannot panic the
-        // relay, it just drops the expiry and the cookie reads as session.
+        // are present. RFC 6265bis 5.6.2 caps Max-Age at 400 days, so an
+        // absurd Max-Age can't overflow `now + age` and panic the relay, and
+        // a Max-Age past the cap decides the expiry over Expires too.
         // RFC 6265 5.2.2 also expires a cookie at once when Max-Age is zero
         // or less, and an expiry equal to `now` is not yet in the past for
         // a jar that compares it to the current time, so the cookie a server
         // asked to remove would be kept. One millisecond before `now` is
         // already past.
-        let expires = c
-            .max_age()
-            .and_then(|age| {
-                if age <= Duration::ZERO {
-                    Some(now - Duration::milliseconds(1))
-                } else {
-                    now.checked_add(age)
-                }
-            })
-            .or_else(|| c.expires_datetime());
+        let expires = match c.max_age() {
+            Some(age) if age <= Duration::ZERO => Some(now - Duration::milliseconds(1)),
+            Some(age) => Some(now + age.min(Self::MAX_AGE_CAP)),
+            None => c.expires_datetime(),
+        };
 
         let same_site = c.same_site().map(|s| match s {
             cookie::SameSite::Strict => SameSite::Strict,
@@ -262,6 +270,15 @@ mod tests {
     }
 
     #[test]
+    fn an_unparseable_set_cookie_logs_the_name_alone() {
+        assert_eq!(
+            ResponseHandler::cookie_name("sid=abc123; Path=/"),
+            Some("sid")
+        );
+        assert_eq!(ResponseHandler::cookie_name("abc123; Path=/"), None);
+    }
+
+    #[test]
     fn a_zero_max_age_expires_before_now() {
         assert_eq!(
             expires("session=; Max-Age=0"),
@@ -282,6 +299,16 @@ mod tests {
         assert_eq!(
             expires("session=abc; Max-Age=60"),
             Some(at(NOW_UNIX) + Duration::seconds(60))
+        );
+    }
+
+    #[test]
+    fn a_huge_max_age_is_capped_and_wins_over_expires() {
+        assert_eq!(
+            expires(
+                "session=abc; Max-Age=9223372036854775807; Expires=Wed, 01 Jan 2031 00:00:00 GMT"
+            ),
+            Some(at(NOW_UNIX) + Duration::days(400))
         );
     }
 

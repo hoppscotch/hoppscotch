@@ -38,7 +38,7 @@ fn settle<T>(result: Result<T>, cancelled: bool) -> Result<T> {
 fn execute_request(request: &Request, cancel_token: &CancellationToken) -> Result<Response> {
     tracing::info!(
         method = %request.method,
-        url = %request.url,
+        url = %crate::util::redact_url(&request.url),
         "Executing request"
     );
 
@@ -49,10 +49,9 @@ fn execute_request(request: &Request, cancel_token: &CancellationToken) -> Resul
     let mut curl_request = CurlRequest::new(&mut handle, request);
     curl_request.prepare()?;
 
-    // The `Request` debug output includes the auth credentials, the client
-    // key, the proxy password and the body, so only the method and URL are
-    // logged.
-    tracing::debug!(method = %request.method, url = %request.url, "Sending request");
+    // Marks where curl starts sending, with the method and the URL, its
+    // userinfo and query values redacted.
+    tracing::debug!(method = %request.method, url = %crate::util::redact_url(&request.url), "Sending request");
 
     handle.verbose(true).map_err(|e| RelayError::Network {
         message: "Failed to set verbose mode".into(),
@@ -130,7 +129,7 @@ pub async fn execute(request: Request) -> Result<Response> {
 
     tracing::info!(
         method = %request.method,
-        url = %request.url,
+        url = %crate::util::redact_url(&request.url),
         "Starting request execution"
     );
 

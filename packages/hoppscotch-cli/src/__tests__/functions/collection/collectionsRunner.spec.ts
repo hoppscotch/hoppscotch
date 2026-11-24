@@ -51,7 +51,7 @@ describe("collectionsRunner", () => {
   test("Empty HoppCollection.", () => {
     return expect(
       collectionsRunner({ collections: [], envs: SAMPLE_ENVS })
-    ).resolves.toStrictEqual([]);
+    ).resolves.toStrictEqual({ iterations: [[]], requests: [] });
   });
 
   test("Empty requests and folders in collection.", () => {
@@ -67,7 +67,7 @@ describe("collectionsRunner", () => {
         ],
         envs: SAMPLE_ENVS,
       })
-    ).resolves.toMatchObject([]);
+    ).resolves.toMatchObject({ iterations: [[]], requests: [] });
   });
 
   test("Non-empty requests in collection.", () => {
@@ -85,14 +85,26 @@ describe("collectionsRunner", () => {
         ],
         envs: SAMPLE_ENVS,
       })
-    ).resolves.toMatchObject([
-      {
-        path: "collection/request",
-        tests: [],
-        errors: [],
-        result: true,
-      },
-    ]);
+    ).resolves.toMatchObject({
+      iterations: [
+        [
+          {
+            path: "collection/request",
+            tests: [],
+            errors: [],
+            result: true,
+          },
+        ],
+      ],
+      requests: [
+        {
+          path: "collection/request",
+          tests: [],
+          errors: [],
+          result: true,
+        },
+      ],
+    });
   });
 
   test("Non-empty folders in collection.", () => {
@@ -117,13 +129,25 @@ describe("collectionsRunner", () => {
         ],
         envs: SAMPLE_ENVS,
       })
-    ).resolves.toMatchObject([
-      {
-        path: "collection/folder/request",
-        tests: [],
-        errors: [],
-        result: true,
-      },
-    ]);
+    ).resolves.toMatchObject({
+      iterations: [
+        [
+          {
+            path: "collection/folder/request",
+            tests: [],
+            errors: [],
+            result: true,
+          },
+        ],
+      ],
+      requests: [
+        {
+          path: "collection/folder/request",
+          tests: [],
+          errors: [],
+          result: true,
+        },
+      ],
+    });
   });
 });

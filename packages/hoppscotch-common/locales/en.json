@@ -22,6 +22,7 @@
     "delete": "Delete",
     "disconnect": "Disconnect",
     "dismiss": "Dismiss",
+    "sync": "Sync",
     "done": "Done",
     "dont_save": "Don't save",
     "download_file": "Download file",
@@ -354,7 +355,12 @@
     "select_location": "Select location",
     "sorted": "Collection sorted",
     "details": "Details",
-    "duplicated": "Collection duplicated"
+    "duplicated": "Collection duplicated",
+    "git_sync": "Sync with Local Folder / Git",
+    "git_sync_connected": "Connected to local folder",
+    "git_sync_disconnected": "Disconnected from local folder",
+    "git_sync_success": "Collections synced to folder",
+    "git_sync_tooltip": "Sync collections with a local Git repository"
   },
   "confirm": {
     "close_unsaved_tab": "Are you sure you want to close this tab?",
@@ -1699,6 +1705,7 @@
     "disabled": "Disabled",
     "disconnected": "Disconnected",
     "disconnected_from": "Disconnected from {name}",
+    "syncing": "Syncing...",
     "docs_generated": "Documentation generated",
     "download_failed": "Download failed",
     "download_started": "Download started",

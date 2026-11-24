@@ -1,4 +1,4 @@
-import { onBeforeUnmount, onMounted } from "vue"
+import { getCurrentInstance, onBeforeUnmount, onMounted } from "vue"
 import {
   HoppActionWithOptionalArgs,
   invokeAction,
@@ -20,16 +20,18 @@ import { getKernelMode } from "@hoppscotch/kernel"
 import { listen } from "@tauri-apps/api/event"
 
 /**
- * This variable keeps track whether keybindings are being accepted
- * true -> Keybindings are checked
- * false -> Key presses are ignored (Keybindings are not checked)
+ * Each active disabler owns one lock. Keybindings remain disabled until all
+ * owners release their locks, so closing one of several open modals cannot
+ * re-enable shortcuts while another modal still needs them disabled.
  */
-let keybindingsEnabled = true
+const keybindingLocks = new Map<symbol, number>()
+
+export const __resetKeybindingLocksForTest = () => keybindingLocks.clear()
+export const __getKeybindingLockCountForTest = () => keybindingLocks.size
 
 /**
  * Set while a workspace overlay covers the app, so shortcuts can't act on the
- * workspace behind it. Kept apart from `keybindingsEnabled`, which modals
- * toggle on open and close.
+ * workspace behind it. This suspension is independent of modal locks.
  */
 let keybindingsSuspended = false
 
@@ -194,9 +196,9 @@ export function hookKeybindingsListener() {
   })
 }
 
-function handleKeyDown(ev: KeyboardEvent) {
+export function handleKeyDown(ev: KeyboardEvent) {
   // Do not check keybinds if the mode is disabled
-  if (!keybindingsEnabled || keybindingsSuspended) return
+  if (keybindingLocks.size > 0 || keybindingsSuspended) return
 
   // Skip during IME composition (CJK input). Modern browsers report
   // `isComposing`. Older ones use the sentinel `keyCode === 229`.
@@ -295,7 +297,7 @@ function handleTauriShortcut(shortcut: string) {
   console.info("Tauri shortcut:", shortcut)
 
   // Do not check keybinds if the mode is disabled
-  if (!keybindingsEnabled || keybindingsSuspended) return
+  if (keybindingLocks.size > 0 || keybindingsSuspended) return
 
   const activeBindings = getActiveBindings()
   const boundAction = activeBindings[shortcut as ShortcutKey]
@@ -473,13 +475,26 @@ function getActiveModifier(ev: KeyboardEvent): ModifierKeys | null {
  * This composable allows for the UI component to be disabled if the component in question is mounted
  */
 export function useKeybindingDisabler() {
-  // TODO: Move to a lock based system that keeps the bindings disabled until all locks are lifted
+  const lock = Symbol("keybinding-disabler")
+
   const disableKeybindings = () => {
-    keybindingsEnabled = false
+    keybindingLocks.set(lock, (keybindingLocks.get(lock) ?? 0) + 1)
   }
 
   const enableKeybindings = () => {
-    keybindingsEnabled = true
+    const count = keybindingLocks.get(lock)
+
+    if (!count) return
+
+    if (count === 1) {
+      keybindingLocks.delete(lock)
+    } else {
+      keybindingLocks.set(lock, count - 1)
+    }
+  }
+
+  if (getCurrentInstance()) {
+    onBeforeUnmount(() => keybindingLocks.delete(lock))
   }
 
   return {

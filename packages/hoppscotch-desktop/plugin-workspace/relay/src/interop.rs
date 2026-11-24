@@ -329,7 +329,7 @@ pub struct RequestOptions {
     pub keep_alive: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Request {
     pub id: i64,
     pub url: String,
@@ -344,6 +344,32 @@ pub struct Request {
     pub security: Option<SecurityConfig>,
     pub proxy: Option<ProxyConfig>,
     pub meta: Option<RequestMeta>,
+}
+
+// A request carries the credentials, the header values and the body, so
+// its Debug shows header and param names and which parts are set, and
+// never their values.
+impl std::fmt::Debug for Request {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let names = |map: &Option<HashMap<String, String>>| {
+            map.as_ref()
+                .map(|m| m.keys().cloned().collect::<Vec<_>>())
+                .unwrap_or_default()
+        };
+        f.debug_struct("Request")
+            .field("id", &self.id)
+            .field("url", &self.url)
+            .field("method", &self.method)
+            .field("version", &self.version)
+            .field("headers", &names(&self.headers))
+            .field("params", &names(&self.params))
+            .field("content", &self.content.is_some())
+            .field("auth", &self.auth.is_some())
+            .field("security", &self.security.is_some())
+            .field("proxy", &self.proxy.is_some())
+            .field("meta", &self.meta)
+            .finish()
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

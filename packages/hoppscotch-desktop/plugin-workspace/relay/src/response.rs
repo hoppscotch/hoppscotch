@@ -139,9 +139,10 @@ impl ResponseHandler {
 
     fn to_interop_cookie(c: &cookie::Cookie<'_>, now: OffsetDateTime) -> Cookie {
         // RFC 6265 5.2.2, Max-Age takes precedence over Expires when both
-        // are present. RFC 6265bis 5.6.2 caps Max-Age at 400 days, so an
-        // absurd Max-Age can't overflow `now + age` and panic the relay, and
-        // a Max-Age past the cap decides the expiry over Expires too.
+        // are present. RFC 6265bis 5.6.1 and 5.6.2 cap the expiry from
+        // either attribute at 400 days, so an absurd Max-Age can't overflow
+        // `now + age` and panic the relay, a Max-Age past the cap decides
+        // the expiry over Expires too, and a far Expires lands on the cap.
         // RFC 6265 5.2.2 also expires a cookie at once when Max-Age is zero
         // or less, and an expiry equal to `now` is not yet in the past for
         // a jar that compares it to the current time, so the cookie a server
@@ -150,7 +151,9 @@ impl ResponseHandler {
         let expires = match c.max_age() {
             Some(age) if age <= Duration::ZERO => Some(now - Duration::milliseconds(1)),
             Some(age) => Some(now + age.min(Self::MAX_AGE_CAP)),
-            None => c.expires_datetime(),
+            None => c
+                .expires_datetime()
+                .map(|at| at.min(now + Self::MAX_AGE_CAP)),
         };
 
         let same_site = c.same_site().map(|s| match s {
@@ -257,8 +260,8 @@ mod tests {
 
     // 2026-01-01 12:00:00 UTC
     const NOW_UNIX: i64 = 1767268800;
-    // 2031-01-01 00:00:00 UTC, the `Expires` date in the tests below
-    const EXPIRES_UNIX: i64 = 1924992000;
+    // 2026-06-01 00:00:00 UTC, an `Expires` date inside the 400-day cap
+    const EXPIRES_UNIX: i64 = 1780272000;
 
     fn at(unix: i64) -> OffsetDateTime {
         OffsetDateTime::from_unix_timestamp(unix).expect("timestamp")
@@ -321,9 +324,17 @@ mod tests {
     }
 
     #[test]
+    fn a_far_expires_is_capped() {
+        assert_eq!(
+            expires("session=abc; Expires=Fri, 01 Jan 9999 00:00:00 GMT"),
+            Some(at(NOW_UNIX) + Duration::days(400))
+        );
+    }
+
+    #[test]
     fn expires_applies_without_max_age() {
         assert_eq!(
-            expires("session=abc; Expires=Wed, 01 Jan 2031 00:00:00 GMT"),
+            expires("session=abc; Expires=Mon, 01 Jun 2026 00:00:00 GMT"),
             Some(at(EXPIRES_UNIX))
         );
     }

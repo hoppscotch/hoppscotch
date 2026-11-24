@@ -178,11 +178,14 @@ pub async fn cancel(request_id: i64) -> Result<()> {
 
 /// Whether a line of curl's `InfoType::Text` output carries a secret. The
 /// cookie engine writes each cookie's value, `Added cookie sid="..." for
-/// domain ...`, and a redirect writes the next URL with its query string,
-/// `Issue another request to this URL: '...'`.
+/// domain ...`, a redirect writes the next URL with its query string,
+/// `Issue another request to this URL: '...'`, and a proxy read from the
+/// environment is written with its userinfo, `Uses proxy env variable
+/// https_proxy == '...'`.
 fn logs_a_secret(line: &str) -> bool {
     line.to_ascii_lowercase().contains("cookie")
         || line.starts_with("Issue another request to this URL")
+        || line.starts_with("Uses proxy env variable")
 }
 
 #[cfg(test)]
@@ -320,7 +323,7 @@ mod tests {
     }
 
     #[test]
-    fn a_curl_line_with_a_cookie_or_a_redirect_url_is_not_logged() {
+    fn a_curl_line_with_a_cookie_a_redirect_url_or_a_proxy_is_not_logged() {
         assert!(logs_a_secret(
             "Added cookie sid=\"abc123\" for domain example.com, path /, expire 0\n"
         ));
@@ -329,6 +332,9 @@ mod tests {
         ));
         assert!(logs_a_secret(
             "Issue another request to this URL: 'https://example.com/?token=x'\n"
+        ));
+        assert!(logs_a_secret(
+            "Uses proxy env variable https_proxy == 'http://user:pass@proxy:3128'\n"
         ));
         assert!(!logs_a_secret(
             "Connected to example.com (93.184.215.14) port 443\n"

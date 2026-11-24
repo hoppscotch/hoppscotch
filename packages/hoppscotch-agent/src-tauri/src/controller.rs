@@ -199,7 +199,7 @@ pub async fn delete_registration(
     Ok(Json(json!({ "message": message })))
 }
 
-#[tracing::instrument(skip(state, auth_header, headers, body, _app_handle), fields(req_id))]
+#[tracing::instrument(skip(state, auth_header, headers, body, _app_handle), fields(request_id))]
 pub async fn execute(
     State((state, _app_handle)): State<(Arc<AppState>, AppHandle)>,
     TypedHeader(auth_header): TypedHeader<Authorization<Bearer>>,

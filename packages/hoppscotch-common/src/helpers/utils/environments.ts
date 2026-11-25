@@ -196,6 +196,29 @@ export const findEffectiveVariableIndex = (
 }
 
 /**
+ * Returns the id of the secret store the variable tooltip checks before masking.
+ * When the tooltip has resolved the variable's environment, that id wins. The
+ * source name alone cannot tell the two apart, because an environment can
+ * itself be named "Global".
+ */
+export const getTooltipSecretSourceID = ({
+  sourceEnv,
+  sourceEnvID,
+  currentEnvID,
+  resolvedEnvID,
+}: {
+  sourceEnv?: string
+  sourceEnvID?: string
+  currentEnvID: string
+  resolvedEnvID?: string
+}): string => {
+  if (resolvedEnvID !== undefined) return resolvedEnvID
+  if (sourceEnv === "Global") return "Global"
+  if (sourceEnv === "CollectionVariable") return sourceEnvID!
+  return currentEnvID
+}
+
+/**
  * Defensively normalizes possibly-legacy env rows to the v2 `AggregateEnvironment`
  * shape (preserving any extra fields), so consumers like
  * `filterNonEmptyEnvironmentVariables` / `parseTemplateStringE` always see a

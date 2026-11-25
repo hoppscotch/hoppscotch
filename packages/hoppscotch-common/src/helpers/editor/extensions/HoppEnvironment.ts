@@ -40,6 +40,7 @@ import {
   filterNonEmptyEnvironmentVariables,
   findEffectiveVariableIndex,
   getCombinedEnvVariables,
+  getTooltipSecretSourceID,
 } from "~/helpers/utils/environments"
 import {
   ENV_VAR_NAME_REGEX,
@@ -345,12 +346,13 @@ const cursorTooltipField = (
 
       const hasSource = Boolean(tooltipEnv?.sourceEnv)
 
-      const tooltipSourceEnvID =
-        tooltipEnv?.sourceEnv === "Global"
-          ? "Global"
-          : tooltipEnv?.sourceEnv === "CollectionVariable"
-            ? tooltipEnv.sourceEnvID!
-            : currentSelectedEnvironment.id
+      const tooltipSourceEnvID = getTooltipSecretSourceID({
+        sourceEnv: tooltipEnv?.sourceEnv,
+        sourceEnvID: tooltipEnv?.sourceEnvID,
+        currentEnvID: currentSelectedEnvironment.id,
+        resolvedEnvID:
+          editTarget?.kind === "env" ? editTarget.envID : undefined,
+      })
 
       const hasSecretValueStored = secretEnvironmentService.hasSecretValue(
         tooltipSourceEnvID,

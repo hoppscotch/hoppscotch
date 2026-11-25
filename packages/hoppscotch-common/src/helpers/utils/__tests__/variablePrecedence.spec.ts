@@ -10,6 +10,7 @@ import {
   normalizeAggregateEnvs,
   filterNonEmptyEnvironmentVariables,
   findEffectiveVariableIndex,
+  getTooltipSecretSourceID,
 } from "../environments"
 import { getComputedAuthHeaders } from "../EffectiveURL"
 import { AggregateEnvironment } from "~/newstore/environments"
@@ -319,5 +320,43 @@ describe("findEffectiveVariableIndex", () => {
       (r) => r.key === "k"
     )
     expect(rows[findEffectiveVariableIndex(rows, "k")]).toBe(resolved)
+  })
+})
+
+describe("getTooltipSecretSourceID", () => {
+  test("uses the resolved environment for a selected environment named Global", () => {
+    expect(
+      getTooltipSecretSourceID({
+        sourceEnv: "Global",
+        currentEnvID: "env-1",
+        resolvedEnvID: "env-1",
+      })
+    ).toBe("env-1")
+  })
+  test("uses the global store for a resolved global variable", () => {
+    expect(
+      getTooltipSecretSourceID({
+        sourceEnv: "Global",
+        currentEnvID: "env-1",
+        resolvedEnvID: "Global",
+      })
+    ).toBe("Global")
+  })
+  test("falls back to the source name without a resolved environment", () => {
+    expect(
+      getTooltipSecretSourceID({ sourceEnv: "Global", currentEnvID: "env-1" })
+    ).toBe("Global")
+    expect(
+      getTooltipSecretSourceID({ sourceEnv: "Dev", currentEnvID: "env-1" })
+    ).toBe("env-1")
+  })
+  test("uses the collection id for a collection variable", () => {
+    expect(
+      getTooltipSecretSourceID({
+        sourceEnv: "CollectionVariable",
+        sourceEnvID: "coll-1",
+        currentEnvID: "env-1",
+      })
+    ).toBe("coll-1")
   })
 })

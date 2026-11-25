@@ -48,8 +48,8 @@ export abstract class TabService<Doc>
     },
   })
 
-  public currentActiveTab = computed(
-    () => this.tabMap.get(this.currentTabID.value)!
+  public currentActiveTab = computed(() =>
+    this.tabMap.get(this.currentTabID.value)!
   ) // Guaranteed to not be undefined
 
   protected watchCurrentTabID() {
@@ -180,19 +180,19 @@ export abstract class TabService<Doc>
     return this.tabOrdering.value
   }
 
-  public closeTab(tabID: string) {
+  public closeTab(tabID: string): boolean {
     if (!this.tabMap.has(tabID)) {
       console.warn(
         `Tried to close a tab which does not exist (tab id: ${tabID})`
       )
-      return
+      return false
     }
 
     if (this.tabOrdering.value.length === 1) {
       console.warn(
         `Tried to close the only tab open, which is not allowed. (tab id: ${tabID})`
       )
-      return
+      return false
     }
 
     const tabIndex = this.tabOrdering.value.indexOf(tabID)
@@ -213,6 +213,8 @@ export abstract class TabService<Doc>
     nextTick(() => {
       this.tabMap.delete(tabID)
     })
+
+    return true
   }
 
   public closeOtherTabs(tabID: string) {

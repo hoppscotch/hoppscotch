@@ -8,6 +8,7 @@ mod request;
 mod response;
 mod security;
 mod transfer;
+mod trust;
 mod util;
 
 pub use interop::{Request, Response};

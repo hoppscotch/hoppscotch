@@ -24,9 +24,7 @@ import {
  * Can be a field, input field, or argument
  */
 export type ExplorerFieldDef =
-  | GraphQLField<unknown, unknown, unknown>
-  | GraphQLInputField
-  | GraphQLArgument
+  GraphQLField<unknown, unknown, unknown> | GraphQLInputField | GraphQLArgument
 
 /**
  * Represents a single item in the explorer navigation stack

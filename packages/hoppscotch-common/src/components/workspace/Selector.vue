@@ -186,15 +186,15 @@ const switchToPersonalWorkspace = () => {
 watch(
   () => currentUser.value,
   (user) => {
-    if (!user) {
-      switchToPersonalWorkspace()
-      teamListadapter.dispose()
-    }
+    if (!user) teamListadapter.dispose()
   }
 )
 
 const displayModalAdd = (shouldDisplay: boolean) => {
   if (!currentUser.value) return invokeAction("modals.login.toggle")
+
+  if (shouldDisplay && platform.organization?.beforeCreateTeam?.() === false)
+    return
 
   showModalAdd.value = shouldDisplay
   teamListadapter.fetchList()

@@ -248,7 +248,7 @@ import IconCircle from "~icons/lucide/circle"
 import IconTrash from "~icons/lucide/trash"
 import IconBulkEdit from "~icons/lucide/edit"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { reactive, ref, watch } from "vue"
+import { reactive, ref, watch, computed } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
@@ -277,6 +277,8 @@ type Body = HoppRESTReqBody & { contentType: "multipart/form-data" }
 const props = defineProps<{
   modelValue: Body
   envs: AggregateEnvironment[]
+  // Embed-only codemirror scope — `envs` alone must keep workspace editors live
+  scopedEnvs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{
@@ -451,12 +453,9 @@ const updateBodyParam = (index: number, entry: FormDataKeyValue) => {
 const deleteBodyParam = (index: number) => {
   const paramsBeforeDeletion = clone(workingParams.value)
 
-  if (
-    !(
-      paramsBeforeDeletion.length > 0 &&
-      index === paramsBeforeDeletion.length - 1
-    )
-  ) {
+  if (!(
+    paramsBeforeDeletion.length > 0 && index === paramsBeforeDeletion.length - 1
+  )) {
     if (deletionToast.value) {
       deletionToast.value.goAway(0)
       deletionToast.value = null
@@ -565,6 +564,7 @@ useCodemirror(
     linter,
     completer: null,
     environmentHighlights: true,
+    envs: computed(() => props.scopedEnvs),
     predefinedVariablesHighlights: true,
   })
 )

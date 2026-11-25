@@ -4,8 +4,7 @@ import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
 
 type MixedArraySchemaType = (
-  | OpenAPIV31.ArraySchemaObjectType
-  | OpenAPIV31.NonArraySchemaObjectType
+  OpenAPIV31.ArraySchemaObjectType | OpenAPIV31.NonArraySchemaObjectType
 )[]
 
 type SchemaType =

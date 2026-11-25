@@ -19,12 +19,10 @@ type CreateMockServerError =
   | "mock_server/already_exists"
 
 type UpdateMockServerError =
-  | "mock_server/not_found"
-  | "mock_server/access_denied"
+  "mock_server/not_found" | "mock_server/access_denied"
 
 type DeleteMockServerError =
-  | "mock_server/not_found"
-  | "mock_server/access_denied"
+  "mock_server/not_found" | "mock_server/access_denied"
 
 export const createMockServer = (
   name: string,

@@ -43,22 +43,28 @@ cd hoppscotch/packages/hoppscotch-js-sandbox
 ```
 
 
-4. Try out the demo [`src/demo.ts`](https://github.com/hoppscotch/hoppscotch/blob/main/packages/hoppscotch-js-sandbox/src/demo.ts) using:
+4. Build the package
 
+```bash
+pnpm run build
 ```
-npm run demo
+
+5. Run the test suite
+
+```bash
+pnpm run test
 ```
 
 ## Versioning
 This project follows [Semantic Versioning](https://semver.org/) but as the project is still pre-1.0. The code and the public exposed API should not be considered to be fixed and stable. Things can change at any time!
 
 ## License
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) - see [`LICENSE`](https://github.com/hoppscotch/hopp-js-sandbox/blob/main/LICENSE) for more details.
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) - see [`LICENSE`](../../LICENSE) for more details.
 
 <div align="center">
   <br />
   <br />
 
-  ###### built with ❤︎ by the [Hoppscotch Team](https://github.com/hoppscotch) and [contributors](https://github.com/AndrewBastin/hopp-js-sandbox/graphs/contributors).
+  ###### built with ❤︎ by the [Hoppscotch Team](https://github.com/hoppscotch) and [contributors](https://github.com/hoppscotch/hoppscotch/graphs/contributors).
 
 </div>

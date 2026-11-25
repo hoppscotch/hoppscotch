@@ -126,14 +126,19 @@ export class AgentKernelInterceptorService
       const effectiveRequest = this.store.completeRequest(
         preProcessRelayRequest(request)
       )
-      const relevantCookies = this.cookieJar.getCookiesForURL(
-        new URL(effectiveRequest.url!)
-      )
 
-      if (relevantCookies.length > 0) {
-        effectiveRequest.headers!["Cookie"] = relevantCookies
-          .map((cookie) => `${cookie.name!}=${cookie.value!}`)
-          .join(";")
+      // A caller opts a request out of the shared cookie jar by setting
+      // `meta.options.cookies` to false. The desktop auth module sets it
+      // on its own bearer-authenticated backend calls so the interceptor
+      // skips both attaching a captured auth cookie to them and capturing
+      // one from their responses. Without that, a stale or blank
+      // `access_token` cookie was read in preference to the bearer token
+      // and desktop login stalled. Read from the original request because
+      // `completeRequest` rebuilds `meta` from domain settings.
+      const useCookieJar = request.meta?.options?.cookies !== false
+
+      if (useCookieJar) {
+        await this.cookieJar.applyCookiesToRequest(effectiveRequest)
       }
 
       const existingUserAgentHeader = Object.keys(
@@ -210,6 +215,13 @@ export class AgentKernelInterceptorService
         ...decryptedResponse,
         body: { ...transformedBody },
         multiHeaders: multiHeaders.length > 0 ? multiHeaders : undefined,
+      }
+
+      if (useCookieJar) {
+        await this.cookieJar.captureResponseCookies(
+          transformedResponse,
+          effectiveRequest.url
+        )
       }
 
       return E.right(transformedResponse)

@@ -125,11 +125,7 @@ import { SupportedImportFormat } from "./../types"
 const t = useI18n()
 
 type Feature =
-  | "collections"
-  | "requests"
-  | "responses"
-  | "preRequestScripts"
-  | "testScripts"
+  "collections" | "requests" | "responses" | "preRequestScripts" | "testScripts"
 
 type FeatureStatus =
   | "SUPPORTED"

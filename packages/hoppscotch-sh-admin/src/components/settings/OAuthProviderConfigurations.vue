@@ -52,6 +52,12 @@
                     "
                     :autofocus="false"
                     class="!my-2 !bg-primaryLight flex-1 border border-divider rounded"
+                    :class="{
+                      '!border-red-500': isConfigFieldErrored(
+                        provider.name,
+                        field.key,
+                      ),
+                    }"
                     input-styles="!border-0"
                   >
                     <template #button>
@@ -80,13 +86,19 @@
 import { useVModel } from '@vueuse/core';
 import { reactive } from 'vue';
 import { useI18n } from '~/composables/i18n';
-import { ServerConfigs, SsoAuthProviders } from '~/helpers/configs';
+import {
+  ServerConfigs,
+  SsoAuthProviders,
+  useConfigValidation,
+} from '~/helpers/configs';
 import { makeReadableKey } from '~/helpers/utils/readableKey';
 import IconCircleHelp from '~icons/lucide/circle-help';
 import IconEye from '~icons/lucide/eye';
 import IconEyeOff from '~icons/lucide/eye-off';
 
 const t = useI18n();
+
+const { isConfigFieldErrored } = useConfigValidation();
 
 const props = defineProps<{
   config: ServerConfigs;

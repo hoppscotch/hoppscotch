@@ -3,8 +3,9 @@ import type { Component } from "vue"
 import { StepsOutputList } from "../steps"
 import {
   HoppCollection,
+  generateUniqueRefId,
   makeCollection,
-  translateToNewRESTCollection,
+  translateToNewCollection,
 } from "@hoppscotch/data"
 
 /**
@@ -87,10 +88,17 @@ export const sanitizeCollection = (
     _ref_id: _refId,
     v: _v,
     ...rest
-  } = translateToNewRESTCollection(collection)
+  } = translateToNewCollection(collection)
 
   return makeCollection({
     ...rest,
+    // Requests carry identity too — an imported file may hold `_ref_id`/`id`
+    // values that already exist in the workspace, and matching treats equal
+    // identities as the same request
+    requests: rest.requests.map((request) => {
+      const { id: _requestId, ...requestRest } = request
+      return { ...requestRest, _ref_id: generateUniqueRefId("req") }
+    }),
     folders: rest.folders.map(sanitizeCollection),
   })
 }

@@ -2,7 +2,7 @@ import { useGQLQuery } from "~/composables/graphql"
 import { TeamName } from "~/helpers/backend/types/TeamName"
 import { BackendPlatformDef } from "~/platform/backend"
 
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppGQLRequest, HoppRESTRequest } from "@hoppscotch/data"
 import { runGQLQuery, runMutation } from "~/helpers/backend/GQLClient"
 
 import { Email } from "~/helpers/backend/types/Email"
@@ -133,7 +133,7 @@ export const acceptTeamInvitation = <AcceptTeamInvitationErrors extends string>(
 }
 
 export const createShortcode = (
-  request: HoppRESTRequest,
+  request: HoppRESTRequest | HoppGQLRequest,
   properties?: string
 ) => {
   return runMutation<

@@ -9,6 +9,7 @@ import {
   TEAM_COLL_INVALID_JSON,
   TEAM_COLL_IS_PARENT_COLL,
   TEAM_COLL_NOT_FOUND,
+  TEAM_COLL_NOT_SAME_PARENT,
   TEAM_COLL_NOT_SAME_TEAM,
   TEAM_COLL_SHORT_TITLE,
   TEAM_COL_ALREADY_ROOT,
@@ -675,9 +676,7 @@ describe('createCollection', () => {
   });
 
   test('should throw TEAM_NOT_OWNER when parent TeamCollection does not belong to the team', async () => {
-    jest
-      .spyOn(teamCollectionService as any, 'isOwnerCheck')
-      .mockResolvedValueOnce(O.none);
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
 
     const result = await teamCollectionService.createCollection(
       rootTeamCollection.teamID,
@@ -688,10 +687,10 @@ describe('createCollection', () => {
     expect(result).toEqualLeft(TEAM_NOT_OWNER);
   });
 
-  test('should throw TEAM_COLL_DATA_INVALID when parent TeamCollection does not belong to the team', async () => {
-    jest
-      .spyOn(teamCollectionService as any, 'isOwnerCheck')
-      .mockResolvedValueOnce(O.some(true));
+  test('should throw TEAM_COLL_DATA_INVALID when the data is invalid JSON', async () => {
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce({
+      ...rootTeamCollection,
+    });
 
     const result = await teamCollectionService.createCollection(
       rootTeamCollection.teamID,
@@ -720,9 +719,10 @@ describe('createCollection', () => {
   });
 
   test('should successfully create a new child TeamCollection with valid inputs', async () => {
-    jest
-      .spyOn(teamCollectionService as any, 'isOwnerCheck')
-      .mockResolvedValueOnce(O.some(true));
+    // parent ownership check
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce({
+      ...rootTeamCollection,
+    });
     mockPrisma.$transaction.mockImplementationOnce(async (fn) =>
       fn(mockPrisma),
     );
@@ -740,9 +740,10 @@ describe('createCollection', () => {
   });
 
   test('should send pubsub message to "team_coll/<teamID>/coll_added" if child TeamCollection is created successfully', async () => {
-    jest
-      .spyOn(teamCollectionService as any, 'isOwnerCheck')
-      .mockResolvedValueOnce(O.some(true));
+    // parent ownership check
+    mockPrisma.teamCollection.findFirst.mockResolvedValueOnce({
+      ...rootTeamCollection,
+    });
     mockPrisma.$transaction.mockImplementationOnce(async (fn) =>
       fn(mockPrisma),
     );
@@ -1338,6 +1339,33 @@ describe('updateCollectionOrder', () => {
     expect(result).toEqualLeft(TEAM_COLL_NOT_SAME_TEAM);
   });
 
+  test('should throw TEAM_COLL_NOT_SAME_PARENT if collection and nextCollection have different parents', async () => {
+    // getCollection; both collections belong to the same team but sit under
+    // different parents, so reordering between them is not a valid operation
+    mockPrisma.teamCollection.findUniqueOrThrow
+      .mockResolvedValueOnce(childTeamCollectionList[4])
+      .mockResolvedValueOnce(childTeamCollection_2);
+
+    const result = await teamCollectionService.updateCollectionOrder(
+      childTeamCollectionList[4].id,
+      childTeamCollection_2.id,
+    );
+    expect(result).toEqualLeft(TEAM_COLL_NOT_SAME_PARENT);
+  });
+
+  test('should not reorder when collection and nextCollection have different parents', async () => {
+    mockPrisma.teamCollection.findUniqueOrThrow
+      .mockResolvedValueOnce(childTeamCollectionList[4])
+      .mockResolvedValueOnce(childTeamCollection_2);
+
+    await teamCollectionService.updateCollectionOrder(
+      childTeamCollectionList[4].id,
+      childTeamCollection_2.id,
+    );
+    expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+    expect(mockPubSub.publish).not.toHaveBeenCalled();
+  });
+
   test('should successfully update the order of the child TeamCollection list', async () => {
     // getCollection;
     mockPrisma.teamCollection.findUniqueOrThrow
@@ -1451,6 +1479,21 @@ describe('importCollectionsFromJSON', () => {
     expect(result).toEqualLeft(TEAM_COLL_INVALID_JSON);
   });
 
+  test('should throw TEAM_NOT_OWNER when the parent collection does not belong to the team', async () => {
+    // getCollection (parent lookup)
+    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootTeamCollection,
+      teamID: 'another-team-id',
+    });
+
+    const result = await teamCollectionService.importCollectionsFromJSON(
+      jsonString,
+      rootTeamCollection.teamID,
+      rootTeamCollection.id,
+    );
+    expect(result).toEqualLeft(TEAM_NOT_OWNER);
+  });
+
   test('should successfully create new TeamCollections in root and TeamRequests with valid inputs', async () => {
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
@@ -1465,6 +1508,10 @@ describe('importCollectionsFromJSON', () => {
   });
 
   test('should successfully create new TeamCollections in a child collection and TeamRequests with valid inputs', async () => {
+    // getCollection (parent lookup)
+    mockPrisma.teamCollection.findUniqueOrThrow.mockResolvedValueOnce({
+      ...rootTeamCollection,
+    });
     mockPrisma.$transaction.mockImplementation(async (fn) => fn(mockPrisma));
     mockPrisma.teamCollection.findFirst.mockResolvedValueOnce(null);
     mockPrisma.teamCollection.create.mockResolvedValueOnce(rootTeamCollection);

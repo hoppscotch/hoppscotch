@@ -292,11 +292,7 @@ const widgets: Widget[] = [
 ]
 
 type EmbedTabs =
-  | "params"
-  | "bodyParams"
-  | "headers"
-  | "authorization"
-  | "requestVariables"
+  "params" | "bodyParams" | "headers" | "authorization" | "requestVariables"
 
 type EmbedOption = {
   selectedTab: EmbedTabs
@@ -339,16 +335,18 @@ const removeEmbedOption = (option: EmbedTabs) => {
   const index = embedOptions.value.tabs.findIndex((tab) => tab.value === option)
   if (index === -1) return
 
-  //if removed tab is the selected tab, select the next tab with enabled true
-  if (embedOptions.value.selectedTab === option) {
-    const nextTab = embedOptions.value.tabs.find((tab) => tab.enabled)
-    if (nextTab) {
-      embedOptions.value.selectedTab = nextTab.value
-    }
-  }
+  const willDisable = embedOptions.value.tabs[index].enabled
+  embedOptions.value.tabs[index].enabled = !willDisable
 
-  embedOptions.value.tabs[index].enabled =
-    !embedOptions.value.tabs[index].enabled
+  // If we just disabled the currently selected tab, advance to the next
+  // still-enabled one. If none remain enabled, fall back to the first tab
+  // in the list so `selectedTab` is never out of sync with the rendered
+  // tabs — otherwise the embed-side renderer would receive an unknown id.
+  if (willDisable && embedOptions.value.selectedTab === option) {
+    const nextEnabled = embedOptions.value.tabs.find((tab) => tab.enabled)
+    embedOptions.value.selectedTab =
+      nextEnabled?.value ?? embedOptions.value.tabs[0].value
+  }
 }
 
 type ButtonVariant = {
@@ -407,6 +405,9 @@ const shortcodeBaseURL = computed(() => {
 })
 
 const copyEmbed = () => {
+  // No `sandbox`: the embed is already cross-origin from the host page, and
+  // sandboxing gives it an opaque origin — breaking localStorage on boot and
+  // stamping `Origin: null` on every request it fires
   return `<iframe src="${shortcodeBaseURL.value}/e/${props.request?.id}" title="Hoppscotch Embed" style="width: 100%; height: 480px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.1);"></iframe>`
 }
 

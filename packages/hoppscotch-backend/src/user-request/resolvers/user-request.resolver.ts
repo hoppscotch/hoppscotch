@@ -146,16 +146,10 @@ export class UserRequestResolver {
   @UseGuards(GqlAuthGuard)
   async updateRESTUserRequest(
     @GqlUser() user: AuthUser,
-    @Args({
-      name: 'id',
-      description: 'ID of the user REST request',
-      type: () => ID,
-    })
-    id: string,
     @Args() args: UpdateUserRequestArgs,
   ) {
     const request = await this.userRequestService.updateRequest(
-      id,
+      args.id,
       args.title,
       ReqType.REST,
       args.request,
@@ -171,16 +165,10 @@ export class UserRequestResolver {
   @UseGuards(GqlAuthGuard)
   async updateGQLUserRequest(
     @GqlUser() user: AuthUser,
-    @Args({
-      name: 'id',
-      description: 'ID of the user GraphQL request',
-      type: () => ID,
-    })
-    id: string,
     @Args() args: UpdateUserRequestArgs,
   ) {
     const request = await this.userRequestService.updateRequest(
-      id,
+      args.id,
       args.title,
       ReqType.GQL,
       args.request,

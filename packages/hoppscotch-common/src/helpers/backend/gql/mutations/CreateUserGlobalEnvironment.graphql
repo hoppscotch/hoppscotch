@@ -1,0 +1,5 @@
+mutation CreateUserGlobalEnvironment($variables: String!) {
+  createUserGlobalEnvironment(variables: $variables) {
+    id
+  }
+}

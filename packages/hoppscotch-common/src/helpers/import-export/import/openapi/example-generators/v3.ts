@@ -3,8 +3,7 @@ import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 
 type SchemaType =
-  | OpenAPIV3.ArraySchemaObjectType
-  | OpenAPIV3.NonArraySchemaObjectType
+  OpenAPIV3.ArraySchemaObjectType | OpenAPIV3.NonArraySchemaObjectType
 
 type PrimitiveSchemaType = Exclude<SchemaType, "array" | "object">
 

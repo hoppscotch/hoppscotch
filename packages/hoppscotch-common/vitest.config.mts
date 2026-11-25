@@ -16,6 +16,17 @@ export default defineConfig({
         __dirname,
         "../hoppscotch-common/src/composables"
       ),
+      "@components": path.resolve(
+        __dirname,
+        "../hoppscotch-common/src/components"
+      ),
+      "@helpers": path.resolve(__dirname, "../hoppscotch-common/src/helpers"),
+      "@modules": path.resolve(__dirname, "../hoppscotch-common/src/modules"),
+      "@workers": path.resolve(__dirname, "../hoppscotch-common/src/workers"),
+      "@functional": path.resolve(
+        __dirname,
+        "../hoppscotch-common/src/helpers/functional"
+      ),
     },
   },
   plugins: [

@@ -75,7 +75,7 @@ import {
   getSuitableLenses,
   Lens,
 } from "~/helpers/lenses/lenses"
-import { HoppRequestDocument } from "~/helpers/rest/document"
+import { HoppRequestDocument } from "~/helpers/tab/document"
 import { ConsoleEntry } from "../console/Panel.vue"
 
 const props = defineProps<{
@@ -96,9 +96,12 @@ const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
   "EXPERIMENTAL_SCRIPTING_SANDBOX"
 )
 
-const isSavable = computed(() => {
-  return doc.value.response?.type === "success" && doc.value.saveContext
-})
+// Boolean() wrap — `saveContext` is undefined for documents that never came
+// from a collection (e.g. test-runner result rows), and `"success" &&
+// undefined` would leak `undefined` into the lens renderers' Boolean prop.
+const isSavable = computed(() =>
+  Boolean(doc.value.response?.type === "success" && doc.value.saveContext)
+)
 
 const showIndicator = computed(() => {
   if (!doc.value.testResults) return false

@@ -93,6 +93,9 @@ export class MockServerController {
         method,
         queryParams,
         requestHeaders,
+        // Parsed by the global express.json() middleware — needed for
+        // GraphQL operation-based matching ({query, operationName, variables})
+        req.body,
       );
 
       if (E.isLeft(result)) {

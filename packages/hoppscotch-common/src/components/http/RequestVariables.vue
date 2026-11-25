@@ -366,12 +366,10 @@ const deleteVariable = (index: number) => {
     workingRequestVariables.value
   )
 
-  if (
-    !(
-      requestVariablesBeforeDeletion.length > 0 &&
-      index === requestVariablesBeforeDeletion.length - 1
-    )
-  ) {
+  if (!(
+    requestVariablesBeforeDeletion.length > 0 &&
+    index === requestVariablesBeforeDeletion.length - 1
+  )) {
     if (deletionToast.value) {
       deletionToast.value.goAway(0)
       deletionToast.value = null

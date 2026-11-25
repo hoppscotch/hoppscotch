@@ -12,7 +12,10 @@ import {
 } from "../graphql"
 import {
   HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
   makeCollection,
+  translateToGQLRequest,
   translateToNewRequest,
 } from "@hoppscotch/data"
 import type { CollectionDataProps } from "../helpers"
@@ -60,10 +63,28 @@ export type PublishedDocQuery = {
 export type CollectionFolder = {
   id?: string
   folders: CollectionFolder[]
-  // Backend stores this as any, we translate it to HoppRESTRequest via translateToNewRequest
+  // Opaque JSON on the backend. Each request is shape-detected client-side
+  // and routed through `translateToNewRequest` (REST) or `translateToGQLRequest` (GQL).
   requests: any[]
   name: string
   data?: string
+}
+
+// Unified-collection requests can be REST or GQL bodies. Discriminate by shape
+// using the same predicate the data package uses internally — `isGQLRequest`
+// is gated on `query` + `url` + no `endpoint`.
+function translatePublishedRequest(req: any): HoppRESTRequest | HoppGQLRequest {
+  // Object check first — `in` throws on primitives
+  if (
+    !!req &&
+    typeof req === "object" &&
+    "query" in req &&
+    "url" in req &&
+    !("endpoint" in req)
+  ) {
+    return translateToGQLRequest(req)
+  }
+  return translateToNewRequest(req)
 }
 
 // Type for the versions list in the REST response source of truth: packages/hoppscotch-backend/src/published-docs/published-docs.model.ts
@@ -144,7 +165,7 @@ export function collectionFolderToHoppCollection(
   return makeCollection({
     name: folder.name,
     folders: folder.folders.map(collectionFolderToHoppCollection),
-    requests: (folder.requests || []).map(translateToNewRequest),
+    requests: (folder.requests || []).map(translatePublishedRequest),
     auth,
     headers,
     variables,
@@ -239,8 +260,7 @@ export const findPublishedDocForCollection = (
 }
 
 type GetPublishedDocError =
-  | "published_docs/not_found"
-  | "published_docs/unauthorized"
+  "published_docs/not_found" | "published_docs/unauthorized"
 
 // Get a single published doc by ID (GraphQL)
 export const getPublishedDocByID = (id: string) =>

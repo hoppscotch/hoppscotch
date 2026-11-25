@@ -186,6 +186,7 @@ import {
   getDefaultGQLRequest,
   HoppCollection,
   HoppGQLRequest,
+  isGQLRequest,
 } from "@hoppscotch/data"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
@@ -528,6 +529,12 @@ const selectRequest = ({
   folderPath: string
   requestIndex: number
 }) => {
+  // GQL collections can hold REST-shaped requests (mixed import) — they
+  // can't open as GQL tabs on this page
+  if (!isGQLRequest(request)) {
+    toast.error(t("request.rest_in_gql_collection"))
+    return
+  }
   const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "user-collection",
     folderPath: folderPath,

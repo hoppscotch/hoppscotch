@@ -222,6 +222,8 @@ type Body = HoppRESTReqBody & {
 const props = defineProps<{
   modelValue: Body
   envs: AggregateEnvironment[]
+  // Embed-only codemirror scope — `envs` alone must keep workspace editors live
+  scopedEnvs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{
@@ -340,12 +342,10 @@ const deleteUrlEncodedParam = (index: number) => {
     workingUrlEncodedParams.value
   )
 
-  if (
-    !(
-      urlEncodedParamsBeforeDeletion.length > 0 &&
-      index === urlEncodedParamsBeforeDeletion.length - 1
-    )
-  ) {
+  if (!(
+    urlEncodedParamsBeforeDeletion.length > 0 &&
+    index === urlEncodedParamsBeforeDeletion.length - 1
+  )) {
     if (deletionToast.value) {
       deletionToast.value.goAway(0)
       deletionToast.value = null
@@ -440,6 +440,7 @@ useCodemirror(
     linter,
     completer: null,
     environmentHighlights: true,
+    envs: computed(() => props.scopedEnvs),
     predefinedVariablesHighlights: true,
   })
 )

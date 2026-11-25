@@ -107,6 +107,7 @@ const tabs = useService(GQLTabService)
 const props = defineProps<{
   response: GQLResponseEvent[] | null | undefined
   isEmbed?: boolean
+  tabId?: string
 }>()
 
 const isLoading = computed(() => {
@@ -156,8 +157,13 @@ const statusCategory = computed(() => {
 
 const inspectionService = useService(InspectionService)
 
-const tabResults = inspectionService.getResultViewFor(
-  tabs.currentTabID.value,
-  (result) => result.locations.type === "response"
+// Re-derived per tab change — a setup-time capture of `currentTabID` would
+// pin inspection results to whichever tab was active at mount
+const tabResults = computed(
+  () =>
+    inspectionService.getResultViewFor(
+      props.tabId ?? tabs.currentTabID.value,
+      (result) => result.locations.type === "response"
+    ).value
 )
 </script>

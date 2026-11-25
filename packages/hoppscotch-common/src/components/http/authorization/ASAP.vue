@@ -143,7 +143,7 @@ import IconCircleDot from "~icons/lucide/circle-dot"
 import { useI18n } from "@composables/i18n"
 import { HoppRESTAuthASAP } from "@hoppscotch/data"
 import { useVModel } from "@vueuse/core"
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import { AggregateEnvironment } from "~/newstore/environments"
 import { useCodemirror } from "~/composables/codemirror"
 import { reactive } from "vue"
@@ -156,6 +156,7 @@ const t = useI18n()
 const props = defineProps<{
   modelValue: HoppRESTAuthASAP
   envs?: AggregateEnvironment[]
+  scopedEnvs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{
@@ -181,6 +182,7 @@ useCodemirror(
     linter: JSONLinter,
     completer: null,
     environmentHighlights: true,
+    envs: computed(() => props.scopedEnvs),
   })
 )
 

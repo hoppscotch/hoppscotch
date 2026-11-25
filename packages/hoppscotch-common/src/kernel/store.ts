@@ -49,8 +49,7 @@ diag("store", "window.location.href:", window.location.href)
 // the init step and the loaded modules. Web mode never resolves these
 // because `isInitd` returns early outside desktop.
 let invoke:
-  | (<T>(cmd: string, args?: Record<string, unknown>) => Promise<T>)
-  | undefined
+  (<T>(cmd: string, args?: Record<string, unknown>) => Promise<T>) | undefined
 let join: ((...paths: string[]) => Promise<string>) | undefined
 
 // Single init promise to avoid multiple imports and race conditions

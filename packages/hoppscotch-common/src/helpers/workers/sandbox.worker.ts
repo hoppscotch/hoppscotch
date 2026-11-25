@@ -53,12 +53,10 @@ interface PostRequestScriptErrorMessage {
 }
 
 export type OutgoingSandboxPreRequestWorkerMessage =
-  | PreRequestScriptResultMessage
-  | PreRequestScriptErrorMessage
+  PreRequestScriptResultMessage | PreRequestScriptErrorMessage
 
 export type OutgoingSandboxPostRequestWorkerMessage =
-  | PostRequestScriptResultMessage
-  | PostRequestScriptErrorMessage
+  PostRequestScriptResultMessage | PostRequestScriptErrorMessage
 
 self.addEventListener(
   "message",

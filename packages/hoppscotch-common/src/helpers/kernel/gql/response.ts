@@ -27,13 +27,6 @@ type GQLParsedResponse = {
   errors?: Array<{ message: string }>
 }
 
-const determineOperationType = (query: string): OperationType => {
-  const trimmed = query.trim().toLowerCase()
-  if (trimmed.startsWith("mutation")) return "mutation"
-  if (trimmed.startsWith("subscription")) return "subscription"
-  return "query"
-}
-
 const createTransformError = (message: string): GQLTransformError => ({
   type: "error",
   error: {
@@ -75,7 +68,10 @@ export const GQLResponse = {
                   ? response.meta.timing.end - response.meta.timing.start
                   : 0,
                 operationName: options.operationName,
-                operationType: determineOperationType(options.query),
+                // The run's actual operation — `options.query` is the whole
+                // editor document, whose first keyword can belong to a
+                // different operation in a multi-operation document
+                operationType: options.operationType,
                 data: JSON.stringify(validBody, null, 2),
                 rawQuery: options,
               }

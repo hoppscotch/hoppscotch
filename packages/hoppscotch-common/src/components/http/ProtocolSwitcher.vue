@@ -1,0 +1,232 @@
+<template>
+  <div
+    class="sticky top-0 z-20 flex items-center border-b border-dividerLight bg-primary px-4 py-2"
+  >
+    <div>
+      <tippy
+        interactive
+        trigger="click"
+        theme="popover"
+        :on-shown="() => protocolTippyActions?.focus()"
+      >
+        <HoppSmartSelectWrapper>
+          <button
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('request.switch_protocol')"
+            :aria-label="t('request.switch_protocol')"
+            class="flex w-[7.2rem] items-center justify-between rounded bg-primaryLight px-3 py-1 text-tiny font-bold uppercase tracking-wide text-secondaryDark transition hover:bg-primaryDark"
+          >
+            <span class="flex items-center gap-1.5">
+              <component :is="currentProtocolIcon" class="h-3.5 w-3.5" />
+              {{ currentProtocolLabel }}
+            </span>
+            <component
+              :is="IconChevronDown"
+              class="h-3.5 w-3.5 text-secondaryLight"
+            />
+          </button>
+        </HoppSmartSelectWrapper>
+        <template #content="{ hide }">
+          <div
+            ref="protocolTippyActions"
+            class="flex flex-col focus:outline-none"
+            tabindex="0"
+            @keyup.escape="hide()"
+          >
+            <HoppSmartItem
+              label="REST"
+              :icon="IconGlobe"
+              :active="isREST"
+              :info-icon="isREST ? IconCheck : undefined"
+              :active-info-icon="isREST"
+              @click="
+                () => {
+                  switchToREST()
+                  hide()
+                }
+              "
+            />
+            <HoppSmartItem
+              label="GraphQL"
+              :icon="IconGraphql"
+              :active="isGQL"
+              :info-icon="isGQL ? IconCheck : undefined"
+              :active-info-icon="isGQL"
+              @click="
+                () => {
+                  switchToGQL()
+                  hide()
+                }
+              "
+            />
+          </div>
+        </template>
+      </tippy>
+    </div>
+
+    <!-- Folder path + editable request name -->
+    <div class="ml-4 flex min-w-0 items-center">
+      <template v-if="displayFolderPath.length > 0">
+        <template v-for="(segment, i) in displayFolderPath" :key="i">
+          <span
+            v-tippy="{ theme: 'tooltip' }"
+            :title="segment.tooltip"
+            class="max-w-[10rem] flex-shrink-0 cursor-default truncate text-tiny text-secondaryLight"
+          >
+            {{ segment.name }}
+          </span>
+          <component
+            :is="IconChevronRight"
+            class="mx-0.5 h-3 w-3 flex-shrink-0 text-secondaryLight opacity-50"
+          />
+        </template>
+      </template>
+      <HoppSmartInput
+        v-model="requestName"
+        :autofocus="false"
+        styles=""
+        input-styles="border border-transparent bg-transparent text-tiny text-secondaryDark focus:border-divider focus:bg-primaryLight rounded px-2 py-0.5 outline-none transition-colors"
+        placeholder="Untitled"
+      />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, ref } from "vue"
+import { useService } from "dioc/vue"
+import { useI18n } from "@composables/i18n"
+import { useReadonlyStream } from "@composables/stream"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
+import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
+import { ScrollService } from "~/services/scroll.service"
+import {
+  switchActiveTabToGQL,
+  switchActiveTabToREST,
+} from "~/helpers/tab/protocol-switch"
+import { defineActionHandler } from "~/helpers/actions"
+import { restCollections$ } from "~/newstore/collections"
+import IconChevronRight from "~icons/lucide/chevron-right"
+import IconChevronDown from "~icons/lucide/chevron-down"
+import IconCheck from "~icons/lucide/check"
+import IconGlobe from "~icons/lucide/globe"
+import IconGraphql from "~icons/hopp/graphql"
+
+const t = useI18n()
+
+const tabs = useService(WorkspaceTabsService)
+const gqlTabConn = useService(GQLTabConnectionService)
+const scrollService = useService(ScrollService)
+
+const protocolTippyActions = ref<HTMLDivElement | null>(null)
+
+const collections = useReadonlyStream(restCollections$, [])
+
+const currentDoc = computed(() => tabs.currentActiveTab.value?.document)
+
+const isREST = computed(() => currentDoc.value?.type === "request")
+const isGQL = computed(() => currentDoc.value?.type === "gql-request")
+
+const currentProtocolLabel = computed(() => (isGQL.value ? "GraphQL" : "REST"))
+
+const currentProtocolIcon = computed(() =>
+  isGQL.value ? IconGraphql : IconGlobe
+)
+
+const requestName = computed({
+  get: () => {
+    const doc = currentDoc.value
+    if (!doc) return ""
+    if (doc.type === "request") return doc.request.name
+    if (doc.type === "gql-request") return doc.request.name
+    return ""
+  },
+  set: (value: string) => {
+    const doc = currentDoc.value
+    if (!doc) return
+    if (doc.type === "request" || doc.type === "gql-request") {
+      doc.request.name = value
+    }
+  },
+})
+
+const folderPath = computed<string[]>(() => {
+  const doc = currentDoc.value
+  if (!doc) return []
+
+  const saveContext =
+    doc.type === "request" || doc.type === "gql-request"
+      ? doc.saveContext
+      : null
+
+  if (
+    !saveContext ||
+    saveContext.originLocation !== "user-collection" ||
+    !saveContext.folderPath
+  ) {
+    return []
+  }
+
+  const indexPath = saveContext.folderPath
+  const indexes = indexPath.split("/").map((x) => parseInt(x))
+
+  // Walk the collection tree collecting names
+  const names: string[] = []
+  const cols = collections.value
+
+  if (indexes.length === 0 || !cols.length) return []
+
+  // First index is the root collection
+  let current = cols[indexes[0]]
+  if (!current) return []
+  names.push(current.name)
+
+  // Subsequent indexes traverse into folders
+  for (let i = 1; i < indexes.length; i++) {
+    const folder = current.folders[indexes[i]]
+    if (!folder) break
+    names.push(folder.name)
+    current = folder
+  }
+
+  return names
+})
+
+// Every segment is width-capped (ellipsized by CSS),
+// and deep paths collapse to `root > … > parent` with the hidden
+// segments in the tooltip
+const displayFolderPath = computed<{ name: string; tooltip: string }[]>(() => {
+  const path = folderPath.value
+  if (path.length <= 3) {
+    return path.map((name) => ({ name, tooltip: name }))
+  }
+  return [
+    { name: path[0], tooltip: path[0] },
+    {
+      name: "…",
+      tooltip: path.slice(1, -1).join(" > "),
+    },
+    { name: path[path.length - 1], tooltip: path[path.length - 1] },
+  ]
+})
+
+// The switch flow (draft snapshots, teardown ordering) is shared with the AI
+// chat's `switch_protocol` tool — see `~/helpers/tab/protocol-switch`.
+const switchToGQL = () => {
+  switchActiveTabToGQL({ tabs, gqlTabConn, scrollService })
+}
+
+const switchToREST = () => {
+  switchActiveTabToREST({ tabs, gqlTabConn, scrollService })
+}
+
+// Keyboard shortcut (Alt/⌥ T) and Spotlight route through this action —
+// without a payload it toggles, with one it targets that protocol.
+defineActionHandler("tab.switch-protocol", (payload) => {
+  const target = payload?.protocol
+  if (target === "rest") switchToREST()
+  else if (target === "graphql") switchToGQL()
+  else if (isGQL.value) switchToREST()
+  else switchToGQL()
+})
+</script>

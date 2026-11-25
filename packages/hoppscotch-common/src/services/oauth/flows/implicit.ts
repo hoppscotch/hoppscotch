@@ -25,6 +25,7 @@ const ImplicitOauthFlowParamsSchema = ImplicitOauthFlowParamsData.omit({
     // Override optional arrays to be required for the service layer
     authRequestParams: z.array(OAuth2AuthRequestParam),
     refreshRequestParams: z.array(OAuth2ParamSchema),
+    tokenType: z.enum(["access_token", "id_token"]).optional(),
   })
   .refine((params) => {
     return (
@@ -45,6 +46,7 @@ export const getDefaultImplicitOauthFlowParams =
     scopes: undefined,
     authRequestParams: [],
     refreshRequestParams: [],
+    tokenType: "access_token",
   })
 
 const initImplicitOauthFlow = async ({
@@ -52,6 +54,7 @@ const initImplicitOauthFlow = async ({
   scopes,
   authEndpoint,
   authRequestParams,
+  tokenType,
 }: ImplicitOauthFlowParams) => {
   const state = generateRandomString()
 
@@ -73,6 +76,7 @@ const initImplicitOauthFlow = async ({
         scopes,
         state,
         authRequestParams,
+        tokenType,
       },
       grant_type: "IMPLICIT",
     })
@@ -115,6 +119,7 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
 
   const accessToken =
     params.get("access_token") || paramsFromHash.get("access_token")
+  const idToken = params.get("id_token") || paramsFromHash.get("id_token")
   const state = params.get("state") || paramsFromHash.get("state")
   const error = params.get("error") || paramsFromHash.get("error")
 
@@ -122,14 +127,11 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
     return E.left("AUTH_SERVER_RETURNED_ERROR")
   }
 
-  if (!accessToken) {
-    return E.left("AUTH_TOKEN_REQUEST_FAILED")
-  }
-
   const expectedSchema = z.object({
     source: z.optional(z.string()),
     state: z.string(),
     clientID: z.string(),
+    tokenType: z.enum(["access_token", "id_token"]).optional(),
   })
 
   const decodedLocalConfig = expectedSchema.safeParse(
@@ -145,8 +147,22 @@ const handleRedirectForAuthCodeOauthFlow = async (localConfig: string) => {
     return E.left("INVALID_STATE")
   }
 
+  // Get the token type preference from the persisted config
+  const tokenTypePreference =
+    decodedLocalConfig.data.tokenType || "access_token"
+
+  // Return the preferred token type
+  const token =
+    tokenTypePreference === "id_token"
+      ? idToken || accessToken
+      : accessToken || idToken
+
+  if (!token) {
+    return E.left("AUTH_TOKEN_REQUEST_FAILED")
+  }
+
   return E.right({
-    access_token: accessToken,
+    access_token: token,
   })
 }
 

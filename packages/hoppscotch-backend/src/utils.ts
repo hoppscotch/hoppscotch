@@ -205,10 +205,27 @@ export const validateSMTPUrl = (url: string) => {
 
   if (!url || url.length === 0) return false;
 
-  const regex =
-    /^(smtp|smtps):\/\/(?:([^:]+):([^@]+)@)?((?!\.)[^:]+)(?::(\d+))?$/;
-  if (regex.test(url)) return true;
-  return false;
+  if (/[\s\x00-\x1f\x7f]/.test(url)) return false;
+  if (/[?#\\]/.test(url)) return false;
+  if (url.endsWith(':')) return false;
+
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return false;
+  }
+
+  // Only the SMTP schemes are permitted.
+  if (parsed.protocol !== 'smtp:' && parsed.protocol !== 'smtps:') return false;
+  if (parsed.pathname !== '' && parsed.pathname !== '/') return false;
+  if (parsed.search !== '' || parsed.hash !== '') return false;
+
+  // A hostname is required and must not start with a dot.
+  if (!parsed.hostname || parsed.hostname.startsWith('.')) return false;
+
+  // Port, when present, must be numeric (the URL parser already guarantees this).
+  return true;
 };
 
 /**

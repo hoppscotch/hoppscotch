@@ -99,7 +99,7 @@ export class UserHistoryService {
    * @returns an Either of updated `UserHistory` or Error
    */
   async toggleHistoryStarStatus(uid: string, id: string) {
-    const userHistory = await this.fetchUserHistoryByID(id);
+    const userHistory = await this.fetchUserHistoryByID(id, uid);
     if (O.isNone(userHistory)) {
       return E.left(USER_HISTORY_NOT_FOUND);
     }
@@ -108,6 +108,7 @@ export class UserHistoryService {
       const updatedHistory = await this.prisma.userHistory.update({
         where: {
           id: id,
+          userUid: uid,
         },
         data: {
           isStarred: !userHistory.value.isStarred,
@@ -142,6 +143,7 @@ export class UserHistoryService {
       const delUserHistory = await this.prisma.userHistory.delete({
         where: {
           id: id,
+          userUid: uid,
         },
       });
 
@@ -205,14 +207,16 @@ export class UserHistoryService {
   }
 
   /**
-   * Fetch a user history based on history ID.
+   * Fetch a user history based on history ID, scoped to its owner.
    * @param id User History ID
-   * @returns an `UserHistory` object
+   * @param uid UID of the user the history entry must belong to
+   * @returns an `UserHistory` object owned by the given user, or `O.none`
    */
-  async fetchUserHistoryByID(id: string) {
+  async fetchUserHistoryByID(id: string, uid: string) {
     const userHistory = await this.prisma.userHistory.findFirst({
       where: {
         id: id,
+        userUid: uid,
       },
     });
     if (userHistory == null) return O.none;

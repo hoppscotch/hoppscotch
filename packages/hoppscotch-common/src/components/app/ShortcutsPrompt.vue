@@ -35,7 +35,7 @@
     </div>
     <HoppButtonSecondary
       :label="`${t('app.documentation')}`"
-      to="https://docs.hoppscotch.io/documentation/features/rest-api-testing#response"
+      :to="documentationUrl"
       :icon="IconExternalLink"
       blank
       outline
@@ -48,6 +48,16 @@
 import { useI18n } from "~/composables/i18n"
 import IconExternalLink from "~icons/lucide/external-link"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
+
+withDefaults(
+  defineProps<{
+    documentationUrl?: string
+  }>(),
+  {
+    documentationUrl:
+      "https://docs.hoppscotch.io/documentation/features/rest-api-testing#response",
+  }
+)
 
 const t = useI18n()
 </script>

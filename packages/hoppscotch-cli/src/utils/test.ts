@@ -18,7 +18,7 @@ import { HoppEnvs } from "../types/request";
 import { ExpectResult, TestMetrics, TestRunnerRes } from "../types/response";
 import { getDurationInSeconds } from "./getters";
 import { createHoppFetchHook } from "./hopp-fetch";
-import { combineScriptsWithIIFE, filterValidScripts } from "./scripting";
+import { combineScriptsWithIIFE, filterValidScripts } from "@hoppscotch/js-sandbox/scripting";
 
 /**
  * Executes test script and runs testDescriptorParser to generate test-report using

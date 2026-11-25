@@ -1,6 +1,6 @@
-query GetRESTUserHistory {
+query GetRESTUserHistory($take: Int) {
   me {
-    RESTHistory {
+    RESTHistory(take: $take) {
       id
       userUid
       reqType
@@ -10,7 +10,7 @@ query GetRESTUserHistory {
       executedOn
     }
 
-    GQLHistory {
+    GQLHistory(take: $take) {
       id
       userUid
       reqType
@@ -21,3 +21,4 @@ query GetRESTUserHistory {
     }
   }
 }
+

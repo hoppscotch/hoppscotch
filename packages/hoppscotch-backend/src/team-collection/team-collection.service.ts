@@ -20,6 +20,7 @@ import {
   TEAM_COLL_PARENT_TREE_GEN_FAILED,
   TEAM_MEMBER_NOT_FOUND,
   TEAM_COLL_CREATION_FAILED,
+  TEAM_COLL_NOT_SAME_PARENT,
 } from '../errors';
 import { PubSubService } from '../pubsub/pubsub.service';
 import {
@@ -210,6 +211,15 @@ export class TeamCollectionService {
     if (!Array.isArray(collectionsList.right))
       return E.left(TEAM_COLL_INVALID_JSON);
 
+    // When importing into an existing parent, ensure the parent belongs to
+    // the team
+    if (parentID) {
+      const parentCollection = await this.getCollection(parentID);
+      if (E.isLeft(parentCollection)) return E.left(TEAM_COLL_NOT_FOUND);
+      if (parentCollection.right.teamID !== teamID)
+        return E.left(TEAM_NOT_OWNER);
+    }
+
     let teamCollections: DBTeamCollection[] = [];
     let queryList: Prisma.TeamCollectionCreateInput[] = [];
     try {
@@ -279,7 +289,7 @@ export class TeamCollectionService {
   private cast(teamCollection: DBTeamCollection): TeamCollection {
     const data = transformCollectionData(teamCollection.data);
 
-    return <TeamCollection>{
+    return {
       id: teamCollection.id,
       title: teamCollection.title,
       parentID: teamCollection.parentID,
@@ -420,28 +430,6 @@ export class TeamCollectionService {
   }
 
   /**
-   * Check to see if Collection belongs to Team
-   *
-   * @param collectionID getChildCollectionsCount
-   * @param teamID The Team ID
-   * @returns An Option of a Boolean
-   */
-  private async isOwnerCheck(collectionID: string, teamID: string) {
-    try {
-      await this.prisma.teamCollection.findFirstOrThrow({
-        where: {
-          id: collectionID,
-          teamID,
-        },
-      });
-
-      return O.some(true);
-    } catch (error) {
-      return O.none;
-    }
-  }
-
-  /**
    * Create a new TeamCollection
    *
    * @param teamID The Team ID
@@ -458,10 +446,13 @@ export class TeamCollectionService {
     const isTitleValid = isValidLength(title, this.TITLE_LENGTH);
     if (!isTitleValid) return E.left(TEAM_COLL_SHORT_TITLE);
 
-    // Check to see if parentTeamCollectionID belongs to this Team
+    // Check that the parent collection belongs to this Team
     if (parentID !== null) {
-      const isOwner = await this.isOwnerCheck(parentID, teamID);
-      if (O.isNone(isOwner)) return E.left(TEAM_NOT_OWNER);
+      const parentCollection = await this.prisma.teamCollection.findFirst({
+        where: { id: parentID, teamID },
+        select: { id: true },
+      });
+      if (!parentCollection) return E.left(TEAM_NOT_OWNER);
     }
 
     if (data === '') return E.left(TEAM_COLL_DATA_INVALID);
@@ -975,6 +966,10 @@ export class TeamCollectionService {
     // Check if collection and subsequentCollection belong to the same collection team
     if (collection.right.teamID !== subsequentCollection.right.teamID)
       return E.left(TEAM_COLL_NOT_SAME_TEAM);
+
+    // Check if collection and subsequentCollection have the same parentID
+    if (collection.right.parentID !== subsequentCollection.right.parentID)
+      return E.left(TEAM_COLL_NOT_SAME_PARENT);
 
     try {
       await this.prisma.$transaction(async (tx) => {

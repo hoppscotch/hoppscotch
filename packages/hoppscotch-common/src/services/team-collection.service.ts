@@ -1,6 +1,6 @@
 import * as E from "fp-ts/Either"
 import { Subscription } from "rxjs"
-import { HoppCollectionVariable, translateToNewRequest } from "@hoppscotch/data"
+import { HoppCollectionVariable } from "@hoppscotch/data"
 import { pull, remove } from "lodash-es"
 import { Subscription as WSubscription } from "wonka"
 import {
@@ -23,13 +23,20 @@ import {
 import { SecretEnvironmentService } from "~/services/secret-environment.service"
 import { CurrentValueService } from "~/services/current-environment-value.service"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
-import { TeamRequest } from "~/helpers/teams/TeamRequest"
-import { runGQLQuery, runGQLSubscription } from "~/helpers/backend/GQLClient"
+import {
+  TeamRequest,
+  normalizeTeamRequestBody,
+} from "~/helpers/teams/TeamRequest"
+import {
+  isExpectedTeamError,
+  runGQLQuery,
+  runGQLSubscription,
+} from "~/helpers/backend/GQLClient"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { ref, watch } from "vue"
 import { Service } from "dioc"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
-import { hasActualScript } from "~/helpers/scripting"
+import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
 import { CollectionDataProps } from "~/helpers/backend/helpers"
 
 export const TEAMS_BACKEND_PAGE_SIZE = 10
@@ -174,6 +181,16 @@ export class TeamCollectionsService extends Service<void> {
   }
 
   /**
+   * Look up a `TeamCollection` subtree by backend `id` in the current tree.
+   * Useful before a delete mutation so callers can capture the subtree for
+   * recursive cleanup (e.g. flushing nested secret-store entries) without
+   * racing the delete subscription.
+   */
+  public findCollectionByID(id: string): TeamCollection | null {
+    return findCollInTree(this.collections.value, id)
+  }
+
+  /**
    * Watches for loading collections and updates inherited properties once loading is done
    */
   private collectionLoadingWatcher() {
@@ -288,10 +305,40 @@ export class TeamCollectionsService extends Service<void> {
       }
     }
 
+    // Migrate device-local secret entries seeded by `importToTeamsWorkspace`
+    // under the importer-stamped `_ref_id` to the backend-assigned `id`.
+    // No-op on devices that didn't seed (migration helpers skip when
+    // nothing exists under the old key).
+    this.migrateImportedSecretEntries(collection)
+
     // Add to entity ids set
     this.entityIDs.add(`collection-${collection.id}`)
 
     this.collections.value = [...tree]
+  }
+
+  // Relies on the backend preserving `data._ref_id` at every level —
+  // each nested folder's `teamCollectionAdded` event must carry its own
+  // `data._ref_id` for migration to fire. A backend that drops nested
+  // `data` would leave per-folder entries orphaned under `_ref_id`.
+  private migrateImportedSecretEntries(collection: TeamCollection) {
+    if (!collection.data) return
+    try {
+      const parsed = JSON.parse(collection.data) as { _ref_id?: unknown }
+      if (typeof parsed._ref_id !== "string" || !parsed._ref_id) return
+      this.secretEnvironmentService.updateSecretEnvironmentID(
+        parsed._ref_id,
+        collection.id
+      )
+      this.currentEnvironmentValueService.updateEnvironmentID(
+        parsed._ref_id,
+        collection.id
+      )
+    } catch {
+      // Malformed `data` — skip migration; the secret service stays
+      // keyed by `_ref_id` and the imported secrets aren't accessible
+      // via the team `id`. Rare; only happens on a malformed backend.
+    }
   }
 
   /**
@@ -322,6 +369,8 @@ export class TeamCollectionsService extends Service<void> {
         this.loadingCollections.value = this.loadingCollections.value.filter(
           (x) => x !== "root"
         )
+
+        if (isExpectedTeamError(result.left)) return
 
         throw new Error(
           `Error fetching root collections: ${result.left?.error}`
@@ -491,10 +540,12 @@ export class TeamCollectionsService extends Service<void> {
     // Collection is not expanded
     if (!collection.requests) return
 
+    // `currentRequest` was already normalized by the subscription handler
+    // (`teamRequestMoved$` → `normalizeTeamRequestBody`); pass through verbatim.
     this.addRequest({
       id: request.id,
       collectionID: request.collectionID,
-      request: translateToNewRequest(request.request),
+      request: currentRequest,
       title: request.title,
     })
   }
@@ -666,6 +717,7 @@ export class TeamCollectionsService extends Service<void> {
     this.teamCollectionAddedSub = teamCollAddedSub
 
     this.teamCollectionAdded$ = teamCollAdded$.subscribe((result: any) => {
+      if (E.isLeft(result) && isExpectedTeamError(result.left)) return
       if (E.isLeft(result))
         throw new Error(
           `Team Collection Added Error: ${JSON.stringify(result.left)}`
@@ -692,6 +744,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.teamCollectionUpdatedSub = teamCollUpdatedSub
     this.teamCollectionUpdated$ = teamCollUpdated$.subscribe((result: any) => {
+      if (E.isLeft(result) && isExpectedTeamError(result.left)) return
       if (E.isLeft(result))
         throw new Error(
           `Team Collection Updated Error: ${JSON.stringify(result.left)}`
@@ -717,6 +770,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.teamCollectionRemovedSub = teamCollRemovedSub
     this.teamCollectionRemoved$ = teamCollRemoved$.subscribe((result: any) => {
+      if (E.isLeft(result) && isExpectedTeamError(result.left)) return
       if (E.isLeft(result))
         throw new Error(
           `Team Collection Removed Error: ${JSON.stringify(result.left)}`
@@ -734,6 +788,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.teamRequestAddedSub = teamReqAddedSub
     this.teamRequestAdded$ = teamReqAdded$.subscribe((result: any) => {
+      if (E.isLeft(result) && isExpectedTeamError(result.left)) return
       if (E.isLeft(result))
         throw new Error(
           `Team Request Added Error: ${JSON.stringify(result.left)}`
@@ -742,8 +797,8 @@ export class TeamCollectionsService extends Service<void> {
       this.addRequest({
         id: result.right.teamRequestAdded.id,
         collectionID: result.right.teamRequestAdded.collectionID,
-        request: translateToNewRequest(
-          JSON.parse(result.right.teamRequestAdded.request)
+        request: normalizeTeamRequestBody(
+          result.right.teamRequestAdded.request
         ),
         title: result.right.teamRequestAdded.title,
       })
@@ -758,6 +813,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.teamRequestUpdatedSub = teamReqUpdatedSub
     this.teamRequestUpdated$ = teamReqUpdated$.subscribe((result: any) => {
+      if (E.isLeft(result) && isExpectedTeamError(result.left)) return
       if (E.isLeft(result))
         throw new Error(
           `Team Request Updated Error: ${JSON.stringify(result.left)}`
@@ -766,7 +822,9 @@ export class TeamCollectionsService extends Service<void> {
       this.updateRequest({
         id: result.right.teamRequestUpdated.id,
         collectionID: result.right.teamRequestUpdated.collectionID,
-        request: JSON.parse(result.right.teamRequestUpdated.request),
+        request: normalizeTeamRequestBody(
+          result.right.teamRequestUpdated.request
+        ),
         title: result.right.teamRequestUpdated.title,
       })
     })
@@ -780,6 +838,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.teamRequestDeletedSub = teamReqDeletedSub
     this.teamRequestDeleted$ = teamReqDeleted$.subscribe((result: any) => {
+      if (E.isLeft(result) && isExpectedTeamError(result.left)) return
       if (E.isLeft(result))
         throw new Error(
           `Team Request Deleted Error ${JSON.stringify(result.left)}`
@@ -797,6 +856,7 @@ export class TeamCollectionsService extends Service<void> {
 
     this.teamRequestMovedSub = teamRequestMovedSub
     this.teamRequestMoved$ = teamRequestMoved$.subscribe((result: any) => {
+      if (E.isLeft(result) && isExpectedTeamError(result.left)) return
       if (E.isLeft(result))
         throw new Error(
           `Team Request Move Error ${JSON.stringify(result.left)}`
@@ -808,7 +868,7 @@ export class TeamCollectionsService extends Service<void> {
         id: requestMoved.id,
         collectionID: requestMoved.collectionID,
         title: requestMoved.title,
-        request: JSON.parse(requestMoved.request),
+        request: normalizeTeamRequestBody(requestMoved.request),
       }
 
       this.moveRequest(request)
@@ -824,6 +884,7 @@ export class TeamCollectionsService extends Service<void> {
     this.teamCollectionMovedSub = teamCollectionMovedSub
     this.teamCollectionMoved$ = teamCollectionMoved$.subscribe(
       (result: any) => {
+        if (E.isLeft(result) && isExpectedTeamError(result.left)) return
         if (E.isLeft(result))
           throw new Error(
             `Team Collection Move Error ${JSON.stringify(result.left)}`
@@ -849,6 +910,7 @@ export class TeamCollectionsService extends Service<void> {
     this.teamRequestOrderUpdatedSub = teamRequestOrderUpdatedSub
     this.teamRequestOrderUpdated$ = teamRequestOrderUpdated$.subscribe(
       (result: any) => {
+        if (E.isLeft(result) && isExpectedTeamError(result.left)) return
         if (E.isLeft(result))
           throw new Error(
             `Team Request Order Update Error ${JSON.stringify(result.left)}`
@@ -877,6 +939,7 @@ export class TeamCollectionsService extends Service<void> {
     this.teamCollectionOrderUpdatedSub = teamCollectionOrderUpdatedSub
     this.teamCollectionOrderUpdated$ = teamCollectionOrderUpdated$.subscribe(
       (result: any) => {
+        if (E.isLeft(result) && isExpectedTeamError(result.left)) return
         if (E.isLeft(result))
           throw new Error(
             `Team Collection Order Update Error ${JSON.stringify(result.left)}`
@@ -904,6 +967,7 @@ export class TeamCollectionsService extends Service<void> {
     this.teamRootCollectionSortedSub = teamRootCollectionSortedSub
     this.teamRootCollectionSorted$ = teamRootCollectionSorted$.subscribe(
       (result: any) => {
+        if (E.isLeft(result) && isExpectedTeamError(result.left)) return
         if (E.isLeft(result))
           throw new Error(
             `Team Root Collection Sorted Error ${JSON.stringify(result.left)}`
@@ -924,6 +988,7 @@ export class TeamCollectionsService extends Service<void> {
     this.teamChildCollectionSortedSub = teamChildCollectionSortedSub
     this.teamChildCollectionSorted$ = teamChildCollectionSorted$.subscribe(
       (result: any) => {
+        if (E.isLeft(result) && isExpectedTeamError(result.left)) return
         if (E.isLeft(result))
           throw new Error(
             `Team Child Collection Sorted Error ${JSON.stringify(result.left)}`
@@ -1001,14 +1066,12 @@ export class TeamCollectionsService extends Service<void> {
       }
 
       requests.push(
-        ...data.right.requestsInCollection.map<TeamRequest>((el: any) => {
-          return {
-            id: el.id,
-            collectionID: collection.id,
-            title: el.title,
-            request: translateToNewRequest(JSON.parse(el.request)),
-          }
-        })
+        ...data.right.requestsInCollection.map<TeamRequest>((el: any) => ({
+          id: el.id,
+          collectionID: collection.id,
+          title: el.title,
+          request: normalizeTeamRequestBody(el.request),
+        }))
       )
 
       if (data.right.requestsInCollection.length !== TEAMS_BACKEND_PAGE_SIZE)

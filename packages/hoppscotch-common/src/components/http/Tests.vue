@@ -122,12 +122,12 @@ import { useReadonlyStream } from "~/composables/stream"
 import { invokeAction } from "~/helpers/actions"
 import completer from "~/helpers/editor/completion/testScript"
 import linter from "~/helpers/editor/linting/testScript"
-import { hasActualScript } from "~/helpers/scripting"
+import { hasActualScript } from "@hoppscotch/js-sandbox/scripting"
 import testSnippets from "~/helpers/testSnippets"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { platform } from "~/platform"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import IconFileSymlink from "~icons/lucide/file-symlink"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconSparkles from "~icons/lucide/sparkles"
@@ -185,7 +185,7 @@ const useSnippet = (script: string) => {
 const clearContent = () => {
   testScript.value = ""
 }
-const tabService = useService(RESTTabService)
+const tabService = useService(WorkspaceTabsService)
 
 const currentRequest = computed(() =>
   tabService.currentActiveTab.value?.document.type === "request"
@@ -193,7 +193,7 @@ const currentRequest = computed(() =>
     : null
 )
 
-const { shouldEnableAIFeatures } = useAIExperiments()
+const { shouldEnableAIFeatures } = useAIExperiments("modifyTestScript")
 const isModifyTestScriptModalOpen = ref(false)
 
 const currentUser = useReadonlyStream(

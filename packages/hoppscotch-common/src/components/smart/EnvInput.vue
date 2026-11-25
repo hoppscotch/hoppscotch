@@ -98,10 +98,11 @@ import IconEye from "~icons/lucide/eye"
 import IconEyeoff from "~icons/lucide/eye-off"
 import { CompletionContext, autocompletion } from "@codemirror/autocomplete"
 import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { syntaxTree } from "@codemirror/language"
 import { uniqueID } from "~/helpers/utils/uniqueID"
-import { transformInheritedCollectionVariablesToAggregateEnv } from "~/helpers/utils/inheritedCollectionVarTransformer"
+import { getEffectiveVariablesForRequest } from "~/helpers/utils/environments"
+import { maskSecretValue } from "~/helpers/utils/secretMask"
 
 const t = useI18n()
 
@@ -389,17 +390,29 @@ const aggregateEnvs = useReadonlyStream(
   []
 ) as Ref<AggregateEnvironment[]>
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 
 const envVars = computed(() => {
-  // If envs are passed directly as props, mask secrets and return them
-  if (props.envs?.length) {
+  // If envs are passed directly as props, mask secrets and return them.
+  // Keep sourceEnvID: the env tooltip uses it to look up secret/current values
+  // for collection-scoped variables (otherwise they show as "Empty").
+  // An explicitly-passed EMPTY list scopes to nothing (embeds) — only a
+  // missing prop falls back to the global aggregate envs.
+  if (props.envs) {
     return props.envs.map(
-      ({ key, currentValue, initialValue, secret, sourceEnv }) => ({
+      ({
         key,
-        currentValue: secret ? "********" : currentValue,
-        initialValue: secret ? "********" : initialValue,
+        currentValue,
+        initialValue,
+        secret,
+        sourceEnv,
+        sourceEnvID,
+      }) => ({
+        key,
+        currentValue: secret ? maskSecretValue(currentValue) : currentValue,
+        initialValue: secret ? maskSecretValue(initialValue) : initialValue,
         sourceEnv: sourceEnv ?? "",
+        sourceEnvID,
         secret,
       })
     )
@@ -408,36 +421,30 @@ const envVars = computed(() => {
   const currentTab = tabs.currentActiveTab.value
   const { document } = currentTab
   const isRequest = document.type === "request"
-  const isExample = document.type === "example-response"
+  const isRESTExample = document.type === "example-response"
+  const isGQLExample = document.type === "gql-example-response"
+  const isExample = isRESTExample || isGQLExample
+  const isGQLRequest = document.type === "gql-request"
 
-  // variables inherited from the collection if we're in a request or example
-  const collectionVariables =
-    isRequest || isExample
-      ? transformInheritedCollectionVariablesToAggregateEnv(
-          document.inheritedProperties?.variables ?? [],
-          false
-        )
-      : []
-
-  // request-level variables
-  const rawRequestVars = isRequest
+  const requestVariables = isRequest
     ? document.request.requestVariables
-    : isExample
+    : isRESTExample
       ? document.response.originalRequest.requestVariables
       : []
 
-  // formated request variables
-  const requestVariables = rawRequestVars
-    .filter((v) => v.active)
-    .map(({ key, value }) => ({
-      key,
-      currentValue: value,
-      initialValue: value,
-      sourceEnv: "RequestVariable",
-      secret: false,
-    }))
+  const inheritedVariables =
+    isRequest || isExample || isGQLRequest
+      ? document.inheritedProperties?.variables
+      : []
 
-  return [...requestVariables, ...collectionVariables, ...aggregateEnvs.value]
+  // Merge in precedence order (request → collection → environment).
+  // Collection secrets stay masked here (showSecretCollectionValues = false).
+  return getEffectiveVariablesForRequest(
+    requestVariables,
+    inheritedVariables,
+    aggregateEnvs.value,
+    false
+  )
 })
 
 function envAutoCompletion(context: CompletionContext) {
@@ -463,7 +470,13 @@ function envAutoCompletion(context: CompletionContext) {
 
       return {
         label: `<<${envKey}>>`,
-        info: env?.currentValue ?? "",
+        // Mask secrets here too: the computed branch (URL/Body, no `:envs`)
+        // carries raw secret values, so an unmasked `info` would leak them in
+        // the completion panel. Display shows `currentValue` as-is (empty stays
+        // empty); the current→initial fallback happens only at execution time.
+        info: env?.secret
+          ? maskSecretValue(env.currentValue)
+          : (env?.currentValue ?? ""),
         apply: completionText,
       }
     })

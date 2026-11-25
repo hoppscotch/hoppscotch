@@ -103,17 +103,23 @@
       v-if="body.contentType === 'multipart/form-data'"
       v-model="body"
       :envs="envs"
+      :scoped-envs="scopedEnvs"
     />
     <HttpURLEncodedParams
       v-else-if="body.contentType === 'application/x-www-form-urlencoded'"
       v-model="body"
       :envs="envs"
+      :scoped-envs="scopedEnvs"
     />
     <HttpBodyBinary
       v-else-if="body.contentType === 'application/octet-stream'"
       v-model="body"
     />
-    <HttpRawBody v-else-if="body.contentType !== null" v-model="body" />
+    <HttpRawBody
+      v-else-if="body.contentType !== null"
+      v-model="body"
+      :scoped-envs="scopedEnvs"
+    />
     <HoppSmartPlaceholder
       v-if="body.contentType == null"
       :src="`/images/states/${colorMode.value}/upload_single_file.svg`"
@@ -151,7 +157,7 @@ import IconRefreshCW from "~icons/lucide/refresh-cw"
 import { RESTOptionTabs } from "./RequestOptions.vue"
 import { AggregateEnvironment } from "~/newstore/environments"
 import { useService } from "dioc/vue"
-import { RESTTabService } from "~/services/tab/rest"
+import { WorkspaceTabsService } from "~/services/tab/workspace-tabs"
 import { InspectionService } from "~/services/inspection"
 
 const colorMode = useColorMode()
@@ -161,6 +167,8 @@ const props = defineProps<{
   body: HoppRESTReqBody
   headers: HoppRESTHeader[]
   envs?: AggregateEnvironment[]
+  // Embed-only codemirror scope — `envs` alone must keep workspace editors live
+  scopedEnvs?: AggregateEnvironment[]
 }>()
 
 const emit = defineEmits<{
@@ -205,7 +213,7 @@ const isContentTypeAlreadyExist = () => {
 // Template refs
 const tippyActions = ref<any | null>(null)
 
-const tabs = useService(RESTTabService)
+const tabs = useService(WorkspaceTabsService)
 const inspectionService = useService(InspectionService)
 
 const tabResults = inspectionService.getResultViewFor(

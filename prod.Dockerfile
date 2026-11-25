@@ -1,18 +1,18 @@
 # Base Go builder with Go lang installation
 # This stage is used to build both Caddy and the webapp server,
 # preventing vulnerable packages on the dependency chain
-FROM alpine:3.23.4 AS go_builder
+FROM alpine:3.24.4 AS go_builder
 RUN apk add --no-cache curl git openssh-client
 
 ARG TARGETARCH
-ENV GOLANG_VERSION=1.26.2
+ENV GOLANG_VERSION=1.26.11
 # Download Go tarball
 RUN case "${TARGETARCH}" in amd64) GOARCH=amd64 ;; arm64) GOARCH=arm64 ;; *) echo "Unsupported arch: ${TARGETARCH}" && exit 1 ;; esac && \
   curl -fsSL "https://go.dev/dl/go${GOLANG_VERSION}.linux-${GOARCH}.tar.gz" -o go.tar.gz
 # Checksum verification of Go tarball
 RUN case "${TARGETARCH}" in \
-  amd64) expected="990e6b4bbba816dc3ee129eaeaf4b42f17c2800b88a2166c265ac1a200262282" ;; \
-  arm64) expected="c958a1fe1b361391db163a485e21f5f228142d6f8b584f6bef89b26f66dc5b23" ;; \
+  amd64) expected="9849f4e04ee35303714e34fbc3ac8ab44ea3e448a95aa182f91e3b9b79c710ec" ;; \
+  arm64) expected="6c2f29b458b5add0835f18b776f69c8881a6d88428f1484a6da55755e620757e" ;; \
   esac && \
   actual=$(sha256sum go.tar.gz | cut -d' ' -f1) && \
   [ "$actual" = "$expected" ] && \
@@ -30,30 +30,27 @@ ENV PATH="/usr/local/go/bin:${PATH}" \
 # Build Caddy from the Go base
 FROM go_builder AS caddy_builder
 RUN mkdir -p /tmp/caddy-build && \
-  curl -L -o /tmp/caddy-build/src.tar.gz https://github.com/caddyserver/caddy/releases/download/v2.11.2/caddy_2.11.2_src.tar.gz
+  curl -fsSL -o /tmp/caddy-build/src.tar.gz https://github.com/caddyserver/caddy/releases/download/v2.11.9/caddy_2.11.9_src.tar.gz
 # Checksum verification of caddy source
-RUN expected="40cb9dc5e0b005bba635e830ba2354450248831fca3b58f5c49892a4747d0e76" && \
+RUN expected="b4d7ff3f58e9b87d8af06167577a0d57a6bd2567b28f5a6d39d32472d2b7a3d8" && \
   actual=$(sha256sum /tmp/caddy-build/src.tar.gz | cut -d' ' -f1) && \
   [ "$actual" = "$expected" ] && \
   echo "✅ Caddy Source Checksum OK" || \
   (echo "❌ Caddy Source Checksum failed!" && exit 1)
 WORKDIR /tmp/caddy-build
+# NOTE: `go get mod@vX` also downgrades. Keep each pin >= the version in Caddy's own
+# go.mod (2.11.9 ships x/crypto v0.57.0, x/net v0.60.0, x/text v0.42.0).
 RUN tar -xzf /tmp/caddy-build/src.tar.gz && \
-  # Fix CVE-2026-33186: upgrade google.golang.org/grpc to 1.79.3 (CRITICAL - gRPC-Go authorization bypass)
-  go get google.golang.org/grpc@v1.79.3 && \
-  # Fix CVE-2026-30836 + CVE-2026-40097: upgrade github.com/smallstep/certificates to 0.30.0 (CRITICAL - unauthenticated cert issuance via SCEP)
-  go get github.com/smallstep/certificates@v0.30.0 && \
-  # Fix CVE-2026-33816 + GHSA-j88v-2chj-qfwx: upgrade github.com/jackc/pgx/v5 to 5.9.2 (CRITICAL - memory-safety + SQL injection)
-  go get github.com/jackc/pgx/v5@v5.9.2 && \
-  # Fix CVE-2026-34986: upgrade go-jose v3 and v4 (HIGH - DoS via crafted JWE)
+  # Fix CVE-2026-84304, CVE-2026-84445: upgrade grpc >= v1.83.2 (HIGH)
+  go get google.golang.org/grpc@v1.85.0 && \
+  # Fix CVE-2026-56854: upgrade golang.org/x/crypto >= v0.56.0 (HIGH - SSH auth bypass)
+  go get golang.org/x/crypto@v0.59.0 && \
+  # Fix CVE-2026-34986: upgrade go-jose v3 (HIGH - DoS via crafted JWE)
   go get github.com/go-jose/go-jose/v3@v3.0.5 && \
-  go get github.com/go-jose/go-jose/v4@v4.1.4 && \
-  # Fix CVE-2026-39883: upgrade go.opentelemetry.io/otel/sdk to 1.43.0 (HIGH - PATH hijacking)
-  go get go.opentelemetry.io/otel/sdk@v1.43.0 && \
-  # Fix CVE-2026-39882: upgrade OpenTelemetry OTLP exporters (MEDIUM)
-  go get go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp@v0.19.0 && \
-  go get go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp@v1.43.0 && \
-  go get go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp@v1.43.0 && \
+  # Fix CVE-2026-46600: upgrade golang.org/x/net >= v0.58.0 (HIGH - panic on invalid DNS RR)
+  go get golang.org/x/net@v0.63.0 && \
+  # Fix CVE-2026-56852: upgrade golang.org/x/text >= v0.41.0 (HIGH - infinite loop on input)
+  go get golang.org/x/text@v0.44.0 && \
   # Clean up any existing vendor directory and regenerate with updated deps
   rm -rf vendor && \
   go mod tidy && \
@@ -76,17 +73,24 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o webapp-server .
 
 
 # Shared Node.js base with optimized NPM installation
-FROM alpine:3.23.4 AS node_base
+FROM alpine:3.24.4 AS node_base
 # Install dependencies
+# Version floors for CVE-2026-11856 (curl) and the Node.js October 2026 security
+# release (nodejs 24.22.1-r0). Alpine's nodejs links the system brotli and c-ares
+# instead of the bundled copies, so their fixes are floored separately:
+# CVE-2026-111497 (HIGH - Brotli decoder OOB write) in brotli-libs 1.2.1-r0 and the
+# c-ares 1.34.9 update. The base tag ships older builds and this layer is cached, so
+# the bound forces a re-resolve.
 RUN apk upgrade --no-cache && \
-  apk add --no-cache nodejs curl bash tini ca-certificates
+  apk add --no-cache "nodejs>=24.22.1-r0" "brotli-libs>=1.2.1-r0" "c-ares>=1.34.9-r0" \
+    "curl>=8.21.0-r0" bash tini ca-certificates
 # Set working directory for NPM installation
 RUN mkdir -p /tmp/npm-install
 WORKDIR /tmp/npm-install
 # Download NPM tarball
-RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.13.0.tgz -o npm.tgz
+RUN curl -fsSL https://registry.npmjs.org/npm/-/npm-11.21.3.tgz -o npm.tgz
 # Verify checksum
-RUN expected="a4ffa1de3bf1c7f9d5e3dd24fe2921970bdb1589d647f4083eaaaab3be974b7e" \
+RUN expected="ee5fc68e724c4bdba38db9d96d9c661d4e736e4be7001ae44d2fbbaa52159514" \
   && actual=$(sha256sum npm.tgz | cut -d' ' -f1) \
   && [ "$actual" = "$expected" ] \
   && echo "✅ NPM Tarball Checksum OK" \
@@ -94,10 +98,27 @@ RUN expected="a4ffa1de3bf1c7f9d5e3dd24fe2921970bdb1589d647f4083eaaaab3be974b7e" 
 # Install NPM from verified tarball and global packages
 RUN tar -xzf npm.tgz && \
   cd package && \
-  node bin/npm-cli.js install -g npm@11.13.0 && \
+  node bin/npm-cli.js install -g /tmp/npm-install/npm.tgz && \
   cd / && \
   rm -rf /tmp/npm-install
-RUN npm install -g pnpm@10.33.2 @import-meta-env/cli@0.7.4
+RUN mkdir -p /tmp/pnpm-install && cd /tmp/pnpm-install && \
+  curl -fsSL https://registry.npmjs.org/pnpm/-/pnpm-10.34.9.tgz -o pnpm.tgz && \
+  curl -fsSL https://registry.npmjs.org/@import-meta-env/cli/-/cli-0.7.4.tgz -o cli.tgz && \
+  echo "7e8a946108e7baab119e51d27c24d6178b46545422643dbc91e34e2f1ee32e0f  pnpm.tgz" | sha256sum -c - && \
+  echo "9edada700b616b4224ba69ce713e68c36e22cb2548be9134dd3af00c164d8ca0  cli.tgz" | sha256sum -c - && \
+  npm install -g ./pnpm.tgz ./cli.tgz && \
+  cd / && rm -rf /tmp/pnpm-install
+
+# Fix the undici advisories bundled with npm: GHSA-rfgv-xxqx-mfg5 (HIGH - DoS via
+# unrequested WebSocket subprotocol, fixed in 6.28.1) and GHSA-xjj6-f33q-929c (HIGH -
+# DoS via unhandled error on excessive input, fixed in 6.29.1), on top of the earlier
+# CVE-2026-12151 family. npm bundles an affected 6.x, so replace it with 6.29.1.
+RUN mkdir -p /tmp/undici-fix && \
+  cd /tmp/undici-fix && \
+  npm install undici@6.29.1 && \
+  rm -rf /usr/lib/node_modules/npm/node_modules/undici && \
+  cp -r node_modules/undici /usr/lib/node_modules/npm/node_modules/ && \
+  rm -rf /tmp/undici-fix
 
 # Fix CVE-2025-64756 by replacing vulnerable glob in @import-meta-env/cli (ships glob@11.0.2, fix requires >=11.1.0)
 RUN mkdir -p /tmp/glob-fix && \
@@ -110,10 +131,52 @@ RUN mkdir -p /tmp/glob-fix && \
 # Fix CVE: upgrade serialize-javascript in @import-meta-env/cli (ships 6.0.2, fix requires >=7.0.3)
 RUN mkdir -p /tmp/serialize-fix && \
   cd /tmp/serialize-fix && \
-  npm install serialize-javascript@7.0.3 && \
+  npm install serialize-javascript@7.1.4 && \
   rm -rf /usr/lib/node_modules/@import-meta-env/cli/node_modules/serialize-javascript && \
   cp -r node_modules/serialize-javascript /usr/lib/node_modules/@import-meta-env/cli/node_modules/ && \
   rm -rf /tmp/serialize-fix
+
+# Fix the brace-expansion DoS chain: CVE-2026-14257 (unbounded expansion length →
+# OOM crash), the unbounded intermediate arrays follow-up (<5.0.9), and the
+# uncontrolled-recursion advisories GHSA-6j4f-fj2g-mc7p (<5.0.10) and
+# GHSA-qhr7-859c-m2p7 (<5.0.11). No per-line backport exists, so replace all
+# bundled/transitive copies (npm ships 5.0.7; the @import-meta-env/cli tree pulls an
+# older copy) with the fixed 5.0.13.
+RUN mkdir -p /tmp/brace-fix && \
+  cd /tmp/brace-fix && \
+  npm install brace-expansion@5.0.13 && \
+  find /usr/lib/node_modules -type d -name brace-expansion -not -path '*/brace-fix/*' | \
+    while read -r dir; do \
+      rm -rf "$dir" && \
+      cp -r /tmp/brace-fix/node_modules/brace-expansion "$dir"; \
+    done && \
+  rm -rf /tmp/brace-fix
+
+# Fix CVE-2026-69192: npm and pnpm both bundle ip-address 10.2.0 (affected <=10.3.0)
+RUN mkdir -p /tmp/ip-fix && \
+  cd /tmp/ip-fix && \
+  npm install ip-address@10.7.6 && \
+  find /usr/lib/node_modules -type d -name ip-address -not -path '*/ip-fix/*' | \
+    while read -r dir; do \
+      rm -rf "$dir" && \
+      cp -r /tmp/ip-fix/node_modules/ip-address "$dir"; \
+    done && \
+  rm -rf /tmp/ip-fix
+
+# Fix multiple tar advisories (CVE-2026-59873 and the GHSA-r292-9mhp-454m family):
+# every tar <7.5.22 is affected. Both the bundled npm and pnpm copies still ship
+# 7.5.19 and are vulnerable, so replace all bundled copies with the
+# fixed 7.5.23. tar 7.5.x is a patch line (identical deps, pure JS), so the swap
+# is a safe drop-in that keeps npm/pnpm working.
+RUN mkdir -p /tmp/tar-fix && \
+  cd /tmp/tar-fix && \
+  npm install tar@7.5.23 && \
+  find /usr/lib/node_modules -type d -path '*/node_modules/tar' -not -path '*/tar-fix/*' | \
+    while read -r dir; do \
+      rm -rf "$dir" && \
+      cp -r /tmp/tar-fix/node_modules/tar "$dir"; \
+    done && \
+  rm -rf /tmp/tar-fix
 
 
 
@@ -134,6 +197,7 @@ RUN pnpm install -f --prefer-offline
 
 
 FROM base_builder AS backend_builder
+
 WORKDIR /usr/src/app/packages/hoppscotch-backend
 ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
 RUN pnpm exec prisma generate
@@ -153,6 +217,10 @@ COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/prod_run.mjs /
 ENV PRODUCTION="true"
 ENV PORT=8080
 
+# Writable Caddy storage for non-root UIDs (no writable $HOME needed).
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
 WORKDIR /dist/backend
 
 CMD ["node", "prod_run.mjs"]
@@ -164,6 +232,10 @@ EXPOSE 3170
 FROM base_builder AS fe_builder
 WORKDIR /usr/src/app/packages/hoppscotch-selfhost-web
 RUN pnpm run generate
+# Group-writable (GID 0) so a non-root UID (OpenShift runs as GID 0) can rewrite
+# these files during env injection. Done here (not in the runtime stage) so the
+# perms travel with the COPY instead of duplicating the layer with a chmod there.
+RUN chmod -R g=rwX /usr/src/app/packages/hoppscotch-selfhost-web/dist
 
 
 
@@ -176,11 +248,25 @@ COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/
 
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/prod_run.mjs /site/prod_run.mjs
 COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/selfhost-web.Caddyfile /etc/caddy/selfhost-web.Caddyfile
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ /site/selfhost-web
+COPY --chown=root:0 --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist/ /site/selfhost-web
+
+# Writable Caddy storage for non-root UIDs (no writable $HOME needed).
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
+# Files keep g=rwX from the builder; only the COPY-created dirs need it. List the
+# dirs (not /site/*) so the layer stays metadata-only and prod_run.mjs stays 755.
+RUN chmod g=rwX /site /site/selfhost-web
+
+# Pre-create /data group-writable so webapp-server's signing key persists across
+# restarts under a non-root UID (else it's regenerated and logged each start).
+RUN mkdir -p /data/webapp-server && chmod g=rwX /data /data/webapp-server
 
 WORKDIR /site
 # Run both webapp-server and Caddy after env processing (NOTE: env processing is required by both)
-CMD ["/bin/sh", "-c", "node /site/prod_run.mjs && (webapp-server & caddy run --config /etc/caddy/selfhost-web.Caddyfile --adapter caddyfile)"]
+# An empty HOPP_ALTERNATE_PORT (compose passthrough of an undefined var) means unset,
+# so the Caddyfile default (:80) applies.
+CMD ["/bin/sh", "-c", "[ -n \"$HOPP_ALTERNATE_PORT\" ] || unset HOPP_ALTERNATE_PORT; node /site/prod_run.mjs && (webapp-server & caddy run --config /etc/caddy/selfhost-web.Caddyfile --adapter caddyfile)"]
 
 EXPOSE 80
 EXPOSE 3000
@@ -193,6 +279,10 @@ WORKDIR /usr/src/app/packages/hoppscotch-sh-admin
 # Generate two builds for `sh-admin`, one based on subpath-access and the regular build
 RUN pnpm run build --outDir dist-multiport-setup
 RUN pnpm run build --outDir dist-subpath-access --base /admin/
+# Group-writable (GID 0) so a non-root UID (OpenShift runs as GID 0) can rewrite
+# these files during env injection. Done here (not in the runtime stage) so the
+# perms travel with the COPY instead of duplicating the layer with a chmod there.
+RUN chmod -R g=rwX dist-multiport-setup dist-subpath-access
 
 
 FROM node_base AS sh_admin
@@ -202,8 +292,16 @@ COPY --from=caddy_builder /tmp/caddy-build/cmd/caddy/caddy /usr/bin/caddy
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/prod_run.mjs /site/prod_run.mjs
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-multiport-setup.Caddyfile /etc/caddy/sh-admin-multiport-setup.Caddyfile
 COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/sh-admin-subpath-access.Caddyfile /etc/caddy/sh-admin-subpath-access.Caddyfile
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
+COPY --chown=root:0 --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
+COPY --chown=root:0 --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
+
+# Writable Caddy storage for non-root UIDs (no writable $HOME needed).
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
+# Files keep g=rwX from the builder; only the COPY-created dirs need it. List the
+# dirs (not /site/*) so the layer stays metadata-only and prod_run.mjs stays 755.
+RUN chmod g=rwX /site /site/sh-admin-multiport-setup /site/sh-admin-subpath-access
 
 WORKDIR /site
 CMD ["node","/site/prod_run.mjs"]
@@ -234,16 +332,26 @@ COPY --from=base_builder /usr/src/app/packages/hoppscotch-backend/prod_run.mjs /
 
 # Static Server
 COPY --from=webapp_server_builder /usr/src/app/packages/hoppscotch-selfhost-web/webapp-server/webapp-server /usr/local/bin/
-RUN mkdir -p /site/selfhost-web
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
+COPY --chown=root:0 --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
 
 # FE Files
 COPY --from=base_builder /usr/src/app/aio_run.mjs /usr/src/app/aio_run.mjs
-COPY --from=fe_builder /usr/src/app/packages/hoppscotch-selfhost-web/dist /site/selfhost-web
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
-COPY --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
+COPY --chown=root:0 --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-multiport-setup /site/sh-admin-multiport-setup
+COPY --chown=root:0 --from=sh_admin_builder /usr/src/app/packages/hoppscotch-sh-admin/dist-subpath-access /site/sh-admin-subpath-access
 COPY aio-multiport-setup.Caddyfile /etc/caddy/aio-multiport-setup.Caddyfile
 COPY aio-subpath-access.Caddyfile /etc/caddy/aio-subpath-access.Caddyfile
+
+# Writable Caddy storage for non-root UIDs (no writable $HOME needed).
+ENV XDG_DATA_HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp
+
+# Files keep g=rwX from the builders; only the COPY-created dirs need it. List the
+# dirs (not /site/*) so the layer stays metadata-only.
+RUN chmod g=rwX /site /site/selfhost-web /site/sh-admin-multiport-setup /site/sh-admin-subpath-access
+
+# Pre-create /data group-writable so webapp-server's signing key persists across
+# restarts under a non-root UID (else it's regenerated and logged each start).
+RUN mkdir -p /data/webapp-server && chmod g=rwX /data /data/webapp-server
 
 ENTRYPOINT [ "tini", "--" ]
 COPY --chmod=755 healthcheck.sh /
@@ -252,7 +360,10 @@ HEALTHCHECK --interval=2s --start-period=15s CMD /bin/sh /healthcheck.sh
 WORKDIR /dist/backend
 CMD ["node", "/usr/src/app/aio_run.mjs"]
 
-# NOTE: Although these ports are exposed, the HOPP_ALTERNATE_AIO_PORT variable can be used to assign a user-specified port
+# NOTE: In subpath mode (ENABLE_SUBPATH_BASED_ACCESS=true) HOPP_ALTERNATE_PORT sets
+#       Caddy's HTTP port (default 80). In multiport mode (default) Caddy uses the
+#       fixed ports 3000/3100/3170 and it has no effect. Legacy
+#       HOPP_AIO_ALTERNATE_PORT is still honoured.
 EXPOSE 3170
 EXPOSE 3000
 EXPOSE 3100

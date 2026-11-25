@@ -51,9 +51,9 @@
             />
             <CollectionsDocumentationRequestPreview
               v-if="item.type === 'request'"
-              :request="item.item as HoppRESTRequest"
+              :request="item.item as DocRequest"
               :documentation-description="
-                (item.item as HoppRESTRequest).description || ''
+                getRequestDescription(item.item as DocRequest)
               "
               :collection-i-d="collectionData.id"
               :inherited-properties="getInheritedProperties(item)"
@@ -69,16 +69,25 @@
 
 <script setup lang="ts">
 import { PropType, ref, onMounted } from "vue"
-import { Environment, HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  Environment,
+  HoppCollection,
+  HoppGQLRequest,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { useRouter, useRoute } from "vue-router"
+
+type DocRequest = HoppRESTRequest | HoppGQLRequest
 
 type DocumentationItem = {
   id: string
   type: "folder" | "request"
-  item: HoppCollection | HoppRESTRequest
+  item: HoppCollection | DocRequest
   inheritedProperties: HoppInheritedProperty
 }
+
+const getRequestDescription = (req: DocRequest): string => req.description || ""
 
 const props = defineProps({
   collectionData: {

@@ -1,0 +1,6 @@
+query GetProxyAppUrl {
+  proxyAppUrl {
+    value
+    name
+  }
+}

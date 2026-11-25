@@ -1,0 +1,38 @@
+{
+  "v": 12,
+  "name": "collection-level-scripts-duplicate-import-coll",
+  "variables": [],
+  "description": null,
+  "folders": [],
+  "requests": [
+    {
+      "v": "17",
+      "id": "cl-script-dup-req",
+      "name": "request-with-duplicate-import-binding",
+      "method": "GET",
+      "endpoint": "https://echo.hoppscotch.io",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "import dup from \"data:text/javascript,export default 2\";\npw.env.set(\"REQ_BINDING\", String(dup));",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {},
+      "description": null
+    }
+  ],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": [],
+  "preRequestScript": "import dup from \"data:text/javascript,export default 1\";\npw.env.set(\"ROOT_BINDING\", String(dup));",
+  "testScript": ""
+}

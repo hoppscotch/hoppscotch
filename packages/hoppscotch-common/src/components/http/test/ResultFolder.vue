@@ -12,11 +12,6 @@
           <span
             class="flex items-center justify-center px-4 pointer-events-none"
           >
-            <HoppSmartCheckbox
-              v-if="showSelection"
-              :on="isSelected"
-              class="mr-2"
-            />
             <component :is="IconFolderOpen" class="svg-icons" />
           </span>
           <span
@@ -52,23 +47,19 @@ const props = withDefaults(
      */
     folderType: FolderType
     isOpen: boolean
-    isSelected?: boolean
     exportLoading?: boolean
     hasNoTeamAccess?: boolean
     collectionMoveLoading?: string[]
     isLastItem?: boolean
-    showSelection?: boolean
   }>(),
   {
     id: "",
     parentID: null,
     folderType: "collection",
     isOpen: false,
-    isSelected: false,
     exportLoading: false,
     hasNoTeamAccess: false,
     isLastItem: false,
-    showSelection: false,
   }
 )
 

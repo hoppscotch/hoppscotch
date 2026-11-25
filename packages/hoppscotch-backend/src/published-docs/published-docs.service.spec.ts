@@ -4,7 +4,6 @@ import {
   PUBLISHED_DOCS_CREATION_FAILED,
   PUBLISHED_DOCS_DELETION_FAILED,
   PUBLISHED_DOCS_INVALID_COLLECTION,
-  PUBLISHED_DOCS_FORBIDDEN_ENVIRONMENT_ACCESS,
   PUBLISHED_DOCS_NOT_FOUND,
   PUBLISHED_DOCS_UPDATE_FAILED,
   TEAM_ENVIRONMENT_NOT_FOUND,
@@ -857,8 +856,8 @@ describe('getPublishedDocsCreator', () => {
 
     const expectedUser = {
       ...user,
-      currentGQLSession: JSON.stringify(user.currentGQLSession),
-      currentRESTSession: JSON.stringify(user.currentRESTSession),
+      currentGQLSession: null,
+      currentRESTSession: null,
     };
 
     expect(result).toEqualRight(expectedUser);

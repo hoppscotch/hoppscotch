@@ -1,0 +1,415 @@
+import {
+  HoppCollection,
+  HoppGQLRequest,
+  HoppGQLRequestResponse,
+  HoppRESTRequest,
+  HoppRESTRequestResponse,
+} from "@hoppscotch/data"
+import { RESTOptionTabs } from "~/components/http/RequestOptions.vue"
+import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
+import { type GQLResponseEvent } from "~/services/gql-tab-connection.service"
+import { HoppInheritedProperty } from "../types/HoppInheritedProperties"
+import { HoppRESTResponse } from "../types/HoppRESTResponse"
+import { HoppTestResult } from "../types/HoppTestResult"
+import { TestRunnerRequest } from "~/services/test-runner/test-runner.service"
+import { TestRunnerDataset } from "../runner/dataset"
+
+export type HoppTabSaveContext =
+  | {
+      /**
+       * The origin source of the request
+       */
+      originLocation: "user-collection"
+      /**
+       * Path to the request folder
+       */
+      folderPath: string
+      /**
+       * Index to the request
+       */
+      requestIndex?: number
+      /**
+       * ID of the example response
+       */
+      exampleID?: string
+      /**
+       * Reference ID of the request, if available
+       */
+      requestRefID?: string
+    }
+  | {
+      /**
+       * The origin source of the request
+       */
+      originLocation: "team-collection"
+      /**
+       * ID of the request in the team
+       */
+      requestID: string
+      /**
+       * ID of the team
+       */
+      teamID?: string
+      /**
+       * ID of the collection loaded
+       */
+      collectionID?: string
+      /**
+       * ID of the example response
+       */
+      exampleID?: string
+      /**
+       * Reference ID of the request, if available
+       */
+      requestRefID?: string
+    }
+  | null
+
+/**
+ * Defines a live 'document' (something that is open and being edited) in the app
+ */
+
+export type HoppCollectionSaveContext =
+  | {
+      /**
+       * The origin source of the request
+       */
+      originLocation: "user-collection"
+      /**
+       * Path to the request folder
+       */
+      folderPath: string
+    }
+  | {
+      /**
+       * The origin source of the request
+       */
+      originLocation: "team-collection"
+      /**
+       * ID of the team
+       */
+      teamID?: string
+      /**
+       * ID of the collection loaded
+       */
+      collectionID?: string
+      /**
+       * ID of the request in the team
+       */
+      requestID: string
+    }
+  | null
+
+export type TestRunnerConfig = {
+  iterations: number
+  delay: number
+  stopOnError: boolean
+  persistResponses: boolean
+  keepVariableValues: boolean
+  dataset?: TestRunnerDataset
+}
+
+export type TestRunnerMeta = {
+  totalRequests: number
+  completedRequests: number
+  totalTests: number
+  passedTests: number
+  failedTests: number
+  totalTime: number
+}
+
+export type TestRunnerIterationResult = {
+  iteration: number
+  resultCollection?: HoppCollection
+  meta: TestRunnerMeta
+}
+
+export type HoppTestRunnerDocument = {
+  /**
+   * The document type
+   */
+  type: "test-runner"
+
+  /**
+   * The test runner configuration
+   */
+  config: TestRunnerConfig
+
+  /**
+   * initiate test runner on tab open
+   */
+  status: "idle" | "running" | "stopped" | "error"
+
+  /**
+   * The collection as it is in the document
+   */
+  collection: HoppCollection
+
+  /**
+   * The type of the collection
+   */
+  collectionType: "my-collections" | "team-collections"
+
+  /**
+   * collection ID to be used for team collections
+   * (if it's my-collections, the _ref_id will be used as collectionID)
+   */
+  collectionID: string
+
+  /**
+   * Selected request id
+   * (if any)
+   */
+  selectedRequestPath?: string
+
+  /**
+   * The request as it is in the document
+   */
+  resultCollection?: HoppCollection
+
+  /**
+   * Results grouped by iteration.
+   */
+  iterationResults?: TestRunnerIterationResult[]
+
+  /**
+   * Selected result iteration in the UI.
+   */
+  selectedIteration?: number
+
+  /**
+   * Requests selected to run. `undefined` runs the full collection; a non-empty
+   * array runs only those requests. An empty array means "no selection" and is
+   * rejected by the runner (the UI never produces it — it uses `undefined` for
+   * "run all").
+   */
+  selectedRequestRefIds?: string[]
+
+  /**
+   * Name of the environment active when the run started ("Global" when none
+   * was selected). Captured at run start so it is stable across later env
+   * switches.
+   */
+  environmentName?: string
+
+  /**
+   * The test runner meta information
+   */
+  testRunnerMeta: TestRunnerMeta
+
+  /**
+   * Selected test runner request
+   */
+  request: TestRunnerRequest | null
+
+  /**
+   * The response of the selected request in collections after running the test
+   * (if any)
+   */
+  response?: HoppRESTResponse | null
+
+  /**
+   * The test results of the selected request in collections after running the test
+   * (if any)
+   */
+  testResults?: HoppTestResult | null
+
+  /**
+   * Whether the request has any unsaved changes
+   * (atleast as far as we can say)
+   */
+  isDirty: boolean
+
+  /**
+   * The inherited properties from the parent collection also the collection itself
+   * (if any) - Used for team collections
+   */
+  inheritedProperties?: HoppInheritedProperty
+}
+
+export type HoppRequestDocument = {
+  /**
+   * The document type
+   */
+  type: "request"
+
+  /**
+   * The request as it is in the document
+   */
+  request: HoppRESTRequest
+
+  /**
+   * Whether the request has any unsaved changes
+   * (atleast as far as we can say)
+   */
+  isDirty: boolean
+
+  /**
+   * Info about where this request should be saved.
+   * This contains where the request is originated from basically.
+   */
+  saveContext?: HoppTabSaveContext
+
+  /**
+   * The response as it is in the document
+   * (if any)
+   */
+  response?: HoppRESTResponse | null
+
+  /**
+   * The test results as it is in the document
+   * (if any)
+   */
+  testResults?: HoppTestResult | null
+
+  /**
+   * Response tab preference for the current tab's document
+   */
+  responseTabPreference?: string
+
+  /**
+   * Options tab preference for the current tab's document
+   */
+  optionTabPreference?: RESTOptionTabs
+
+  /**
+   * The inherited properties from the parent collection
+   * (if any)
+   */
+  inheritedProperties?: HoppInheritedProperty
+
+  /**
+   * The function responsible for cancelling the tab request call
+   */
+  cancelFunction?: () => void
+}
+
+export type HoppSavedExampleDocument = {
+  /**
+   * The type of the document
+   */
+  type: "example-response"
+
+  /**
+   * The response as it is in the document
+   */
+  response: HoppRESTRequestResponse
+
+  /**
+   * Info about where this response should be saved.
+   * This contains where the response is originated from basically.
+   */
+  saveContext?: HoppTabSaveContext
+
+  /**
+   * Whether the response has any unsaved changes
+   * (atleast as far as we can say)
+   */
+  isDirty: boolean
+
+  /**
+   * The inherited properties from the parent collection
+   * (if any)
+   */
+  inheritedProperties?: HoppInheritedProperty
+}
+
+export type HoppSavedGQLExampleDocument = {
+  /**
+   * The type of the document
+   */
+  type: "gql-example-response"
+
+  /**
+   * The response as it is in the document.
+   * Carries the GQL example shape (with a GQL `originalRequest` snapshot) so
+   * the renderer can reuse the GQL request/response surfaces.
+   */
+  response: HoppGQLRequestResponse
+
+  /**
+   * Info about where this response should be saved.
+   * This contains where the response is originated from basically.
+   */
+  saveContext?: HoppTabSaveContext
+
+  /**
+   * Whether the response has any unsaved changes
+   * (atleast as far as we can say)
+   */
+  isDirty: boolean
+
+  /**
+   * The inherited properties from the parent collection
+   * (if any)
+   */
+  inheritedProperties?: HoppInheritedProperty
+}
+
+export type HoppGQLRequestDocument = {
+  /**
+   * The document type
+   */
+  type: "gql-request"
+
+  /**
+   * The GQL request as it is in the document
+   */
+  request: HoppGQLRequest
+
+  /**
+   * Whether the request has any unsaved changes
+   * (atleast as far as we can say)
+   */
+  isDirty: boolean
+
+  /**
+   * The cursor position in the query editor
+   */
+  cursorPosition?: number
+
+  /**
+   * Info about where this request should be saved.
+   * This contains where the request is originated from basically.
+   */
+  saveContext?: HoppTabSaveContext
+
+  /**
+   * The response as it is in the document
+   * (if any)
+   */
+  response?: GQLResponseEvent[] | null
+
+  /**
+   * The test script results of the last query/mutation run (if any).
+   * `null` while a run is in flight — the Results tab renders its loading
+   * state off that sentinel (GQL has no `loading` response type like REST).
+   */
+  testResults?: HoppTestResult | null
+
+  /**
+   * Response tab preference for the current tab's document
+   */
+  responseTabPreference?: string
+
+  /**
+   * Options tab preference for the current tab's document
+   */
+  optionTabPreference?: GQLOptionTabs
+
+  /**
+   * The inherited properties from the parent collection
+   * (if any)
+   */
+  inheritedProperties?: HoppInheritedProperty
+}
+
+/**
+ * Defines a live 'document' (something that is open and being edited) in the app
+ */
+export type HoppTabDocument =
+  | HoppSavedExampleDocument
+  | HoppSavedGQLExampleDocument
+  | HoppRequestDocument
+  | HoppTestRunnerDocument
+  | HoppGQLRequestDocument

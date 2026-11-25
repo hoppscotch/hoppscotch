@@ -115,14 +115,17 @@ export class SecretEnvironmentService extends Service {
   }
 
   /**
-   * Used to update the ID of a secret environment.
-   * Used while syncing with the server.
-   * @param oldID old ID of the environment
-   * @param newID new ID of the environment
+   * Migrate entries from `oldID` to `newID`. Skips the `set` when nothing
+   * exists under `oldID` so a no-op migrate doesn't clobber `newID`.
    */
   public updateSecretEnvironmentID(oldID: string, newID: string) {
+    // No-op when keys match — without this guard the get→set→delete
+    // sequence would erase the just-written entry for `oldID === newID`.
+    if (oldID === newID) return
     const secretVars = this.getSecretEnvironment(oldID)
-    this.secretEnvironments.set(newID, secretVars || [])
+    if (secretVars !== undefined) {
+      this.secretEnvironments.set(newID, secretVars)
+    }
     this.secretEnvironments.delete(oldID)
   }
 

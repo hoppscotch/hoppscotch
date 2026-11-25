@@ -6,7 +6,7 @@
 
 ![GitHub License MIT](https://img.shields.io/github/license/CuriousCorrelation/tauri-plugin-relay)
 ![Tauri 2.0](https://img.shields.io/badge/Tauri-2.0-blue)
-[![Rust](https://img.shields.io/badge/Rust-1.77.2+-orange)](https://www.rust-lang.org)
+[![Rust](https://img.shields.io/badge/Rust-1.85+-orange)](https://www.rust-lang.org)
 
 </div>
 
@@ -107,7 +107,7 @@ The plugin provides extensive security options:
 ## Development
 
 Requirements:
-- Rust 1.77.2 or later
+- Rust 1.85 or later
 - Node.js 18 or later
 - pnpm
 - libcurl with SSL support

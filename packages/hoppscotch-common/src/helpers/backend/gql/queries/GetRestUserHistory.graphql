@@ -1,0 +1,24 @@
+query GetRESTUserHistory($take: Int) {
+  me {
+    RESTHistory(take: $take) {
+      id
+      userUid
+      reqType
+      request
+      responseMetadata
+      isStarred
+      executedOn
+    }
+
+    GQLHistory(take: $take) {
+      id
+      userUid
+      reqType
+      request
+      responseMetadata
+      isStarred
+      executedOn
+    }
+  }
+}
+

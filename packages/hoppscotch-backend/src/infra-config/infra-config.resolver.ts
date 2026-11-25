@@ -38,6 +38,18 @@ export class InfraConfigResolver {
     return isEnabled.right;
   }
 
+  @Query(() => InfraConfig, {
+    description: 'Get the proxy app URL',
+  })
+  // Public by design: the unauthenticated selfhost client needs this URL before login.
+  async proxyAppUrl() {
+    const infraConfig = await this.infraConfigService.get(
+      InfraConfigEnum.PROXY_APP_URL,
+    );
+    if (E.isLeft(infraConfig)) throwErr(infraConfig.left);
+    return infraConfig.right;
+  }
+
   /* Subscriptions */
 
   @Subscription(() => String, {

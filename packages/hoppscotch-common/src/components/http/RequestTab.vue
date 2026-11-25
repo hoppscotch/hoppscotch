@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, computed } from "vue"
+import { watch, computed, provide } from "vue"
 import { useVModel } from "@vueuse/core"
 import { cloneDeep } from "lodash-es"
 import { isEqualHoppRESTRequest } from "@hoppscotch/data"
@@ -32,6 +32,7 @@ import {
   getAggregateEnvsWithCurrentValue,
 } from "~/newstore/environments"
 import { getEffectiveVariablesForRequest } from "~/helpers/utils/environments"
+import { ENV_TOOLTIP_EDITABLE } from "~/helpers/editor/extensions/HoppEnvironment"
 
 const props = defineProps<{ modelValue: HoppTab<HoppRequestDocument> }>()
 
@@ -40,6 +41,10 @@ const emit = defineEmits<{
 }>()
 
 const tab = useVModel(props, "modelValue", emit)
+
+// Editors in a request tab can edit a hovered variable's current value from
+// its tooltip.
+provide(ENV_TOOLTIP_EDITABLE, true)
 
 const envs = useReadonlyStream(
   aggregateEnvsWithCurrentValue$,

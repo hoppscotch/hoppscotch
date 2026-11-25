@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick, computed, Ref } from "vue"
+import { ref, onMounted, watch, nextTick, computed, Ref, inject } from "vue"
 import {
   EditorView,
   placeholder as placeholderExt,
@@ -82,7 +82,10 @@ import {
 import { clone } from "lodash-es"
 import { history, historyKeymap } from "@codemirror/commands"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
-import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
+import {
+  ENV_TOOLTIP_EDITABLE,
+  HoppReactiveEnvPlugin,
+} from "~/helpers/editor/extensions/HoppEnvironment"
 import { HoppPredefinedVariablesPlugin } from "~/helpers/editor/extensions/HoppPredefinedVariables"
 import { useReadonlyStream } from "@composables/stream"
 import {
@@ -492,7 +495,11 @@ function envAutoCompletion(context: CompletionContext) {
   }
 }
 
-const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
+const envTooltipPlugin = new HoppReactiveEnvPlugin(
+  envVars,
+  view,
+  inject(ENV_TOOLTIP_EDITABLE, false)
+)
 const predefinedVariablePlugin = new HoppPredefinedVariablesPlugin()
 
 function handleTextSelection() {

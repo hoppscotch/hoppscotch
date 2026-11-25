@@ -240,8 +240,9 @@ import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import { flow, pipe } from "fp-ts/function"
-import { ComputedRef, computed, ref, watch } from "vue"
+import { ComputedRef, computed, provide, ref, watch } from "vue"
 import { stripClientLocalValuesForWire } from "~/helpers/clientLocalVariables"
+import { ENV_TOOLTIP_EDITABLE } from "~/helpers/editor/extensions/HoppEnvironment"
 import { uniqueID } from "~/helpers/utils/uniqueID"
 import {
   createEnvironment,
@@ -275,6 +276,10 @@ type EnvironmentVariable = {
 const t = useI18n()
 const toast = useToast()
 const colorMode = useColorMode()
+
+// This modal edits a draft, and it can be opened from inside a request tab.
+// Keep variable tooltips read-only here so they never write around the draft.
+provide(ENV_TOOLTIP_EDITABLE, false)
 
 const props = withDefaults(
   defineProps<{

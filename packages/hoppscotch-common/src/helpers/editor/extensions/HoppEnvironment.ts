@@ -9,10 +9,11 @@ import {
 import { StreamSubscriberFunc } from "@composables/stream"
 import { parseTemplateStringE } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
-import { Ref, watch } from "vue"
+import { InjectionKey, Ref, watch } from "vue"
 
 import { invokeAction } from "~/helpers/actions"
 import { getService } from "~/modules/dioc"
+import { getI18n } from "~/modules/i18n"
 import {
   AggregateEnvironment,
   aggregateEnvsWithCurrentValue$,
@@ -30,11 +31,16 @@ import IconUsers from "~icons/lucide/users?raw"
 import IconGlobe from "~icons/lucide/globe?raw"
 import IconVariable from "~icons/lucide/variable?raw"
 import IconLibrary from "~icons/lucide/library?raw"
+import IconEye from "~icons/lucide/eye?raw"
+import IconEyeOff from "~icons/lucide/eye-off?raw"
 
 import { isComment } from "./helpers"
 import {
   getEffectiveVariablesForRequest,
   filterNonEmptyEnvironmentVariables,
+  findEffectiveVariableIndex,
+  getCombinedEnvVariables,
+  getTooltipSecretSourceID,
 } from "~/helpers/utils/environments"
 import {
   ENV_VAR_NAME_REGEX,
@@ -44,6 +50,8 @@ import {
   stabilizeTooltipHover,
   constrainTooltipToViewport,
   createTooltipValueRow,
+  createTooltipEditableValueRow,
+  TooltipEditableValueRowOptions,
 } from "~/helpers/utils/tooltip"
 import { maskSecretValue } from "~/helpers/utils/secretMask"
 
@@ -61,7 +69,218 @@ const secretEnvironmentService = getService(SecretEnvironmentService)
 const currentEnvironmentValueService = getService(CurrentValueService)
 const workspaceTabs = getService(WorkspaceTabsService)
 
-const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
+/**
+ * Provided as `true` by the request tab components so that editors inside them
+ * show the variable's current value in an input. Editors outside a request tab
+ * (embeds, the sidebar) and inside modals that provide `false` keep the
+ * read-only tooltip. Any component that edits a draft (unsaved environment or
+ * collection variables) and can be mounted under a request tab must
+ * `provide(ENV_TOOLTIP_EDITABLE, false)`.
+ */
+export const ENV_TOOLTIP_EDITABLE: InjectionKey<boolean> = Symbol(
+  "ENV_TOOLTIP_EDITABLE"
+)
+
+/** The stored variable that the tooltip's Current input writes to. */
+type EditTarget =
+  | {
+      kind: "env"
+      scope: "selected" | "global"
+      envID: string
+      varIndex: number
+      key: string
+      secret: boolean
+      value: string
+      initialValue: string
+    }
+  | {
+      kind: "request"
+      tabID: string
+      index: number
+      key: string
+      value: string
+    }
+
+/**
+ * Finds the stored row that the hovered variable resolves to, so the tooltip
+ * edits the same value the request runner reads. Returns `null` when the
+ * variable should stay read-only: not found, a collection variable, no
+ * environment selected, or no matching row.
+ */
+const resolveEditTarget = (
+  tooltipEnv: AggregateEnvironment | undefined,
+  key: string
+): EditTarget | null => {
+  const sourceEnv = tooltipEnv?.sourceEnv
+
+  // A missing or empty source is what the tooltip shows as "Not Found".
+  // Collection variables are edited from the collection's properties.
+  if (!sourceEnv || sourceEnv === "CollectionVariable") return null
+
+  if (sourceEnv === "RequestVariable") {
+    const tab = workspaceTabs.currentActiveTab.value
+    if (tab.document.type !== "request") return null
+
+    const requestVariables = tab.document.request.requestVariables
+    // Mapped one to one, so the index points into `requestVariables` itself.
+    const index = findEffectiveVariableIndex(
+      requestVariables.map((variable) => ({
+        key: variable.key,
+        currentValue: variable.value,
+        active: variable.active,
+      })),
+      key
+    )
+    if (index === -1) return null
+
+    return {
+      kind: "request",
+      tabID: tab.id,
+      index,
+      key,
+      value: requestVariables[index].value,
+    }
+  }
+
+  // These rows hold the live current values (secrets included) that the
+  // request runner reads, indexed by position in the environment.
+  const { global, selected } = getCombinedEnvVariables()
+
+  // Search the selected environment's rows and then the global rows, the
+  // order the request runner uses. The source name cannot tell the two
+  // apart, because an environment can itself be named "Global".
+  const combinedIndex = findEffectiveVariableIndex(
+    [...selected, ...global],
+    key
+  )
+  if (combinedIndex === -1) return null
+
+  const scope = combinedIndex < selected.length ? "selected" : "global"
+  const varIndex =
+    scope === "selected" ? combinedIndex : combinedIndex - selected.length
+  const rows = scope === "selected" ? selected : global
+
+  let envID: string
+  if (scope === "global") {
+    envID = "Global"
+  } else {
+    envID = getCurrentEnvironment().id
+    if (envID === "") return null
+  }
+
+  const row = rows[varIndex]
+  return {
+    kind: "env",
+    scope,
+    envID,
+    varIndex,
+    key,
+    secret: row.secret === true,
+    value: row.currentValue ?? "",
+    initialValue: row.initialValue ?? "",
+  }
+}
+
+/**
+ * Writes a new current value for the target. Secrets only ever go to the
+ * secret store and plain values only to the current value store, so a secret
+ * is never persisted in plain text.
+ */
+const saveEditTarget = (target: EditTarget, value: string): void => {
+  if (target.kind === "env") {
+    // Skip if another environment was selected, or the variables were
+    // reordered or renamed, since the tooltip opened: the stored index would
+    // now point at a different variable.
+    if (
+      target.scope === "selected" &&
+      getCurrentEnvironment().id !== target.envID
+    )
+      return
+    const rows = getCombinedEnvVariables()[target.scope]
+    if (rows[target.varIndex]?.key !== target.key) return
+
+    if (target.secret) {
+      secretEnvironmentService.setSecretEnvironmentVariableValue(
+        target.envID,
+        target.varIndex,
+        value,
+        target.key
+      )
+    } else {
+      currentEnvironmentValueService.setEnvironmentVariableValue(
+        target.envID,
+        target.varIndex,
+        value,
+        target.key
+      )
+    }
+    return
+  }
+
+  // The tab may have been closed while the tooltip was open, in which case
+  // there is nothing left to write to.
+  let tab
+  try {
+    tab = workspaceTabs.getTabRef(target.tabID).value
+  } catch {
+    return
+  }
+
+  if (tab.document.type !== "request") return
+
+  const request = tab.document.request
+
+  // Skip if the variables were reordered or renamed since the tooltip opened.
+  if (request.requestVariables[target.index]?.key !== target.key) return
+
+  // Replace the array instead of editing the row in place: the Variables
+  // table only resyncs its working copy when the array itself changes, and
+  // would otherwise keep showing (and later write back) the old value.
+  // The request tab's own watcher marks the tab as dirty.
+  request.requestVariables = request.requestVariables.map((variable, i) =>
+    i === target.index ? { ...variable, value } : variable
+  )
+}
+
+const getEditableCurrentRowOptions = (
+  target: EditTarget
+): TooltipEditableValueRowOptions => {
+  const onSave = (value: string) => saveEditTarget(target, value)
+
+  // Writing a request variable rebuilds the tooltip, so it saves on Enter or
+  // blur. Request variables have a single value, so there is no placeholder.
+  if (target.kind === "request") {
+    return { label: "Current", value: target.value, saveOn: "commit", onSave }
+  }
+
+  const t = getI18n()
+
+  // Writing an environment value does not rebuild the tooltip, and the
+  // tooltip can close as soon as the pointer leaves it, so save every
+  // keystroke. The initial value is shown as the hint when the input is empty.
+  return {
+    label: "Current",
+    value: target.value,
+    saveOn: "input",
+    onSave,
+    placeholder: target.secret
+      ? maskSecretValue(target.initialValue)
+      : target.initialValue,
+    secret: target.secret
+      ? {
+          showLabel: t("action.show_secret"),
+          hideLabel: t("action.hide_secret"),
+          showIcon: IconEye,
+          hideIcon: IconEyeOff,
+        }
+      : undefined,
+  }
+}
+
+const cursorTooltipField = (
+  aggregateEnvs: AggregateEnvironment[],
+  editable: boolean
+) =>
   hoverTooltip(
     (view, pos, side) => {
       // Check if the current position is inside a comment then disable the tooltip
@@ -104,6 +323,12 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       const currentSelectedEnvironment = getCurrentEnvironment()
       const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
 
+      // Resolved once when the tooltip opens, so the input keeps writing to
+      // the variable that was hovered.
+      const editTarget = editable
+        ? resolveEditTarget(tooltipEnv, parsedEnvKey)
+        : null
+
       let envInitialValue = tooltipEnv?.initialValue
 
       // If the environment is not a request variable or collection variable, get the current value from the current environment service
@@ -121,12 +346,13 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const hasSource = Boolean(tooltipEnv?.sourceEnv)
 
-      const tooltipSourceEnvID =
-        tooltipEnv?.sourceEnv === "Global"
-          ? "Global"
-          : tooltipEnv?.sourceEnv === "CollectionVariable"
-            ? tooltipEnv.sourceEnvID!
-            : currentSelectedEnvironment.id
+      const tooltipSourceEnvID = getTooltipSecretSourceID({
+        sourceEnv: tooltipEnv?.sourceEnv,
+        sourceEnvID: tooltipEnv?.sourceEnvID,
+        currentEnvID: currentSelectedEnvironment.id,
+        resolvedEnvID:
+          editTarget?.kind === "env" ? editTarget.envID : undefined,
+      })
 
       const hasSecretValueStored = secretEnvironmentService.hasSecretValue(
         tooltipSourceEnvID,
@@ -284,10 +510,19 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             "Initial",
             envInitialValue
           )
-          const currentValueRow = createTooltipValueRow(
-            "Current",
-            envCurrentValue
-          )
+          // With an edit target the Current row is an input that writes the
+          // variable's current value; otherwise it stays read-only text.
+          // Multi-line values (an imported PEM key, for example) stay
+          // read-only too, since a single-line input drops line breaks.
+          const editableCurrentRow =
+            editTarget && !/[\r\n]/.test(editTarget.value)
+              ? createTooltipEditableValueRow(
+                  getEditableCurrentRowOptions(editTarget)
+                )
+              : null
+          const currentValueRow =
+            editableCurrentRow?.row ??
+            createTooltipValueRow("Current", envCurrentValue)
 
           envContainer.appendChild(initialValueRow)
           envContainer.appendChild(currentValueRow)
@@ -304,7 +539,11 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           // Apply an interactive bridge to stabilize hover transitions
           stabilizeTooltipHover(dom)
 
-          return { dom }
+          if (!editableCurrentRow) return { dom }
+
+          // Save any pending edit when the tooltip closes: the browser may not
+          // fire blur on an input that is removed while it has focus.
+          return { dom, destroy: editableCurrentRow.flush }
         },
       }
     },
@@ -360,12 +599,18 @@ export const environmentHighlightStyle = (
 export class HoppEnvironmentPlugin {
   private compartment = new Compartment()
   private envs: AggregateEnvironment[] = []
+  private readonly editable: boolean
 
   constructor(
     subscribeToStream: StreamSubscriberFunc,
     private editorView: Ref<EditorView | undefined>,
-    getScopedEnvs?: () => AggregateEnvironment[] | undefined
+    getScopedEnvs?: () => AggregateEnvironment[] | undefined,
+    editable = false
   ) {
+    // Scoped editors (embeds) do not resolve against the viewer's stores, so
+    // there is nothing of theirs to edit and the tooltip stays read-only.
+    this.editable = getScopedEnvs ? false : editable
+
     // A scoped getter (embeds) replaces the live tab/store wiring entirely —
     // the viewer's stored environments must not highlight or resolve there.
     // Watched so scope changes (e.g. request-variable edits) re-render.
@@ -376,7 +621,7 @@ export class HoppEnvironmentPlugin {
           this.envs = envs
           this.editorView.value?.dispatch({
             effects: this.compartment.reconfigure([
-              cursorTooltipField(this.envs),
+              cursorTooltipField(this.envs, this.editable),
               environmentHighlightStyle(this.envs),
             ]),
           })
@@ -418,7 +663,7 @@ export class HoppEnvironmentPlugin {
 
         this.editorView.value?.dispatch({
           effects: this.compartment.reconfigure([
-            cursorTooltipField(this.envs),
+            cursorTooltipField(this.envs, this.editable),
             environmentHighlightStyle(this.envs),
           ]),
         })
@@ -448,7 +693,7 @@ export class HoppEnvironmentPlugin {
 
       this.editorView.value?.dispatch({
         effects: this.compartment.reconfigure([
-          cursorTooltipField(this.envs),
+          cursorTooltipField(this.envs, this.editable),
           environmentHighlightStyle(this.envs),
         ]),
       })
@@ -457,7 +702,7 @@ export class HoppEnvironmentPlugin {
 
   get extension() {
     return this.compartment.of([
-      cursorTooltipField(this.envs),
+      cursorTooltipField(this.envs, this.editable),
       environmentHighlightStyle(this.envs),
     ])
   }
@@ -469,7 +714,8 @@ export class HoppReactiveEnvPlugin {
 
   constructor(
     envsRef: Ref<AggregateEnvironment[]>,
-    private editorView: Ref<EditorView | undefined>
+    private editorView: Ref<EditorView | undefined>,
+    private readonly editable = false
   ) {
     watch(
       envsRef,
@@ -477,7 +723,7 @@ export class HoppReactiveEnvPlugin {
         this.envs = envs
         this.editorView.value?.dispatch({
           effects: this.compartment.reconfigure([
-            cursorTooltipField(this.envs),
+            cursorTooltipField(this.envs, this.editable),
             environmentHighlightStyle(this.envs),
           ]),
         })
@@ -488,7 +734,7 @@ export class HoppReactiveEnvPlugin {
 
   get extension() {
     return this.compartment.of([
-      cursorTooltipField(this.envs),
+      cursorTooltipField(this.envs, this.editable),
       environmentHighlightStyle(this.envs),
     ])
   }

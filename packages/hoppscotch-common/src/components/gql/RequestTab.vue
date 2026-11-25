@@ -26,10 +26,11 @@
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core"
 import { cloneDeep } from "lodash-es"
-import { watch } from "vue"
+import { watch, provide } from "vue"
 import { isEqualHoppGQLRequest } from "~/helpers/graphql"
 import { HoppGQLRequestDocument } from "~/helpers/tab/document"
 import { HoppTab } from "~/services/tab"
+import { ENV_TOOLTIP_EDITABLE } from "~/helpers/editor/extensions/HoppEnvironment"
 
 const props = defineProps<{ modelValue: HoppTab<HoppGQLRequestDocument> }>()
 
@@ -38,6 +39,10 @@ const emit = defineEmits<{
 }>()
 
 const tab = useVModel(props, "modelValue", emit)
+
+// Editors in a request tab can edit a hovered variable's current value from
+// its tooltip.
+provide(ENV_TOOLTIP_EDITABLE, true)
 
 // --- Dirty checking ---
 let oldRequest = cloneDeep(tab.value.document.request)

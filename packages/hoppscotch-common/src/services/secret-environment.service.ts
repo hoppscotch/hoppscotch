@@ -1,4 +1,5 @@
 import { Container, Service } from "dioc"
+import { cloneDeep } from "lodash-es"
 import { reactive, computed, watch, nextTick } from "vue"
 
 /**
@@ -75,6 +76,36 @@ export class SecretEnvironmentService extends Service {
       value: secretVar.value || "",
       initialValue: secretVar.initialValue || "",
     }
+  }
+
+  /**
+   * Update the current value of a single secret variable.
+   *
+   * `key` seeds a missing entry, which the `watchSecretEnvironments` cleanup
+   * otherwise drops.
+   *
+   * @param id ID of the environment
+   * @param varIndex Index of the variable in the environment
+   * @param value New current value
+   * @param key Key of the variable, used only when creating a missing entry
+   */
+  public setSecretEnvironmentVariableValue(
+    id: string,
+    varIndex: number,
+    value: string,
+    key = ""
+  ) {
+    const vars = this.getSecretEnvironment(id)
+    const newVars = cloneDeep(vars ?? [])
+    const variable = newVars.find((v) => v.varIndex === varIndex)
+
+    if (variable) {
+      variable.value = value
+    } else {
+      newVars.push({ key, value, varIndex, initialValue: "" })
+    }
+
+    this.secretEnvironments.set(id, newVars)
   }
 
   /**

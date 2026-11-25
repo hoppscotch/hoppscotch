@@ -168,6 +168,57 @@ export const filterNonEmptyEnvironmentVariables = <
 }
 
 /**
+ * Returns the index of the row that `key` resolves to, using the same precedence
+ * as `filterNonEmptyEnvironmentVariables`: the first active row with this key
+ * that has a `currentValue` or `initialValue`, otherwise the first active row
+ * with this key. Returns -1 when no active row matches.
+ */
+export const findEffectiveVariableIndex = (
+  rows: ReadonlyArray<{
+    key: string
+    currentValue?: string
+    initialValue?: string
+    active?: boolean
+  }>,
+  key: string
+): number => {
+  let fallbackIndex = -1
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i]
+    if (row.key !== key || row.active === false) continue
+
+    if (row.currentValue || row.initialValue) return i
+    if (fallbackIndex === -1) fallbackIndex = i
+  }
+
+  return fallbackIndex
+}
+
+/**
+ * Returns the id of the secret store the variable tooltip checks before masking.
+ * When the tooltip has resolved the variable's environment, that id wins. The
+ * source name alone cannot tell the two apart, because an environment can
+ * itself be named "Global".
+ */
+export const getTooltipSecretSourceID = ({
+  sourceEnv,
+  sourceEnvID,
+  currentEnvID,
+  resolvedEnvID,
+}: {
+  sourceEnv?: string
+  sourceEnvID?: string
+  currentEnvID: string
+  resolvedEnvID?: string
+}): string => {
+  if (resolvedEnvID !== undefined) return resolvedEnvID
+  if (sourceEnv === "Global") return "Global"
+  if (sourceEnv === "CollectionVariable") return sourceEnvID!
+  return currentEnvID
+}
+
+/**
  * Defensively normalizes possibly-legacy env rows to the v2 `AggregateEnvironment`
  * shape (preserving any extra fields), so consumers like
  * `filterNonEmptyEnvironmentVariables` / `parseTemplateStringE` always see a

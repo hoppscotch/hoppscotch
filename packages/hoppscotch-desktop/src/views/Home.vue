@@ -307,7 +307,7 @@ const loadVendored = async () => {
     const vendoredInstance: VendoredInstance = {
       type: "vendored",
       displayName: "Hoppscotch",
-      version: "26.11.0",
+      version: "26.11.1",
     }
 
     const connectionState: ConnectionState = {

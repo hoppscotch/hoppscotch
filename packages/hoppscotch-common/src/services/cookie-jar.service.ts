@@ -741,6 +741,20 @@ export class CookieJarService extends Service {
     return cookiePath.endsWith("/") || reqPath[cookiePath.length] === "/"
   }
 
+  // Browsers treat loopback origins as secure contexts and send Secure
+  // cookies to them over plain http, so a local server that sets a Secure
+  // cookie gets it back on the next request. The Secure Contexts spec
+  // counts `127.0.0.0/8` as loopback, and `URL` gives an IPv4 host in
+  // dotted decimal, so the first octet decides it.
+  private isLoopbackHost(hostname: string): boolean {
+    return (
+      hostname === "localhost" ||
+      hostname.endsWith(".localhost") ||
+      /^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+      hostname === "[::1]"
+    )
+  }
+
   public getCookiesForURL(url: URL): Cookie[] {
     this.pruneExpired()
 
@@ -766,7 +780,10 @@ export class CookieJarService extends Service {
           return !Number.isFinite(t) || t >= Date.now()
         })()
 
-        const passesSecure = !cookie.secure || url.protocol === "https:"
+        const passesSecure =
+          !cookie.secure ||
+          url.protocol === "https:" ||
+          this.isLoopbackHost(url.hostname)
 
         if (passesPath && passesExpires && passesSecure) {
           result.push(cookie)

@@ -102,6 +102,7 @@ import { useToast } from "@composables/toast"
 import { computed, ref } from "vue"
 import { useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
+import { getTeamRequestSaveErrorMessage } from "~/helpers/error-messages"
 import { GQLTabConnectionService } from "~/services/gql-tab-connection.service"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { InspectionService } from "~/services/inspection"
@@ -229,7 +230,7 @@ const saveRequest = () => {
       title: req.name,
     })().then((result) => {
       if (E.isLeft(result)) {
-        toast.error(`${t("profile.no_permission")}`)
+        toast.error(t(getTeamRequestSaveErrorMessage(result.left)))
       } else {
         tab.value.document.isDirty = false
         toast.success(`${t("request.saved")}`)

@@ -36,8 +36,18 @@ import {
 import { Store } from "@app/kernel/store"
 import { getKernelMode } from "@hoppscotch/kernel"
 import { getService } from "@hoppscotch/common/modules/dioc"
+import { useDesktopSettings } from "@hoppscotch/common/composables/desktop-settings"
 
 const STORE_NAMESPACE = "hoppscotch-desktop.v1"
+
+// tauri-plugin-appload fetches the signing key at the persisted
+// connection timeout, the metadata at the same timeout, then the bundle
+// at DOWNLOAD_TIMEOUT_FACTOR (10) times it, and verifies and stores the
+// bundle after that without a timeout. The race below wraps the download
+// from start to end, so it allows 1 + 1 + 10 times the same base and one
+// more for the verify and the store, or it rejects a bundle the shell is
+// in the middle of receiving or saving.
+const BUNDLE_DOWNLOAD_TIMEOUT_FACTOR = 13
 
 type RecentInstances = Instance[]
 
@@ -61,6 +71,12 @@ export class DesktopInstanceService
   private recentInstances$ = new BehaviorSubject<RecentInstances>(
     this.getDefaultRecentInstances()
   )
+
+  // A connect or a download is numbered when it starts, and
+  // `connectingAttempt` is the number of the attempt that set the
+  // `connecting` state.
+  private lastAttempt = 0
+  private connectingAttempt = 0
 
   /**
    * Enable instance switching for this platform, adherence to platform def
@@ -204,6 +220,7 @@ export class DesktopInstanceService
     const result = await this.downloadInstanceTE(
       serverUrl,
       instanceKind,
+      ++this.lastAttempt,
       displayName
     )()
 
@@ -825,9 +842,11 @@ export class DesktopInstanceService
   }
 
   private setConnectingStateTE(
-    target: string
+    target: string,
+    attempt: number
   ): TE.TaskEither<string, ConnectionState> {
     console.log(`[InstanceService] Setting connecting state for: ${target}`)
+    this.connectingAttempt = attempt
     return this.setConnectionState({ status: "connecting", target })
   }
 
@@ -836,19 +855,33 @@ export class DesktopInstanceService
   ): TE.TaskEither<string, DownloadResponse> {
     console.log(`[InstanceService] Downloading from: ${serverUrl}`)
 
-    const timeout = this.config?.connectionTimeout || 30000
-
     return TE.tryCatch(
-      () =>
-        Promise.race([
-          download({ serverUrl }),
-          new Promise<never>((_, reject) =>
-            setTimeout(
-              () => reject(new Error(`Connection timeout after ${timeout}ms`)),
-              timeout
-            )
-          ),
-        ]),
+      async () => {
+        const desktopSettings = useDesktopSettings()
+        await desktopSettings.ready()
+
+        const connectionTimeout =
+          desktopSettings.settings.connectionTimeoutMs ||
+          this.config?.connectionTimeout ||
+          30000
+        const timeout = connectionTimeout * BUNDLE_DOWNLOAD_TIMEOUT_FACTOR
+
+        let timer: ReturnType<typeof setTimeout> | undefined
+        try {
+          return await Promise.race([
+            download({ serverUrl }),
+            new Promise<never>((_, reject) => {
+              timer = setTimeout(
+                () =>
+                  reject(new Error(`Connection timeout after ${timeout}ms`)),
+                timeout
+              )
+            }),
+          ])
+        } finally {
+          clearTimeout(timer)
+        }
+      },
       (error) => `Failed to download instance: ${error}`
     )
   }
@@ -904,6 +937,7 @@ export class DesktopInstanceService
   private downloadInstanceTE(
     serverUrl: string,
     instanceKind: InstanceKind,
+    attempt: number,
     displayName?: string
   ): TE.TaskEither<string, Instance> {
     return pipe(
@@ -911,15 +945,46 @@ export class DesktopInstanceService
       TE.fromEither,
       TE.chain((normalizedUrl) =>
         pipe(
-          this.setConnectingStateTE(normalizedUrl),
+          this.setConnectingStateTE(normalizedUrl, attempt),
           TE.chain(() => this.performDownloadTE(normalizedUrl)),
           TE.chain((response) =>
             this.validateDownloadResponseTE(response, normalizedUrl)
           ),
           TE.map((response) =>
             this.createInstanceFromDownload(response, instanceKind, displayName)
-          )
+          ),
+          TE.orElse((error) => this.failConnectingTE(attempt, error))
         )
+      )
+    )
+  }
+
+  /**
+   * A download sets the "connecting" state, so a download or a load that
+   * fails after it replaces that state with an error, and a Switcher that
+   * mounts later doesn't read the connection as still in progress.
+   * A second connect can start while this one is pending, even to the
+   * same URL, so a `connecting` state is replaced for the attempt that
+   * set it alone.
+   */
+  private failConnectingTE<A>(
+    attempt: number,
+    error: string
+  ): TE.TaskEither<string, A> {
+    const state = this.connectionState$.value
+    if (state.status !== "connecting" || this.connectingAttempt !== attempt) {
+      return TE.left(error)
+    }
+
+    return pipe(
+      this.setConnectionState({
+        status: "error",
+        target: state.target,
+        message: error,
+      }),
+      TE.fold(
+        () => TE.left(error),
+        () => TE.left(error)
       )
     )
   }
@@ -1156,6 +1221,7 @@ export class DesktopInstanceService
   private createOrGetInstanceTE(
     serverUrl: string,
     instanceKind: InstanceKind,
+    attempt: number,
     displayName?: string
   ): TE.TaskEither<string, Instance> {
     return pipe(
@@ -1166,7 +1232,12 @@ export class DesktopInstanceService
             `[InstanceService] Instance not found, downloading new: ${serverUrl}`
           )
           return pipe(
-            this.downloadInstanceTE(serverUrl, instanceKind, displayName),
+            this.downloadInstanceTE(
+              serverUrl,
+              instanceKind,
+              attempt,
+              displayName
+            ),
             TE.chainFirst((newInstance) =>
               this.addToRecentInstancesTE(newInstance)
             )
@@ -1222,16 +1293,25 @@ export class DesktopInstanceService
     return pipe(
       this.normalizeUrlE(serverUrl),
       TE.fromEither,
-      TE.chain((normalizedUrl) =>
-        pipe(
-          this.createOrGetInstanceTE(normalizedUrl, instanceKind, displayName),
+      TE.chain((normalizedUrl) => {
+        const attempt = ++this.lastAttempt
+        return pipe(
+          this.createOrGetInstanceTE(
+            normalizedUrl,
+            instanceKind,
+            attempt,
+            displayName
+          ),
           TE.chain((instance) => this.loadInstanceTE(instance, options)),
           TE.map((): OperationResult => ({
             success: true,
             message: `Successfully connected to ${displayName || serverUrl}`,
-          }))
+          })),
+          TE.orElse((error) =>
+            this.failConnectingTE<OperationResult>(attempt, error)
+          )
         )
-      )
+      })
     )
   }
 

@@ -1,4 +1,8 @@
-import { getPlatformAlternateKey, getPlatformSpecialKey } from "./platformutils"
+import {
+  getPlatformAlternateKey,
+  getPlatformShiftKey,
+  getPlatformSpecialKey,
+} from "./platformutils"
 import { getKernelMode } from "@hoppscotch/kernel"
 import type { HoppAction } from "./actions"
 
@@ -199,6 +203,12 @@ export function getShortcuts(t: (x: string) => string): ShortcutDef[] {
       keys: [getPlatformSpecialKey(), "W"],
       label: t("shortcut.tabs.close_tab"),
       section: t("shortcut.tabs.title"),
+    },
+    {
+      keys: [getPlatformSpecialKey(), getPlatformShiftKey(), "T"],
+      label: t("shortcut.tabs.reopen_tab"),
+      section: t("shortcut.tabs.title"),
+      action: "tab.reopen-closed",
     },
     {
       keys: [getPlatformSpecialKey(), getPlatformAlternateKey(), "→"],

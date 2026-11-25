@@ -122,6 +122,7 @@ const desktopBindings: {
 } = {
   "ctrl-w": "tab.close-current",
   "ctrl-t": "tab.open-new",
+  "ctrl-shift-t": "tab.reopen-closed",
   "ctrl-alt-left": "tab.prev",
   "ctrl-alt-right": "tab.next",
   "ctrl-alt-0": "tab.switch-to-last",

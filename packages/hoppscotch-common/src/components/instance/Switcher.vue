@@ -449,7 +449,13 @@ const handleConnectionSuccess = async (message: string): Promise<void> => {
 
 const handleConnectionError = (message: string, serverUrl: string): void => {
   connectionError.value = message || "Connection failed"
-  toast.error(message || "Connection failed")
+  // A failed connect sets an `error` state with this message, which
+  // `handleConnectionStateChange` shows as a toast, so this toast is for a
+  // failure that didn't set one
+  const state = connectionState.value
+  if (!(isErrorState(state) && state.message === message)) {
+    toast.error(message || "Connection failed")
+  }
 
   if (platform.instance?.onConnectionError) {
     platform.instance.onConnectionError(message, serverUrl)
@@ -695,6 +701,7 @@ const handleConnectionStateChange = (state: ConnectionState): void => {
 
   if (isErrorState(state)) {
     connectionError.value = state.message
+    isConnecting.value = false
     if (previousState !== "error") {
       toast.error(state.message || "Connection error occurred")
     }

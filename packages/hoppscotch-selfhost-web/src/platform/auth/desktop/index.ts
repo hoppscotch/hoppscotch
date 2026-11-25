@@ -167,7 +167,9 @@ async function setUser(user: HoppUserWithAuthDetail | null) {
   const accessToken = await persistenceService.getLocalConfig("access_token")
   const refreshToken = await persistenceService.getLocalConfig("refresh_token")
 
-  if (!accessToken || !refreshToken) return null
+  // A user is saved with both tokens, and a sign-out clears the user
+  // whatever tokens are left, so a missing token doesn't keep a stale user
+  if (user && (!accessToken || !refreshToken)) return null
 
   const userWithToken =
     user && accessToken && refreshToken
@@ -254,7 +256,6 @@ export async function setInitialUser() {
   if (res.data?.me) {
     const hoppBackendUser = res.data.me
     const accessToken = await persistenceService.getLocalConfig("access_token")
-    if (!accessToken) return null
 
     if (!accessToken) {
       await setUser(null)
@@ -278,7 +279,14 @@ export async function setInitialUser() {
       event: "login",
       user: HoppUserWithAuthDetail,
     })
+    return
   }
+
+  // A response without `me` that the branches above don't handle signs the
+  // user out, so `waitProbableLoginToConfirm` sees the flag change and its
+  // callers resume.
+  await setUser(null)
+  isGettingInitialUser.value = false
 }
 
 async function refreshToken() {

@@ -3,7 +3,7 @@ use std::{collections::HashMap, str::FromStr, time::SystemTime};
 use bytes::Bytes;
 use http::{StatusCode, Version};
 use mime::Mime;
-use time::OffsetDateTime;
+use time::{Duration, OffsetDateTime};
 
 use crate::{
     error::{RelayError, Result},
@@ -101,6 +101,7 @@ impl ResponseHandler {
             .find(|(k, _)| k.eq_ignore_ascii_case("set-cookie"))
             .map(|(_, v)| v.as_str())?;
 
+        let now = OffsetDateTime::now_utc();
         let cookies: Vec<Cookie> = raw
             .split('\n')
             .filter_map(|line| {
@@ -109,9 +110,12 @@ impl ResponseHandler {
                     return None;
                 }
                 match cookie::Cookie::parse(line) {
-                    Ok(parsed) => Some(Self::to_interop_cookie(&parsed)),
+                    Ok(parsed) => Some(Self::to_interop_cookie(&parsed, now)),
                     Err(e) => {
-                        tracing::warn!(error = %e, raw = %line, "Skipping unparseable Set-Cookie");
+                        // The cookie value is a session credential, so the
+                        // record logs the cookie's name alone.
+                        let name = Self::cookie_name(line);
+                        tracing::warn!(error = %e, name = ?name, "Skipping unparseable Set-Cookie");
                         None
                     }
                 }
@@ -121,14 +125,36 @@ impl ResponseHandler {
         (!cookies.is_empty()).then_some(cookies)
     }
 
-    fn to_interop_cookie(c: &cookie::Cookie<'_>) -> Cookie {
+    /// Returns the name of the `name=value` pair a `Set-Cookie` line opens
+    /// with. A line whose first `;` segment has no `=` has no name, so
+    /// `abc123; Path=/` returns `None` and its value isn't logged.
+    fn cookie_name(line: &str) -> Option<&str> {
+        line.split(';')
+            .next()
+            .and_then(|pair| pair.split_once('='))
+            .map(|(name, _)| name.trim())
+    }
+
+    const MAX_AGE_CAP: Duration = Duration::days(400);
+
+    fn to_interop_cookie(c: &cookie::Cookie<'_>, now: OffsetDateTime) -> Cookie {
         // RFC 6265 5.2.2, Max-Age takes precedence over Expires when both
-        // are present. `checked_add` so an absurd Max-Age cannot panic the
-        // relay, it just drops the expiry and the cookie reads as session.
-        let expires = c
-            .max_age()
-            .and_then(|age| OffsetDateTime::now_utc().checked_add(age))
-            .or_else(|| c.expires_datetime());
+        // are present. RFC 6265bis 5.6.1 and 5.6.2 cap the expiry from
+        // either attribute at 400 days, so an absurd Max-Age can't overflow
+        // `now + age` and panic the relay, a Max-Age past the cap decides
+        // the expiry over Expires too, and a far Expires lands on the cap.
+        // RFC 6265 5.2.2 also expires a cookie at once when Max-Age is zero
+        // or less, and an expiry equal to `now` is not yet in the past for
+        // a jar that compares it to the current time, so the cookie a server
+        // asked to remove would be kept. One millisecond before `now` is
+        // already past.
+        let expires = match c.max_age() {
+            Some(age) if age <= Duration::ZERO => Some(now - Duration::milliseconds(1)),
+            Some(age) => Some(now + age.min(Self::MAX_AGE_CAP)),
+            None => c
+                .expires_datetime()
+                .map(|at| at.min(now + Self::MAX_AGE_CAP)),
+        };
 
         let same_site = c.same_site().map(|s| match s {
             cookie::SameSite::Strict => SameSite::Strict,
@@ -223,5 +249,93 @@ impl ResponseHandler {
             start: start_ms,
             end: end_ms,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use time::{Duration, OffsetDateTime};
+
+    use super::ResponseHandler;
+
+    // 2026-01-01 12:00:00 UTC
+    const NOW_UNIX: i64 = 1767268800;
+    // 2026-06-01 00:00:00 UTC, an `Expires` date inside the 400-day cap
+    const EXPIRES_UNIX: i64 = 1780272000;
+
+    fn at(unix: i64) -> OffsetDateTime {
+        OffsetDateTime::from_unix_timestamp(unix).expect("timestamp")
+    }
+
+    fn expires(set_cookie: &str) -> Option<OffsetDateTime> {
+        let parsed = cookie::Cookie::parse(set_cookie).expect("parse");
+        ResponseHandler::to_interop_cookie(&parsed, at(NOW_UNIX)).expires
+    }
+
+    #[test]
+    fn an_unparseable_set_cookie_logs_the_name_alone() {
+        assert_eq!(
+            ResponseHandler::cookie_name("sid=abc123; Path=/"),
+            Some("sid")
+        );
+        assert_eq!(ResponseHandler::cookie_name("abc123; Path=/"), None);
+    }
+
+    #[test]
+    fn a_zero_max_age_expires_before_now() {
+        assert_eq!(
+            expires("session=; Max-Age=0"),
+            Some(at(NOW_UNIX) - Duration::milliseconds(1))
+        );
+    }
+
+    #[test]
+    fn a_negative_max_age_expires_before_now() {
+        assert_eq!(
+            expires("session=; Max-Age=-1"),
+            Some(at(NOW_UNIX) - Duration::milliseconds(1))
+        );
+    }
+
+    #[test]
+    fn a_positive_max_age_counts_from_now() {
+        assert_eq!(
+            expires("session=abc; Max-Age=60"),
+            Some(at(NOW_UNIX) + Duration::seconds(60))
+        );
+    }
+
+    #[test]
+    fn a_huge_max_age_is_capped_and_wins_over_expires() {
+        assert_eq!(
+            expires(
+                "session=abc; Max-Age=9223372036854775807; Expires=Wed, 01 Jan 2031 00:00:00 GMT"
+            ),
+            Some(at(NOW_UNIX) + Duration::days(400))
+        );
+    }
+
+    #[test]
+    fn max_age_takes_precedence_over_expires() {
+        assert_eq!(
+            expires("session=; Max-Age=0; Expires=Wed, 01 Jan 2031 00:00:00 GMT"),
+            Some(at(NOW_UNIX) - Duration::milliseconds(1))
+        );
+    }
+
+    #[test]
+    fn a_far_expires_is_capped() {
+        assert_eq!(
+            expires("session=abc; Expires=Fri, 01 Jan 9999 00:00:00 GMT"),
+            Some(at(NOW_UNIX) + Duration::days(400))
+        );
+    }
+
+    #[test]
+    fn expires_applies_without_max_age() {
+        assert_eq!(
+            expires("session=abc; Expires=Mon, 01 Jun 2026 00:00:00 GMT"),
+            Some(at(EXPIRES_UNIX))
+        );
     }
 }

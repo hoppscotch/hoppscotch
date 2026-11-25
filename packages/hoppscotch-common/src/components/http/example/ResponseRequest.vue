@@ -105,6 +105,7 @@ import { useToast } from "@composables/toast"
 import { cloneDeep } from "lodash-es"
 import { defineActionHandler } from "~/helpers/actions"
 import * as E from "fp-ts/Either"
+import { getTeamRequestSaveErrorMessage } from "~/helpers/error-messages"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { getSingleRequest } from "~/helpers/teams/TeamRequest"
@@ -222,7 +223,7 @@ const saveExample = async () => {
             },
           })().then((result) => {
             if (E.isLeft(result)) {
-              toast.error(`${t("profile.no_permission")}`)
+              toast.error(t(getTeamRequestSaveErrorMessage(result.left)))
             } else {
               tab.value.document.isDirty = false
               toast.success(`${t("response.saved")}`)

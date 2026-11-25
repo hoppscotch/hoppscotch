@@ -242,6 +242,7 @@ import { useReadonlyStream, useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
+import { getTeamRequestSaveErrorMessage } from "~/helpers/error-messages"
 import { computed, ref, onUnmounted, watch } from "vue"
 import { defineActionHandler, invokeAction } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
@@ -628,7 +629,7 @@ const saveRequest = async () => {
         },
       })().then((result) => {
         if (E.isLeft(result)) {
-          toast.error(`${t("profile.no_permission")}`)
+          toast.error(t(getTeamRequestSaveErrorMessage(result.left)))
         } else {
           tab.value.document.isDirty = false
 

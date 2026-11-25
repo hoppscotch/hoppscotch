@@ -195,10 +195,12 @@ const deleteTeam = () => {
     backendDeleteTeam(props.teamID),
     TE.match(
       (err) => {
-        // TODO: Better errors ? We know the possible errors now
         toast.error(
           platform.organization?.describeTeamError?.(err) ??
-            t("error.something_went_wrong")
+            (err.type === "gql_error" &&
+            err.error === "legacy_workspace/migration_in_progress"
+              ? t("team.migration_in_progress")
+              : t("error.something_went_wrong"))
         )
         console.error(err)
         loading.value = false

@@ -89,14 +89,14 @@ export function useDownloadResponse(
 
 export function usePreview(
   previewEnabled: Ref<boolean>,
-  responseBodyText: Ref<string>
+  responseBodyText: Ref<string>,
+  url: Ref<string>
 ): {
   previewFrame: Ref<HTMLIFrameElement | null>
   previewEnabled: Ref<boolean>
   togglePreview: () => void
 } {
   const previewFrame: Ref<HTMLIFrameElement | null> = ref(null)
-  const url = ref("")
 
   const updatePreviewFrame = () => {
     if (
@@ -109,9 +109,10 @@ export function usePreview(
         responseBodyText.value,
         "text/html"
       )
-      // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
-      previewDocument.head.innerHTML =
-        `<base href="${url.value}">` + previewDocument.head.innerHTML
+      previewDocument.documentElement.style.colorScheme = "light"
+      const baseElement = previewDocument.createElement("base")
+      baseElement.href = url.value
+      previewDocument.head.prepend(baseElement)
 
       // Finally, set the iframe source to the resulting HTML.
       previewFrame.value.srcdoc = previewDocument.documentElement.outerHTML
@@ -131,7 +132,7 @@ export function usePreview(
   // Ensures the HTML content is rendered immediately after a request, persists between tab switches, and is not limited to preview toggles
   // Also watches for changes in the `previewEnabled` state to update the `iframe` element attributes
   watch(
-    previewEnabled,
+    [previewEnabled, url],
     () => {
       updatePreviewFrame()
     },

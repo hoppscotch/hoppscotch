@@ -192,9 +192,16 @@ const defaultPreview = computedAsync(
   false
 )
 
+const responseURL = computed(() =>
+  "type" in props.response
+    ? props.response.req.endpoint
+    : props.response.originalRequest.endpoint
+)
+
 const { previewFrame, previewEnabled, togglePreview } = usePreview(
   defaultPreview,
-  responseBodyText
+  responseBodyText,
+  responseURL
 )
 
 const doTogglePreview = async () => {

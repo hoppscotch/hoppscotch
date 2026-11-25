@@ -4,7 +4,7 @@
 }
 
 :{$HOPP_ALTERNATE_PORT:80} :3100 {
-	try_files {path} /
+	try_files {path} /index.html
 	root * /site/sh-admin-multiport-setup
 	file_server
 }

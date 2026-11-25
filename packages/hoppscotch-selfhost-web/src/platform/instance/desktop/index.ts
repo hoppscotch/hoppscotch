@@ -42,10 +42,12 @@ const STORE_NAMESPACE = "hoppscotch-desktop.v1"
 
 // tauri-plugin-appload fetches the signing key at the persisted
 // connection timeout, the metadata at the same timeout, then the bundle
-// at DOWNLOAD_TIMEOUT_FACTOR (10) times it. The race below wraps the
-// download from start to end, so it allows 1 + 1 + 10 times the same
-// base, or it rejects a bundle the shell is in the middle of receiving.
-const BUNDLE_DOWNLOAD_TIMEOUT_FACTOR = 12
+// at DOWNLOAD_TIMEOUT_FACTOR (10) times it, and verifies and stores the
+// bundle after that without a timeout. The race below wraps the download
+// from start to end, so it allows 1 + 1 + 10 times the same base and one
+// more for the verify and the store, or it rejects a bundle the shell is
+// in the middle of receiving or saving.
+const BUNDLE_DOWNLOAD_TIMEOUT_FACTOR = 13
 
 type RecentInstances = Instance[]
 

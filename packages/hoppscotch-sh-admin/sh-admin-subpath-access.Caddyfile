@@ -7,7 +7,7 @@
 	handle_path /admin* {
 		root * /site/sh-admin-subpath-access
 		file_server
-		try_files {path} /
+		try_files {path} /index.html
 	}
 
 	handle {

@@ -13,7 +13,7 @@
 		file_server
 
 		# Ensures any non-existent file in the server is routed to the SPA
-		try_files {path} /
+		try_files {path} /index.html
 	}
 
 	# Handle requests under `/backend*` path
@@ -41,6 +41,6 @@
 	handle {
 		root * /site/selfhost-web
 		file_server
-		try_files {path} /
+		try_files {path} /index.html
 	}
 }

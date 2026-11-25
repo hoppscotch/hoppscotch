@@ -4,7 +4,7 @@
 }
 
 :8080 {
-	try_files {path} /
+	try_files {path} /index.html
 	root * /site
 	file_server
 }

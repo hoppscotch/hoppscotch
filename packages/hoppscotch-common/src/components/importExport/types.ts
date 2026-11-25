@@ -3,8 +3,12 @@ import { Component, Ref } from "vue"
 import { defineStep } from "~/composables/step-components"
 
 export type SupportedImportFormat =
-  "hoppscotch" | "postman" | "insomnia" | "openapi" | "har"
-
+  | "hoppscotch"
+  | "postman"
+  | "insomnia"
+  | "openapi"
+  | "har"
+  | "yaak"
 // TODO: move the metadata except disabled and isLoading to importers.ts
 export type ImporterOrExporter = {
   metadata: {

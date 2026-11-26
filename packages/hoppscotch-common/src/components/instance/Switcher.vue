@@ -449,9 +449,8 @@ const handleConnectionSuccess = async (message: string): Promise<void> => {
 
 const handleConnectionError = (message: string, serverUrl: string): void => {
   connectionError.value = message || "Connection failed"
-  // A failed connect sets an `error` state with this message, which
-  // `handleConnectionStateChange` shows as a toast, so this toast is for a
-  // failure that didn't set one
+  // `handleConnectionStateChange` shows an `error` state's message as a
+  // toast, so this toast is for a failure without that state
   const state = connectionState.value
   if (!(isErrorState(state) && state.message === message)) {
     toast.error(message || "Connection failed")
@@ -714,12 +713,9 @@ const handleConnectionStateChange = (state: ConnectionState): void => {
       )
     }
   } else if (state.status === "connected") {
+    // `handleConnectionSuccess` toasts a successful connect, and a failed
+    // connect restores a `connected` state for the vendored app
     isConnecting.value = false
-    if (previousState !== "connected") {
-      toast.success(
-        t("instances.connected_state") || "Successfully connected to instance"
-      )
-    }
   } else if (state.status === "idle") {
     isConnecting.value = false
     if (previousState === "connected") {

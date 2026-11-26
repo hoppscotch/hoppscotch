@@ -40,6 +40,6 @@
 2. Update `.env.example` file found in the root of `hoppscotch-sh-admin` directory with your own keys and rename it to `.env`.
 3. Install pnpm using npm by running `npm install -g pnpm`.
 4. Install dependencies by running `pnpm install` within the `hoppscotch-sh-admin` directory
-5. It is assumed that the backend is running. Refer the Hoppscotch Backend [`README`](https://github.com/hoppscotch/self-hosted/blob/main/packages/hoppscotch-backend/README.md) to get the backend setup and running.
+5. It is assumed that the backend is running. Refer to the [backend setup guide](https://docs.hoppscotch.io/documentation/self-host/community-edition/install-and-build#using-individual-containers-for-the-services) to get it running. Skip the admin-container step; the local development server uses port 3100.
 6. Start the development server with `pnpm run dev`.
 7. Open the development site by going to [`http://localhost:3100`](http://localhost:3100) in your browser.

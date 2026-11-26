@@ -6,7 +6,7 @@ import * as O from "fp-ts/Option"
 import { z } from "zod"
 
 import { v4 as uuidv4 } from "uuid"
-import { Ref } from "vue"
+import { Ref, unref } from "vue"
 import { getService } from "~/modules/dioc"
 import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { parseBodyAsJSON } from "~/helpers/functional/json"
@@ -15,18 +15,25 @@ const interceptorService = getService(KernelInterceptorService)
 
 export function GistSource(metadata: {
   caption: string
+  actionLabel?: string
   onImportFromGist: (
-    importResult: E.Either<string, string[]>
+    importResult: E.Either<string, string[]>,
+    ...args: any[]
   ) => any | Promise<any>
   isLoading?: Ref<boolean>
   description?: string
+  showUpdateOptions?: boolean
+  initialUrl?: string | Ref<string | undefined>
 }) {
   const stepID = uuidv4()
 
   return defineStep(stepID, UrlImport, () => ({
     caption: metadata.caption,
+    actionLabel: metadata.actionLabel,
     description: metadata.description,
-    onImportFromURL: (gistResponse: unknown) => {
+    showUpdateOptions: metadata.showUpdateOptions,
+    initialUrl: unref(metadata.initialUrl),
+    onImportFromURL: (gistResponse: unknown, ...args: any[]) => {
       const fileSchema = z.object({
         files: z.record(z.object({ content: z.string() })),
       })
@@ -34,7 +41,7 @@ export function GistSource(metadata: {
       const parseResult = fileSchema.safeParse(gistResponse)
 
       if (!parseResult.success) {
-        metadata.onImportFromGist(E.left("INVALID_GIST"))
+        metadata.onImportFromGist(E.left("INVALID_GIST"), ...args)
         return
       }
 
@@ -42,7 +49,7 @@ export function GistSource(metadata: {
         ({ content }) => content
       )
 
-      metadata.onImportFromGist(E.right(contents))
+      metadata.onImportFromGist(E.right(contents), ...args)
     },
     fetchLogic: fetchGistFromUrl,
     loading: metadata.isLoading?.value,

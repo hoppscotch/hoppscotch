@@ -776,10 +776,12 @@ const subscribeToCurrentInstance = (): void => {
         const previousInstance = currentInstance.value
         currentInstance.value = instance
 
+        // A pending connect clears the current instance, and a failed one
+        // restores the vendored app, so a toast needs an instance before
         if (
           instance &&
-          (!previousInstance ||
-            previousInstance.serverUrl !== instance.serverUrl)
+          previousInstance &&
+          previousInstance.serverUrl !== instance.serverUrl
         ) {
           toast.success(
             t("instances.instance_changed") ||

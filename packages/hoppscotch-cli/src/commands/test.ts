@@ -27,6 +27,7 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
       iterationData,
       reporterJunit,
       legacySandbox,
+      bail,
     } = options;
 
     if (
@@ -101,6 +102,7 @@ export const test = (pathOrId: string, options: TestCmdOptions) => async () => {
       iterationData: transformedIterationData,
       iterationCount,
       legacySandbox: resolvedLegacySandbox,
+      bail,
     });
     const hasSucceeded = collectionsRunnerResult(report, reporterJunit);
 

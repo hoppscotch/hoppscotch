@@ -324,7 +324,8 @@
             :collections-type="collectionsType.type"
             :duplicate-request-loading="duplicateRequestLoading"
             :is-active="isActiveRequest(node.data.data.data.id)"
-            :has-no-team-access="hasNoTeamAccess || isShowingSearchResults"
+            :has-no-team-access="hasNoTeamAccess"
+            :is-search-result="isShowingSearchResults"
             :request-move-loading="requestMoveLoading"
             :is-last-item="node.data.isLastItem"
             :is-selected="
@@ -850,7 +851,8 @@ const hasNoTeamAccess = computed(
   () =>
     props.collectionsType.type === "team-collections" &&
     (props.collectionsType.selectedTeam === undefined ||
-      props.collectionsType.selectedTeam.role === "VIEWER")
+      (props.collectionsType.selectedTeam.role !== "OWNER" &&
+        props.collectionsType.selectedTeam.role !== "EDITOR"))
 )
 
 const isSelected = ({

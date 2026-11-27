@@ -64,7 +64,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick, computed, Ref } from "vue"
+import {
+  ref,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+  nextTick,
+  computed,
+  Ref,
+} from "vue"
 import {
   EditorView,
   placeholder as placeholderExt,
@@ -700,6 +708,14 @@ watch(editor, () => {
     view.value?.destroy()
     view.value = undefined
   }
+})
+
+// The watcher above is stopped before the template ref is cleared on unmount,
+// so it never sees `editor` become null. Destroy the view here, otherwise its
+// tooltip container stays in document.body and its listeners stay attached.
+onBeforeUnmount(() => {
+  view.value?.destroy()
+  view.value = undefined
 })
 
 /**

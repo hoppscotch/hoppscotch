@@ -61,6 +61,7 @@
       @edit-properties="editProperties"
       @create-mock-server="createMockServer"
       @export-data="exportData"
+      @refresh-collection="refreshCollection"
       @remove-collection="removeCollection"
       @remove-folder="removeFolder"
       @remove-request="removeRequest"
@@ -322,6 +323,7 @@ import { getDefaultGQLRequest } from "~/helpers/graphql/default"
 import { parse as parseGQLDocument } from "graphql"
 import type { OperationDefinitionNode } from "graphql"
 import { useService } from "dioc/vue"
+import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
 import { stripJsonSerializedModulePrefix } from "@hoppscotch/js-sandbox/scripting"
 
 import * as TE from "fp-ts/TaskEither"
@@ -332,6 +334,7 @@ import * as O from "fp-ts/Option"
 import { flow } from "fp-ts/function"
 
 import yaml from "js-yaml"
+import { parseBodyAsJSONOrYAML } from "~/helpers/functional/json"
 import { cloneDeep, debounce, isEqual } from "lodash-es"
 import { PropType, computed, nextTick, onMounted, ref, watch } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
@@ -4059,6 +4062,69 @@ const runCollectionHandler = (
     }
   }
   showCollectionsRunnerModal.value = true
+}
+
+const interceptorService = useService(KernelInterceptorService)
+
+const refreshCollection = async (payload: {
+  collectionIndex: string
+  collection: HoppCollection
+}) => {
+  const { collectionIndex, collection } = payload
+  const source = collection.source
+
+  if (!source || source.type !== "url" || source.format !== "openapi") return
+
+  const index = parseInt(collectionIndex)
+  if (Number.isNaN(index)) return
+
+  try {
+    const { response } = interceptorService.execute({
+      id: Date.now(),
+      url: source.url,
+      method: "GET",
+      version: "HTTP/1.1",
+    })
+
+    const responseResult = await response
+
+    if (E.isLeft(responseResult)) {
+      toast.error(t("import.failed"))
+      return
+    }
+
+    const parsed = parseBodyAsJSONOrYAML<unknown>(responseResult.right.body)
+
+    if (O.isNone(parsed)) {
+      toast.error(t("import.failed"))
+      return
+    }
+
+    const imported = await hoppOpenAPIImporter([
+      JSON.stringify(parsed.value),
+    ])()
+
+    if (E.isLeft(imported) || imported.right.length !== 1) {
+      toast.error(t("import.failed"))
+      return
+    }
+
+    const refreshed = imported.right[0]
+
+    editRESTCollection(index, {
+      ...refreshed,
+      id: collection.id,
+      _ref_id: collection._ref_id,
+      source: {
+        ...source,
+        lastSyncedAt: new Date().toISOString(),
+      },
+    })
+
+    toast.success(t("state.file_imported"))
+  } catch {
+    toast.error(t("import.failed"))
+  }
 }
 
 const sortCollections = (payload: {

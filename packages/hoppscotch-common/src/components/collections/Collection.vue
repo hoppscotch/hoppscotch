@@ -274,6 +274,12 @@
                     "
                   />
                   <HoppSmartItem
+                    v-if="!hasNoTeamAccess && isRootCollection && (props.data as HoppCollection).source?.type === 'url'"
+                    :icon="IconRefreshCw"
+                    :label="t('action.refresh')"
+                    @click="() => { emit('refresh-collection'); hide() }"
+                  />
+                  <HoppSmartItem
                     v-if="!hasNoTeamAccess"
                     ref="exportAction"
                     :icon="IconDownload"
@@ -364,6 +370,7 @@ import IconServer from "~icons/lucide/server"
 import IconSettings2 from "~icons/lucide/settings-2"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconArrowUpDown from "~icons/lucide/arrow-up-down"
+import IconRefreshCw from "~icons/lucide/refresh-cw"
 import IconBook from "~icons/lucide/book"
 import IconGraphql from "~icons/hopp/graphql"
 import { CurrentSortValuesService } from "~/services/current-sort.service"
@@ -427,6 +434,7 @@ const emit = defineEmits<{
   (event: "duplicate-collection"): void
   (event: "open-documentation"): void
   (event: "export-data"): void
+  (event: "refresh-collection"): void
   (event: "remove-collection"): void
   (event: "create-mock-server"): void
   (event: "drop-event", payload: DataTransfer): void

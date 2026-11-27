@@ -175,6 +175,7 @@ export function translateToPersonalCollectionFormat(x: HoppCollection) {
     description: x.description ?? null,
     preRequestScript: x.preRequestScript ?? "",
     testScript: x.testScript ?? "",
+    source: x.source,
   }
 
   return {

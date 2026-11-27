@@ -13,7 +13,9 @@ const (
 	DevFrontendPath     = "../dist"
 
 	DefaultReadTimeout  = 15 * time.Second
-	DefaultWriteTimeout = 15 * time.Second
+	// Bundle GET streams ~35 MB; 15s is too short for VPN/WAN clients
+	// hitting :3200 directly (write tcp ... i/o timeout).
+	DefaultWriteTimeout = 5 * time.Minute
 	DefaultIdleTimeout  = 60 * time.Second
 )
 

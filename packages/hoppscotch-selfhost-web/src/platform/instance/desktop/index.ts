@@ -36,8 +36,15 @@ import {
 import { Store } from "@app/kernel/store"
 import { getKernelMode } from "@hoppscotch/kernel"
 import { getService } from "@hoppscotch/common/modules/dioc"
+import { useDesktopSettings } from "@hoppscotch/common/composables/desktop-settings"
 
 const STORE_NAMESPACE = "hoppscotch-desktop.v1"
+
+// Must match `DOWNLOAD_TIMEOUT_FACTOR` in tauri-plugin-appload's ApiClient.
+// `download()` fetches key + manifest + the ~35 MB bundle; Rust times the
+// bundle GET at 10x the persisted `connectionTimeoutMs`. This JS race wraps
+// the whole call, so it must use the same base or it wins first.
+const BUNDLE_DOWNLOAD_TIMEOUT_FACTOR = 10
 
 type RecentInstances = Instance[]
 
@@ -836,11 +843,20 @@ export class DesktopInstanceService
   ): TE.TaskEither<string, DownloadResponse> {
     console.log(`[InstanceService] Downloading from: ${serverUrl}`)
 
-    const timeout = this.config?.connectionTimeout || 30000
-
     return TE.tryCatch(
-      () =>
-        Promise.race([
+      async () => {
+        const desktopSettings = useDesktopSettings()
+        await desktopSettings.ready()
+
+        // Same base Rust reads from the store (`connectionTimeoutMs`).
+        // `this.config.connectionTimeout` is the compile-time default only.
+        const connectionTimeout =
+          desktopSettings.settings.connectionTimeoutMs ||
+          this.config?.connectionTimeout ||
+          30000
+        const timeout = connectionTimeout * BUNDLE_DOWNLOAD_TIMEOUT_FACTOR
+
+        return Promise.race([
           download({ serverUrl }),
           new Promise<never>((_, reject) =>
             setTimeout(
@@ -848,7 +864,8 @@ export class DesktopInstanceService
               timeout
             )
           ),
-        ]),
+        ])
+      },
       (error) => `Failed to download instance: ${error}`
     )
   }

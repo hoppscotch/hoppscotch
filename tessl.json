@@ -1,0 +1,91 @@
+{
+  "verify": {
+    "groups": {
+      "documentation-contracts": {
+        "path": "verifiers/docs/*.json",
+        "level": "error",
+        "include": [
+          "**/*"
+        ],
+        "exclude": [
+          "node_modules/**",
+          "pnpm-lock.yaml",
+          "**/dist/**",
+          "**/build/**",
+          "**/coverage/**"
+        ]
+      },
+      "graphql-generated-artifacts": {
+        "path": "verifiers/generated/*.json",
+        "level": "error",
+        "include": [
+          "packages/hoppscotch-backend/src/**/*.ts",
+          "packages/hoppscotch-common/src/helpers/backend/gql/**/*.graphql",
+          "packages/hoppscotch-common/gql-codegen.yml",
+          "gql-gen/backend-schema.gql",
+          "packages/hoppscotch-common/src/helpers/backend/graphql.ts",
+          "packages/hoppscotch-common/src/helpers/backend/backend-schema.json"
+        ],
+        "exclude": [
+          "**/*.spec.ts",
+          "**/*.test.ts"
+        ]
+      },
+      "cookie-capture-security": {
+        "path": "verifiers/security/*.json",
+        "level": "error",
+        "include": [
+          "packages/hoppscotch-common/src/services/cookie-jar.service.ts",
+          "packages/hoppscotch-common/src/helpers/kernel/rest/response.ts"
+        ],
+        "exclude": [
+          "**/*.spec.ts",
+          "**/*.test.ts"
+        ],
+        "content": {
+          "containsAny": [
+            "Set-Cookie",
+            "hostOnly",
+            "domainMatches",
+            "extractFromResponse"
+          ]
+        }
+      },
+      "native-dependency-pins": {
+        "path": "verifiers/dependencies/*.json",
+        "level": "error",
+        "include": [
+          "packages/hoppscotch-agent/package.json",
+          "packages/hoppscotch-agent/src-tauri/Cargo.toml",
+          "packages/hoppscotch-agent/src-tauri/Cargo.lock",
+          "packages/hoppscotch-common/package.json",
+          "packages/hoppscotch-desktop/package.json",
+          "packages/hoppscotch-desktop/src-tauri/Cargo.toml",
+          "packages/hoppscotch-desktop/src-tauri/Cargo.lock",
+          "packages/hoppscotch-desktop/plugin-workspace/**/*.toml",
+          "packages/hoppscotch-desktop/plugin-workspace/**/Cargo.lock",
+          "packages/hoppscotch-desktop/plugin-workspace/**/package.json",
+          "packages/hoppscotch-selfhost-web/package.json",
+          "pnpm-lock.yaml"
+        ],
+        "content": {
+          "containsAny": [
+            "git+",
+            "github:",
+            "?rev=",
+            " rev =",
+            "rev =",
+            "source = \"git"
+          ]
+        }
+      },
+      "global-keybindings": {
+        "path": "verifiers/ux/*.json",
+        "level": "error",
+        "include": [
+          "packages/hoppscotch-common/src/helpers/keybindings.ts"
+        ]
+      }
+    }
+  }
+}

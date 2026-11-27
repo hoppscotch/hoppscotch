@@ -30,6 +30,11 @@
           'text-secondaryLight': !queryBuilder.isArgumentInOperation(arg),
         }"
         type="button"
+        :aria-label="
+          queryBuilder.isArgumentInOperation(arg)
+            ? t('graphql.remove_argument_from_query')
+            : t('graphql.add_argument_to_query')
+        "
         @click.stop="insertQuery"
       >
         <icon-lucide-plus-circle
@@ -55,7 +60,9 @@ import { debounce } from "lodash-es"
 import { useExplorer } from "~/helpers/graphql/explorer"
 import { useService } from "dioc/vue"
 import { GQLQueryBuilderService } from "~/services/gql-query-builder.service"
+import { useI18n } from "~/composables/i18n"
 
+const t = useI18n()
 const queryBuilder = useService(GQLQueryBuilderService)
 
 interface ArgumentProps {

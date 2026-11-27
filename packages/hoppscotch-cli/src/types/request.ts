@@ -13,6 +13,7 @@ export type FormDataEntry = {
   key: string;
   value: string | Blob;
   contentType?: string;
+  isFile?: boolean;
 };
 
 export type HoppEnvPair = Environment["variables"][number];

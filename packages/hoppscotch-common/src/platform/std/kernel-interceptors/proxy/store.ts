@@ -3,6 +3,7 @@ import { Service } from "dioc"
 import { Store } from "~/kernel/store"
 import {
   getDefaultProxyUrl,
+  getEnvProxyUrl,
   DEFAULT_HOPP_PROXY_URL,
   isValidProxyUrl,
 } from "~/helpers/proxyUrl"
@@ -48,7 +49,7 @@ export class KernelInterceptorProxyStore extends Service {
 
   private readonly _settings = ref<ProxySettings>({
     version: "v1",
-    proxyUrl: DEFAULT_HOPP_PROXY_URL,
+    proxyUrl: getEnvProxyUrl() ?? DEFAULT_HOPP_PROXY_URL,
     accessToken: import.meta.env.VITE_PROXYSCOTCH_ACCESS_TOKEN ?? "",
   })
 

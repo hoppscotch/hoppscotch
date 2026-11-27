@@ -77,6 +77,9 @@ export class DesktopInstanceService
   // `connecting` state.
   private lastAttempt = 0
   private connectingAttempt = 0
+  // The state before the first pending attempt, so a failed attempt can
+  // return to the vendored app the window was already showing
+  private stateBeforeConnecting: ConnectionState = { status: "idle" }
 
   /**
    * Enable instance switching for this platform, adherence to platform def
@@ -846,6 +849,9 @@ export class DesktopInstanceService
     attempt: number
   ): TE.TaskEither<string, ConnectionState> {
     console.log(`[InstanceService] Setting connecting state for: ${target}`)
+    if (this.connectionState$.value.status !== "connecting") {
+      this.stateBeforeConnecting = this.connectionState$.value
+    }
     this.connectingAttempt = attempt
     return this.setConnectionState({ status: "connecting", target })
   }
@@ -961,8 +967,10 @@ export class DesktopInstanceService
 
   /**
    * A download sets the "connecting" state, so a download or a load that
-   * fails after it replaces that state with an error, and a Switcher that
-   * mounts later doesn't read the connection as still in progress.
+   * fails after it returns to the vendored app, and a Switcher that mounts
+   * later doesn't read the connection as still in progress. The instance
+   * the window showed before can be as unreachable as the one that
+   * failed, so the vendored app is the one returned to.
    * A second connect can start while this one is pending, even to the
    * same URL, so a `connecting` state is replaced for the attempt that
    * set it alone.
@@ -977,14 +985,44 @@ export class DesktopInstanceService
     }
 
     return pipe(
-      this.setConnectionState({
-        status: "error",
-        target: state.target,
-        message: error,
-      }),
+      this.returnToVendoredTE(),
       TE.fold(
         () => TE.left(error),
         () => TE.left(error)
+      )
+    )
+  }
+
+  /**
+   * Where the window already shows the vendored app, the state from before
+   * the attempt is restored without a reload. Otherwise the vendored app is
+   * loaded, and if that fails too the state goes to `idle`.
+   */
+  private returnToVendoredTE(): TE.TaskEither<string, void> {
+    const before = this.stateBeforeConnecting
+    const showsVendored =
+      before.status === "idle" ||
+      (before.status === "connected" && before.instance.kind === "vendored")
+
+    if (showsVendored) {
+      return pipe(
+        this.setConnectionState(before),
+        TE.map(() => undefined)
+      )
+    }
+
+    const vendored =
+      this.recentInstances$.value.find((i) => i.kind === "vendored") ??
+      VENDORED_INSTANCE_CONFIG
+
+    return pipe(
+      this.loadInstanceTE(vendored),
+      TE.map(() => undefined),
+      TE.orElse(() =>
+        pipe(
+          this.setConnectionState({ status: "idle" }),
+          TE.map(() => undefined)
+        )
       )
     )
   }

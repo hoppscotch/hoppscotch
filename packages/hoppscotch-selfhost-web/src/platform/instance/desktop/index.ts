@@ -1285,7 +1285,12 @@ export class DesktopInstanceService
           console.log(
             `[InstanceService] Using existing instance: ${existing.displayName}`
           )
-          return TE.right(existing)
+          // A saved instance starts its attempt as well, so a failed load of
+          // it returns to the vendored app
+          return pipe(
+            this.setConnectingStateTE(serverUrl, attempt),
+            TE.map(() => existing)
+          )
         }
       )
     )

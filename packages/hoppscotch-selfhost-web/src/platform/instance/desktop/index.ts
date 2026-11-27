@@ -39,6 +39,7 @@ import { getService } from "@hoppscotch/common/modules/dioc"
 import { useDesktopSettings } from "@hoppscotch/common/composables/desktop-settings"
 
 const STORE_NAMESPACE = "hoppscotch-desktop.v1"
+const REPLACED_WINDOW_ERROR_KEY = "replacedWindowError"
 
 // tauri-plugin-appload fetches the signing key at the persisted
 // connection timeout, the metadata at the same timeout, then the bundle
@@ -284,6 +285,21 @@ export class DesktopInstanceService
         }
       )
     )
+  }
+
+  /**
+   * Returns the error of a connect that failed in a window the app has
+   * since replaced, and clears it, so it shows once
+   */
+  public async takeReplacedWindowError(): Promise<string | null> {
+    const saved = await Store.get<string>(
+      STORE_NAMESPACE,
+      REPLACED_WINDOW_ERROR_KEY
+    )
+    if (E.isLeft(saved) || !saved.right) return null
+
+    await Store.remove(STORE_NAMESPACE, REPLACED_WINDOW_ERROR_KEY)
+    return saved.right
   }
 
   /**
@@ -985,7 +1001,7 @@ export class DesktopInstanceService
     }
 
     return pipe(
-      this.returnToVendoredTE(),
+      this.returnToVendoredTE(error),
       TE.fold(
         () => TE.left(error),
         () => TE.left(error)
@@ -996,9 +1012,12 @@ export class DesktopInstanceService
   /**
    * Where the window already shows the vendored app, the state from before
    * the attempt is restored without a reload. Otherwise the vendored app is
-   * loaded, and if that fails too the state goes to `idle`.
+   * loaded in a new window and this one closes, so the error is saved for
+   * the new window to show. If that load fails too, the error is cleared
+   * and the state goes to `idle`, unless the load had already marked the
+   * vendored app as current.
    */
-  private returnToVendoredTE(): TE.TaskEither<string, void> {
+  private returnToVendoredTE(error: string): TE.TaskEither<string, void> {
     const before = this.stateBeforeConnecting
     const showsVendored =
       before.status === "idle" ||
@@ -1016,14 +1035,27 @@ export class DesktopInstanceService
       VENDORED_INSTANCE_CONFIG
 
     return pipe(
-      this.loadInstanceTE(vendored),
+      TE.fromTask(() =>
+        Store.set(STORE_NAMESPACE, REPLACED_WINDOW_ERROR_KEY, error)
+      ),
+      TE.chain(() => this.loadInstanceTE(vendored)),
       TE.map(() => undefined),
-      TE.orElse(() =>
-        pipe(
-          this.setConnectionState({ status: "idle" }),
+      TE.orElse(() => {
+        const state = this.connectionState$.value
+        if (
+          state.status === "connected" &&
+          state.instance.kind === "vendored"
+        ) {
+          return TE.right(undefined)
+        }
+        return pipe(
+          TE.fromTask(() =>
+            Store.remove(STORE_NAMESPACE, REPLACED_WINDOW_ERROR_KEY)
+          ),
+          TE.chain(() => this.setConnectionState({ status: "idle" })),
           TE.map(() => undefined)
         )
-      )
+      })
     )
   }
 

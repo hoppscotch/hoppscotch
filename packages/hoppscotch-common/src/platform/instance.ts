@@ -104,6 +104,12 @@ export type InstancePlatformDef = {
   ) => Promise<OperationResult>
 
   /**
+   * Returns the error of a connect that failed in a window the app has
+   * since replaced, once, so the new window can show it
+   */
+  takeReplacedWindowError?: () => Promise<string | null>
+
+  /**
    * Removes an instance and its associated data
    */
   removeInstance?: (instance: Instance) => Promise<OperationResult>

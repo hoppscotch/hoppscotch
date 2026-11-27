@@ -37,16 +37,23 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-divider bg-clip-content;
+  @apply bg-dividerDark bg-clip-content;
   @apply rounded-full;
-  @apply border-4 border-solid border-transparent;
-  @apply hover:bg-dividerDark;
+  @apply border-2 border-solid border-transparent;
+  @apply hover:brightness-75;
   @apply hover:bg-clip-content;
+  min-height: 40px;
+  min-width: 40px;
 }
 
 ::-webkit-scrollbar {
-  @apply w-4;
+  @apply w-6;
   @apply h-0;
+}
+
+* {
+  scrollbar-color: var(--divider-dark-color) transparent;
+  scrollbar-width: thick;
 }
 
 .no-scrollbar {
@@ -421,6 +428,16 @@ pre.ace_editor {
 
 .cm-scroller {
   @apply overscroll-y-auto;
+  scrollbar-color: var(--divider-dark-color) transparent;
+  scrollbar-width: thick;
+}
+
+.cm-scroller::-webkit-scrollbar {
+  width: 24px;
+}
+
+.cm-scroller::-webkit-scrollbar-thumb {
+  min-height: 120px;
 }
 
 .cm-editor {

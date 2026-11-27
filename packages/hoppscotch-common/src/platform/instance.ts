@@ -104,6 +104,11 @@ export type InstancePlatformDef = {
   ) => Promise<OperationResult>
 
   /**
+   * Returns a failed connect's error from the replaced window, once
+   */
+  takeReplacedWindowError?: () => Promise<string | null>
+
+  /**
    * Removes an instance and its associated data
    */
   removeInstance?: (instance: Instance) => Promise<OperationResult>

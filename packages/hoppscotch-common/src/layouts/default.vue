@@ -161,6 +161,11 @@ onBeforeMount(() => {
 })
 
 onMounted(async () => {
+  // A failed connect in the window this one replaced
+  const replacedWindowError =
+    await platform.instance?.takeReplacedWindowError?.()
+  if (replacedWindowError) toast.error(replacedWindowError)
+
   const cookiesAllowed =
     (await persistenceService.getLocalConfig("cookiesAllowed")) === "yes"
   const platformAllowsCookiePrompts =

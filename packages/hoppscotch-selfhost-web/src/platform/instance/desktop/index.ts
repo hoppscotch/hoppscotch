@@ -289,7 +289,9 @@ export class DesktopInstanceService
 
   /**
    * Returns the error of a connect that failed in a window the app has
-   * since replaced, and clears it, so it shows once
+   * since replaced, and clears it, so it shows once. A saved error that
+   * can't be cleared isn't returned, since it would show again on every
+   * later start.
    */
   public async takeReplacedWindowError(): Promise<string | null> {
     const saved = await Store.get<string>(
@@ -298,7 +300,17 @@ export class DesktopInstanceService
     )
     if (E.isLeft(saved) || !saved.right) return null
 
-    await Store.remove(STORE_NAMESPACE, REPLACED_WINDOW_ERROR_KEY)
+    const removed = await Store.remove(
+      STORE_NAMESPACE,
+      REPLACED_WINDOW_ERROR_KEY
+    )
+    if (E.isLeft(removed)) {
+      console.error(
+        "[InstanceService] Failed to clear the replaced window's error:",
+        removed.left
+      )
+      return null
+    }
     return saved.right
   }
 
@@ -1034,9 +1046,15 @@ export class DesktopInstanceService
       this.recentInstances$.value.find((i) => i.kind === "vendored") ??
       VENDORED_INSTANCE_CONFIG
 
+    // If the error can't be saved, the vendored app isn't loaded, and the
+    // window stays open to show the error itself
     return pipe(
-      TE.fromTask(() =>
-        Store.set(STORE_NAMESPACE, REPLACED_WINDOW_ERROR_KEY, error)
+      TE.tryCatch(
+        () => Store.set(STORE_NAMESPACE, REPLACED_WINDOW_ERROR_KEY, error),
+        (e) => `Failed to save the connect error: ${e}`
+      ),
+      TE.chainEitherK(
+        E.mapLeft((e) => `Failed to save the connect error: ${e.message}`)
       ),
       TE.chain(() => this.loadInstanceTE(vendored)),
       TE.map(() => undefined),
@@ -1049,9 +1067,18 @@ export class DesktopInstanceService
           return TE.right(undefined)
         }
         return pipe(
-          TE.fromTask(() =>
-            Store.remove(STORE_NAMESPACE, REPLACED_WINDOW_ERROR_KEY)
-          ),
+          TE.fromTask(async () => {
+            const removed = await Store.remove(
+              STORE_NAMESPACE,
+              REPLACED_WINDOW_ERROR_KEY
+            )
+            if (E.isLeft(removed)) {
+              console.error(
+                "[InstanceService] Failed to clear the connect error:",
+                removed.left
+              )
+            }
+          }),
           TE.chain(() => this.setConnectionState({ status: "idle" })),
           TE.map(() => undefined)
         )

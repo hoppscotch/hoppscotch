@@ -104,8 +104,7 @@ export type InstancePlatformDef = {
   ) => Promise<OperationResult>
 
   /**
-   * Returns the error of a connect that failed in a window the app has
-   * since replaced, once, so the new window can show it
+   * Returns a failed connect's error from the replaced window, once
    */
   takeReplacedWindowError?: () => Promise<string | null>
 

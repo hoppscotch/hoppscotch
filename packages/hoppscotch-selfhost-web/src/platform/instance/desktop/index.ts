@@ -288,10 +288,8 @@ export class DesktopInstanceService
   }
 
   /**
-   * Returns the error of a connect that failed in a window the app has
-   * since replaced, and clears it, so it shows once. A saved error that
-   * can't be cleared isn't returned, since it would show again on every
-   * later start.
+   * Returns a failed connect's error from the replaced window, once, and
+   * null where it can't be cleared
    */
   public async takeReplacedWindowError(): Promise<string | null> {
     const saved = await Store.get<string>(
@@ -1022,12 +1020,8 @@ export class DesktopInstanceService
   }
 
   /**
-   * Where the window already shows the vendored app, the state from before
-   * the attempt is restored without a reload. Otherwise the vendored app is
-   * loaded in a new window and this one closes, so the error is saved for
-   * the new window to show. If that load fails too, the error is cleared
-   * and the state goes to `idle`, unless the load had already marked the
-   * vendored app as current.
+   * Restores the prior state where the window shows the vendored app, and
+   * otherwise loads it, saving the error for the new window
    */
   private returnToVendoredTE(error: string): TE.TaskEither<string, void> {
     const before = this.stateBeforeConnecting
@@ -1046,8 +1040,6 @@ export class DesktopInstanceService
       this.recentInstances$.value.find((i) => i.kind === "vendored") ??
       VENDORED_INSTANCE_CONFIG
 
-    // If the error can't be saved, the vendored app isn't loaded, and the
-    // window stays open to show the error itself
     return pipe(
       TE.tryCatch(
         () => Store.set(STORE_NAMESPACE, REPLACED_WINDOW_ERROR_KEY, error),
@@ -1344,8 +1336,6 @@ export class DesktopInstanceService
           console.log(
             `[InstanceService] Using existing instance: ${existing.displayName}`
           )
-          // A saved instance starts its attempt as well, so a failed load of
-          // it returns to the vendored app
           return pipe(
             this.setConnectingStateTE(serverUrl, attempt),
             TE.map(() => existing)

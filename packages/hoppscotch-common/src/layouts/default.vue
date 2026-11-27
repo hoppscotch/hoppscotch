@@ -161,8 +161,7 @@ onBeforeMount(() => {
 })
 
 onMounted(async () => {
-  // A connect that failed in another window loaded this one, and that
-  // window closed before its error toast showed
+  // A failed connect in the window this one replaced
   const replacedWindowError =
     await platform.instance?.takeReplacedWindowError?.()
   if (replacedWindowError) toast.error(replacedWindowError)

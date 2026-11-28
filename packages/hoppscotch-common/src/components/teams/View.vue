@@ -124,6 +124,9 @@ const loading = computed(
 )
 
 const displayModalAdd = (shouldDisplay: boolean) => {
+  if (shouldDisplay && platform.organization?.beforeCreateTeam?.() === false)
+    return
+
   showModalAdd.value = shouldDisplay
   adapter.fetchList()
 }

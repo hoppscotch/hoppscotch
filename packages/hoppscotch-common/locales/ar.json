@@ -126,6 +126,7 @@
   },
   "authorization": {
     "generate_token": "توليد رمز الوصول",
+    "refresh_token": "رمز التحديث",
     "graphql_headers": "تُرسل رؤوس التفويض كجزء من الحمولة إلى `connection_init`",
     "include_in_url": "تضمين في URL",
     "inherited_from": "موروثة من {auth} من المجموعة الأصلية {collection}",
@@ -148,6 +149,9 @@
       "token_fetched_successfully": "تم الحصول على الرمز بنجاح",
       "token_fetch_failed": "فشل الحصول على الرمز",
       "validation_failed": "فشل التحقق، يرجى التحقق من حقول النموذج",
+      "no_refresh_token_present": "لا يوجد رمز تحديث. يرجى تشغيل عملية توليد الرمز مرة أخرى",
+      "refresh_token_request_failed": "فشل طلب رمز التحديث",
+      "token_refreshed_successfully": "تم تحديث الرمز بنجاح",
       "label_authorization_endpoint": "Authorization endpoint",
       "label_client_id": "معرف العميل",
       "label_client_secret": "سر العميل",
@@ -161,7 +165,15 @@
       "label_password": "كلمة المرور",
       "label_username": "اسم المستخدم",
       "label_auth_code": "رمز Authorization",
-      "label_client_credentials": "بيانات اعتماد العميل"
+      "label_client_credentials": "بيانات اعتماد العميل",
+      "label_send_as": "مصادقة العميل",
+      "label_send_in_body": "إرسال بيانات الاعتماد في Body",
+      "label_send_as_basic_auth": "إرسال بيانات الاعتماد كمصادقة Basic",
+      "enter_value": "أدخل قيمة",
+      "auth_request": "طلب Authorization",
+      "token_request": "طلب الرمز",
+      "refresh_request": "طلب التحديث",
+      "send_in": "الإرسال في"
     },
     "pass_key_by": "تمرير بواسطة",
     "pass_by_query_params_label": "معلمات الاستعلام",
@@ -169,8 +181,72 @@
     "password": "كلمة المرور",
     "save_to_inherit": "يرجى حفظ هذا الطلب في أي مجموعة لتوريث Authorization",
     "token": "رمز الوصول",
+    "access_token": "رمز الوصول",
+    "client_token": "رمز العميل",
+    "client_secret": "سر العميل",
+    "timestamp": "الطابع الزمني",
+    "host": "المضيف",
     "type": "نوع Authorization",
-    "username": "اسم المستخدم"
+    "username": "اسم المستخدم",
+    "advance_config": "إعدادات متقدمة",
+    "advance_config_description": "يعين Hoppscotch قيما افتراضية تلقائيا لبعض الحقول إذا لم تحدد قيمة صريحة",
+    "algorithm": "الخوارزمية",
+    "payload": "الحمولة",
+    "secret": "السر",
+    "aws_signature": {
+      "access_key": "مفتاح الوصول",
+      "secret_key": "المفتاح السري",
+      "service_name": "اسم الخدمة",
+      "aws_region": "منطقة AWS",
+      "service_token": "رمز الخدمة"
+    },
+    "digest": {
+      "realm": "Realm",
+      "nonce": "Nonce",
+      "algorithm": "الخوارزمية",
+      "qop": "qop",
+      "nonce_count": "عدد Nonce",
+      "client_nonce": "Nonce العميل",
+      "opaque": "Opaque",
+      "disable_retry": "تعطيل إعادة محاولة الطلب"
+    },
+    "akamai": {
+      "headers_to_sign": "الرؤوس المطلوب توقيعها",
+      "max_body_size": "أقصى حجم لـ Body"
+    },
+    "hawk": {
+      "id": "معرف مصادقة HAWK",
+      "key": "مفتاح مصادقة HAWK",
+      "ext": "ext",
+      "app": "app",
+      "dlg": "dlg",
+      "include": "تضمين تجزئة الحمولة"
+    },
+    "jwt": {
+      "params_name": "اسم المعلمات",
+      "param_name": "اسم المعلمة",
+      "header_prefix": "بادئة الرأس",
+      "placeholder_request_header": "بادئة رأس الطلب",
+      "placeholder_request_param": "اسم معلمات الطلب",
+      "secret_base64_encoded": "السر بترميز Base64",
+      "headers": "رؤوس JWT",
+      "private_key": "المفتاح الخاص",
+      "placeholder_headers": "رؤوس JWT"
+    },
+    "ntlm": {
+      "domain": "النطاق",
+      "workstation": "محطة العمل",
+      "disable_retrying_request": "تعطيل إعادة محاولة الطلب"
+    },
+    "asap": {
+      "issuer": "الجهة المصدرة (iss)",
+      "audience": "المستلم المقصود (aud)",
+      "expires_in": "تنتهي الصلاحية خلال",
+      "key_id": "معرف المفتاح",
+      "optional_config": "إعدادات اختيارية",
+      "subject": "صاحب الرمز (sub)",
+      "additional_claims": "Claims إضافية"
+    }
   },
   "collection": {
     "created": "تم إنشاء المجموعة",

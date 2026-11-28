@@ -40,6 +40,7 @@ import { platform } from "~/platform"
 import { useService } from "dioc/vue"
 import { WorkspaceService } from "~/services/workspace.service"
 import { useLocalState } from "~/newstore/localstate"
+import { validateWorkspaceName, sanitizeWorkspaceName } from "~/helpers/validateWorkspaceName"
 
 const t = useI18n()
 
@@ -63,9 +64,19 @@ const isLoading = ref(false)
 const workspaceService = useService(WorkspaceService)
 
 const addNewTeam = async () => {
-  if (isLoading.value) {
+  if (isLoading.value) return
+
+  const rawName = editingName.value ?? ""
+  const sanitized = sanitizeWorkspaceName(rawName)
+  const validation = validateWorkspaceName(sanitized)
+
+  if (!validation.ok) {
+    toast.error(validation.message)
     return
   }
+
+  // replace the value so the codec gets clean input
+  editingName.value = sanitized
 
   isLoading.value = true
   await pipe(
